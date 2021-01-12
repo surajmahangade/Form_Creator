@@ -130,8 +130,8 @@ def Type2(inputfolder,month,year):
 
 
 def Type1(inputfolder,month,year):
-    global nomatch
-    nomatch=''
+    global output_text
+    output_text=''
     logging.info('type1 data process running')
 
     emp_df_columns = ['Employee Code_master', 'Employee Name_master', 'Company Name','Company Address', 'Grade', 'Branch_master',
@@ -200,7 +200,8 @@ def Type1(inputfolder,month,year):
        'UAN Number']
 
     unit_df_columns = ['Unit', 'Location_code','Location', 'Address', 'Registration_no','Unit_PAN','Unit_LIN','Unit_email','Unit_mobile', 'PE_or_contract',
-       'State_or_Central', 'start_time', 'end_time', 'rest_interval','Contractor_name','Contractor_Address','Contractor_PAN', 'Contractor_LIN', 'Contractor_email',	'Contractor_mobile','Normal hrs', 'overtime rate']
+       'State_or_Central', 'start_time', 'end_time', 'rest_interval','Contractor_name','Contractor_Address','Contractor_PAN', 
+        'Contractor_LIN', 'Contractor_email',	'Contractor_mobile','Normal hrs', 'overtime rate']
 
     logging.info('column variables set')
 
@@ -230,109 +231,112 @@ def Type1(inputfolder,month,year):
             logging.info('unitfilename is :'+f)
     
     logging.info('file names set')
-    
-    if 'masterfilename' in locals():
-        masterfile = os.path.join(inputfolder,masterfilename)
-        employee_data = pd.read_excel(masterfile)
-        employee_data.dropna(subset=['Employee Code','Location Code'], inplace=True)
-        employee_data.dropna(how='all', inplace=True)
-        employee_data.reset_index(drop=True, inplace=True)
-        employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master", "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
-                           "ESIC Number": "ESIC Number_master", "Bank A/c Number": "Bank A/c Number_master", "Account Code": "Account Code_master",
-                           "E-Mail": "E-Mail_master", "Remarks": "Remarks_master"}, inplace=True)
-        logging.info('employee data loaded')
-    else:
-        employee_data = pd.DataFrame(columns = emp_df_columns)
-        logging.error('employee data not available setting empty dataset')
-    if 'salaryfilename' in locals():
-        salaryfile = os.path.join(inputfolder,salaryfilename)
-        salary_data = pd.read_excel(salaryfile)
-        salary_data.dropna(subset=['Emp Code'], inplace=True)
-        salary_data.dropna(how='all', inplace=True)
-        salary_data.reset_index(drop=True, inplace=True)
-        salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary","DesigName": "Designation_salary", "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
-                           "ESIC Number": "ESIC Number_salary", "Bank A/c Number": "Bank A/c Number_salary", "Account Code": "Account Code_salary",
-                           "E-Mail": "E-Mail_salary", "Remarks": "Remarks_salary"}, inplace=True)
-        logging.info('salary data loaded')
-    else:
-        salary_data = pd.DataFrame(columns = salary_df_columns)
-        logging.info('salary data not available setting empty dataset')
-    if 'attendancefilename' in locals():
-        attendancefile = os.path.join(inputfolder,attendancefilename)
-        attendance_data = pd.read_excel(attendancefile)
-        attendance_data.dropna(subset=['Emp Code'], inplace=True)
-        attendance_data.dropna(how='all', inplace=True)
-        attendance_data.reset_index(drop=True, inplace=True)
-        logging.info('attendance data loaded')
-    else:
-        attendance_data = pd.DataFrame(columns = atten_df_columns)
-        logging.info('attendance data not available setting empty dataset')
-    if 'leavefilename' in locals():
-        leavefile = os.path.join(inputfolder,leavefilename)
-        leave_data = pd.read_excel(leavefile)
-        leave_data.dropna(subset=['Emp. Code'], inplace=True)
-        leave_data.dropna(how='all', inplace=True)
-        leave_data.reset_index(drop=True, inplace=True)
-        logging.info('leave data loaded')
-    else:
-        leave_data = pd.DataFrame(columns = leave_df_columns)
-        logging.info('leave data not available setting empty dataset')
-    if 'leftempfilename' in locals():
-        leftempfile = os.path.join(inputfolder,leftempfilename)
-        leftemp_data = pd.read_excel(leftempfile)
-        leftemp_data.dropna(subset=['Employee Code'], inplace=True)
-        leftemp_data.dropna(how='all', inplace=True)
-        leftemp_data.reset_index(drop=True, inplace=True)
-        leftemp_data.rename(columns={"Employee Code": "Employee Code_left"}, inplace=True)
-        logging.info('left employees data loaded')
-    else:
-        leftemp_data = pd.DataFrame(columns = leftemp_df_columns)
-        logging.info('left employees data not available setting empty dataset')
-    if 'unitfilename' in locals():
-        unitfile = os.path.join(inputfolder,unitfilename)
-        unit_data = pd.read_excel(unitfile)
-        unit_data.dropna(subset=['Location Code'], inplace=True)
-        unit_data.dropna(how='all', inplace=True)
-        unit_data.reset_index(drop=True, inplace=True)
-        logging.info('unit data loaded')
-    else:
-        unit_data = pd.DataFrame(columns = unit_df_columns)
-        logging.info('unit data not available setting empty dataset')
+    try:
+        if 'masterfilename' in locals():
+            masterfile = os.path.join(inputfolder,masterfilename)
+            employee_data = pd.read_excel(masterfile)
+            employee_data.dropna(subset=['Employee Code','Location Code'], inplace=True)
+            employee_data.dropna(how='all', inplace=True)
+            employee_data.reset_index(drop=True, inplace=True)
+            employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master", "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
+                            "ESIC Number": "ESIC Number_master", "Bank A/c Number": "Bank A/c Number_master", "Account Code": "Account Code_master",
+                            "E-Mail": "E-Mail_master", "Remarks": "Remarks_master"}, inplace=True)
+            logging.info('employee data loaded')
+        else:
+            employee_data = pd.DataFrame(columns = emp_df_columns)
+            logging.error('employee data not available setting empty dataset')
+        if 'salaryfilename' in locals():
+            salaryfile = os.path.join(inputfolder,salaryfilename)
+            salary_data = pd.read_excel(salaryfile)
+            salary_data.dropna(subset=['Emp Code'], inplace=True)
+            salary_data.dropna(how='all', inplace=True)
+            salary_data.reset_index(drop=True, inplace=True)
+            salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary","DesigName": "Designation_salary", "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
+                            "ESIC Number": "ESIC Number_salary", "Bank A/c Number": "Bank A/c Number_salary", "Account Code": "Account Code_salary",
+                            "E-Mail": "E-Mail_salary", "Remarks": "Remarks_salary"}, inplace=True)
+            logging.info('salary data loaded')
+        else:
+            salary_data = pd.DataFrame(columns = salary_df_columns)
+            logging.info('salary data not available setting empty dataset')
+        if 'attendancefilename' in locals():
+            attendancefile = os.path.join(inputfolder,attendancefilename)
+            attendance_data = pd.read_excel(attendancefile)
+            attendance_data.dropna(subset=['Emp Code'], inplace=True)
+            attendance_data.dropna(how='all', inplace=True)
+            attendance_data.reset_index(drop=True, inplace=True)
+            logging.info('attendance data loaded')
+        else:
+            attendance_data = pd.DataFrame(columns = atten_df_columns)
+            logging.info('attendance data not available setting empty dataset')
+        if 'leavefilename' in locals():
+            leavefile = os.path.join(inputfolder,leavefilename)
+            leave_data = pd.read_excel(leavefile)
+            leave_data.dropna(subset=['Emp. Code'], inplace=True)
+            leave_data.dropna(how='all', inplace=True)
+            leave_data.reset_index(drop=True, inplace=True)
+            logging.info('leave data loaded')
+        else:
+            leave_data = pd.DataFrame(columns = leave_df_columns)
+            logging.info('leave data not available setting empty dataset')
+        if 'leftempfilename' in locals():
+            leftempfile = os.path.join(inputfolder,leftempfilename)
+            leftemp_data = pd.read_excel(leftempfile)
+            leftemp_data.dropna(subset=['Employee Code'], inplace=True)
+            leftemp_data.dropna(how='all', inplace=True)
+            leftemp_data.reset_index(drop=True, inplace=True)
+            leftemp_data.rename(columns={"Employee Code": "Employee Code_left"}, inplace=True)
+            logging.info('left employees data loaded')
+        else:
+            leftemp_data = pd.DataFrame(columns = leftemp_df_columns)
+            logging.info('left employees data not available setting empty dataset')
+        if 'unitfilename' in locals():
+            unitfile = os.path.join(inputfolder,unitfilename)
+            unit_data = pd.read_excel(unitfile)
+            unit_data.dropna(subset=['Location Code'], inplace=True)
+            unit_data.dropna(how='all', inplace=True)
+            unit_data.reset_index(drop=True, inplace=True)
+            logging.info('unit data loaded')
+        else:
+            unit_data = pd.DataFrame(columns = unit_df_columns)
+            logging.info('unit data not available setting empty dataset')
 
-    employee_data.drop(columns='Date Left', inplace=True)
-    print(employee_data['Location Code'])
-    
-    logging.info(type(employee_data['Location Code'].unique()[0]))
-    logging.info(unit_data.head())
+        employee_data.drop(columns='Date Left', inplace=True)
+        
+        logging.info(type(employee_data['Location Code'].unique()[0]))
+        logging.info(unit_data.head())
 
-    if str(employee_data['Location Code'].dtype)[0:3] != 'int':
-        employee_data['Location Code'] = employee_data['Location Code'].astype(int)
-    
-    if str(employee_data['Employee Code_master'].dtype)[0:3] != 'obj':
-        employee_data['Employee Code_master'] = employee_data['Employee Code_master'].astype(str)
+        if str(employee_data['Location Code'].dtype)[0:3] != 'int':
+            employee_data['Location Code'] = employee_data['Location Code'].astype(int)
+        
+        if str(employee_data['Employee Code_master'].dtype)[0:3] != 'obj':
+            employee_data['Employee Code_master'] = employee_data['Employee Code_master'].astype(str)
 
-    if str(unit_data['Location Code'].dtype)[0:3] != 'int':
-        unit_data['Location Code'] = unit_data['Location Code'].astype(int)
+        if str(unit_data['Location Code'].dtype)[0:3] != 'int':
+            unit_data['Location Code'] = unit_data['Location Code'].astype(int)
 
 
-    employee_data.drop(columns=list(employee_data.columns.intersection(salary_data.columns)), inplace=True)
+        employee_data.drop(columns=list(employee_data.columns.intersection(salary_data.columns)), inplace=True)
 
-    if str(salary_data['Emp Code_salary'].dtype)[0:3] != 'obj':
-        salary_data['Emp Code_salary'] = salary_data['Emp Code_salary'].astype(str)
+        if str(salary_data['Emp Code_salary'].dtype)[0:3] != 'obj':
+            salary_data['Emp Code_salary'] = salary_data['Emp Code_salary'].astype(str)
 
-    attendance_data.drop(columns=['Employee Name', 'Branch', 'Designation'], inplace=True)
+        attendance_data.drop(columns=['Employee Name', 'Branch', 'Designation'], inplace=True)
 
-    if str(attendance_data['Emp Code'].dtype)[0:3] != 'obj':
-        attendance_data['Emp Code'] = attendance_data['Emp Code'].astype(str)
+        if str(attendance_data['Emp Code'].dtype)[0:3] != 'obj':
+            attendance_data['Emp Code'] = attendance_data['Emp Code'].astype(str)
 
-    if str(leave_data['Emp. Code'].dtype)[0:3] != 'obj':
-        leave_data['Emp. Code'] = leave_data['Emp. Code'].astype(str)
+        if str(leave_data['Emp. Code'].dtype)[0:3] != 'obj':
+            leave_data['Emp. Code'] = leave_data['Emp. Code'].astype(str)
 
-    leftemp_data.drop(columns=['Employee Name', 'Date Joined', 'UAN Number'],inplace=True)
+        leftemp_data.drop(columns=['Employee Name', 'Date Joined', 'UAN Number'],inplace=True)
 
-    if str(leftemp_data['Employee Code_left'].dtype)[0:3] != 'obj':
-        leftemp_data['Employee Code_left'] = leftemp_data['Employee Code_left'].astype(str)
-    
+        if str(leftemp_data['Employee Code_left'].dtype)[0:3] != 'obj':
+            leftemp_data['Employee Code_left'] = leftemp_data['Employee Code_left'].astype(str)
+    except KeyError as e:
+        logging.info("Key error {}".format(e))
+        output_text="Failed: Check input file format  \n Check log file for error"
+        return
+
 
     CDE_Data = salary_data.merge(employee_data,how='left',left_on='Emp Code_salary', right_on='Employee Code_master').merge(
         unit_data,how='left',on='Location Code').merge(
@@ -395,58 +399,64 @@ def Type1(inputfolder,month,year):
         CDE_Data['Date of payment'] = CDE_Data['Date of payment'].dt.date
 
     monthyear = month+' '+str(year)
+    
     if monthyear.upper() in masterfilename.upper():
+        progress['maximum']=calculate_num_loop(CDE_Data)
         logging.info('month year matches with data')
         #for all state employees(PE+contractor)
         statedata = CDE_Data[CDE_Data['State_or_Central']=='State'].copy()
-        # states=['Hyderabad','Gujarat','Goa','Maharashtra','Delhi','Karnataka']
-        # for s in states:
-        if True:
-            statedata.State=s
-            statedata.State=statedata.State.str.lower()
-            CDE_States = list(statedata['State'].unique())
-            implemented_state_list=[x.lower() for x in State_Process.keys()]
-            for state in CDE_States:
-                print("-----------------------------")
-                state=state.lower()
-                print(state)
-                # continue
-                if state not in implemented_state_list:
-                    logging.info('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
-                    print('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
-                    continue
-                
-                unit_with_location = list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique())
-                
-                for UL in unit_with_location:
-                    inputdata = statedata[(statedata['State']==state) & (statedata['Unit']==UL.split(';')[0]) & (statedata['Location']==UL.split(';')[1])].copy()
-                    inputdata['Contractor_name'] = inputdata['Contractor_name'].fillna(value='')
-                    inputdata['Contractor_Address'] = inputdata['Contractor_Address'].fillna(value='')
-                    inputdata.fillna(value=0, inplace=True)
-                    if UL.strip()[-1] == '.':
-                        ULis = UL.strip()[0:-1]
-                    else:
-                        ULis = UL.strip()
-                    inpath = os.path.join(inputfolder,'Registers','States',state,ULis)
-                    logging.info('folder for forms path is'+str(inpath))
-                    if os.path.exists(inpath):
-                        logging.info('running state process')
-                        logging.info(inputdata)
-                        contractor_name= inputdata['Contractor_name'].unique()[0]
-                        contractor_address= inputdata['Contractor_Address'].unique()[0]
-                        State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
-                    else:
-                        logging.info('making directory')
-                        os.makedirs(inpath)
-                        logging.info('directory created')
-                        logging.info(inputdata)
-                        contractor_name= inputdata['Contractor_name'].unique()[0]
-                        contractor_address= inputdata['Contractor_Address'].unique()[0]
-                        State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
-
+        statedata.State=statedata.State.str.lower()
+        CDE_States = list(statedata['State'].unique())
+        implemented_state_list=[x.lower() for x in State_Process.keys()]
+        
+        for state in CDE_States:
+            report.configure(text="Creating state forms for {}".format(state))
+            master.update()
+            print("-----------------------------")
+            state=state.lower()
+            print(state)
+            # continue
+            if state not in implemented_state_list:
+                logging.info('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
+                print('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
+                continue
+            
+            unit_with_location = list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique())
+            
+            for UL in unit_with_location:
+                inputdata = statedata[(statedata['State']==state) & (statedata['Unit']==UL.split(';')[0]) & (statedata['Location']==UL.split(';')[1])].copy()
+                inputdata['Contractor_name'] = inputdata['Contractor_name'].fillna(value='')
+                inputdata['Contractor_Address'] = inputdata['Contractor_Address'].fillna(value='')
+                inputdata.fillna(value=0, inplace=True)
+                if UL.strip()[-1] == '.':
+                    ULis = UL.strip()[0:-1]
+                else:
+                    ULis = UL.strip()
+                inpath = os.path.join(inputfolder,'Registers','States',state,ULis)
+                logging.info('folder for forms path is'+str(inpath))
+                if os.path.exists(inpath):
+                    logging.info('running state process')
+                    logging.info(inputdata)
+                    contractor_name= inputdata['Contractor_name'].unique()[0]
+                    contractor_address= inputdata['Contractor_Address'].unique()[0]
+                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
+                else:
+                    logging.info('making directory')
+                    os.makedirs(inpath)
+                    logging.info('directory created')
+                    logging.info(inputdata)
+                    contractor_name= inputdata['Contractor_name'].unique()[0]
+                    contractor_address= inputdata['Contractor_Address'].unique()[0]
+                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
+                progress["value"]+=1
+                percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
+                progress.update()
+                master.update()
         #for contractors form
         contractdata = CDE_Data[(CDE_Data['State_or_Central']=='State') & (CDE_Data['PE_or_contract']=='Contract')].copy()
         contractor_units = list((contractdata['Unit']+';'+contractdata['Location']).unique())
+        report.configure(text="Creating contractor Forms")
+        master.update()
         for UL in contractor_units:
             inputdata = contractdata[(contractdata['Unit']==UL.split(';')[0]) & (contractdata['Location']==UL.split(';')[1])]
             contractor_name= inputdata['Contractor_name'].unique()[0]
@@ -466,11 +476,16 @@ def Type1(inputfolder,month,year):
                 logging.info('directory created')
             if not inputdata.empty:
                 Contractor_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
-            
+            progress["value"]+=1
+            percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
+            progress.update()
+            master.update()
 
         #for central form
         centraldata = CDE_Data[CDE_Data['State_or_Central']=='Central'].copy()
         central_units = list((centraldata['Unit']+','+centraldata['Location']).unique())
+        report.configure(text="Creating central Forms")
+        master.update()
         for UL in central_units:
             inputdata = centraldata[(centraldata['Unit']==UL.split(',')[0]) & (centraldata['Location']==UL.split(',')[1])]
             contractor_name= inputdata['Contractor_name'].unique()[0]
@@ -486,12 +501,36 @@ def Type1(inputfolder,month,year):
                 logging.info('directory created')
             if not inputdata.empty:
                 Central_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)    
-
+            progress["value"]+=1
+            percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
+            progress.update()
+            master.update()
     else:
-        nomatch = "Date you mentioned doesn't match with Input data"
-        logging.error(nomatch)
+        output_text = "Date you mentioned doesn't match with Input data"
+        logging.error(output_text)
 
     
+def calculate_num_loop(CDE_Data):
+    count=0
+    statedata = CDE_Data[CDE_Data['State_or_Central']=='State'].copy()
+    statedata.State=statedata.State.str.lower()
+    CDE_States = list(statedata['State'].unique())
+    implemented_state_list=[x.lower() for x in State_Process.keys()]
+    for state in CDE_States:
+        state=state.lower()
+        if state not in implemented_state_list:
+            continue
+        count +=len(list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique()))
+    
+    contractdata = CDE_Data[(CDE_Data['State_or_Central']=='State') & (CDE_Data['PE_or_contract']=='Contract')].copy()
+    count += len(list((contractdata['Unit']+';'+contractdata['Location']).unique()))
+    
+    centraldata = CDE_Data[CDE_Data['State_or_Central']=='Central'].copy()
+    count += len(list((centraldata['Unit']+','+centraldata['Location']).unique()))
+
+    return count
+
+
 
 DataProcess = {'Type1':Type1,'Type2':Type2,'Type3':Type3,'Type4':Type4,'Type5':Type5}
 
@@ -598,12 +637,12 @@ def generateforms(comptype,mn,yr):
             logging.info('Failed')
             report.configure('Failed')
         else:
-            if nomatch=='':
+            if output_text=='':
                 logging.info('Completed Form Creation')
                 report.configure(text='Completed Form Creation')
             else:
-                logging.info(nomatch)
-                report.configure(text=nomatch)
+                logging.info(output_text)
+                report.configure(text=output_text)
         finally:
             logging.info('done')
         
@@ -638,7 +677,7 @@ def convert_forms_to_pdf():
 generateforms = partial(generateforms,Typeis,month,year)
 
 button = ttk.Button(master, text = "Generate Forms", command=generateforms)
-button.grid(column=1, row=1, columnspan=2,padx=20, pady=20)
+button.grid(column=1, row=1, columnspan=1,padx=20, pady=20)
 
 Detailbox = ttk.LabelFrame(master, text="")
 Detailbox.grid(column=0,row=2,padx=20,pady=20)
@@ -651,6 +690,15 @@ report.grid(column=0, row=0, padx=20,pady=20)
 button2 = ttk.Button(master, text = "Convert forms to PDF", command=convert_forms_to_pdf)
 button2.grid(column=0, row=3, columnspan=2,padx=20, pady=20)
 
+progress = ttk.Progressbar(master, orient = HORIZONTAL, 
+              length = 200, mode = 'determinate') 
+
+
+progress.grid(column=2, row=1, padx=20,pady=2)
+progress["value"]=0
+
+percent = Label(master, text="0 %")
+percent.grid(column=2, row=1, padx=10,pady=10)
 
 mainloop()
 
