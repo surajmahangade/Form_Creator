@@ -399,8 +399,9 @@ def Type1(inputfolder,month,year):
         logging.info('month year matches with data')
         #for all state employees(PE+contractor)
         statedata = CDE_Data[CDE_Data['State_or_Central']=='State'].copy()
-        states=['Hyderabad','Gujarat','Goa','Maharashtra','Delhi','Karnataka']
-        for s in states:
+        # states=['Hyderabad','Gujarat','Goa','Maharashtra','Delhi','Karnataka']
+        # for s in states:
+        if True:
             statedata.State=s
             statedata.State=statedata.State.str.lower()
             CDE_States = list(statedata['State'].unique())
