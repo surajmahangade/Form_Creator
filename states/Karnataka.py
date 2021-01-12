@@ -17,7 +17,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 
-def Karnataka(data,contractor_name,contractor_address,filelocation,month,year):
+def Karnataka(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     karnatakafilespath = os.path.join(Statefolder,'Karnataka')
     logging.info('karnataka files path is :'+str(karnatakafilespath))
     data.reset_index(drop=True, inplace=True)
@@ -1109,16 +1109,22 @@ def Karnataka(data,contractor_name,contractor_address,filelocation,month,year):
         ecardfile.remove(sheetecard)
         ecardfile.save(filename=ecardfinalfile)
             
-
-    create_form_A()
-    create_form_B()
-    create_form_XXI()
-    create_form_XXII()
-    create_form_XXIII()
-    create_form_XX()
-    create_wages()
-    create_form_H_F('FORM H')
-    create_form_H_F('FORM F')
-    create_muster()
-    create_formXIX()
-    create_ecard()
+    try:
+        create_form_A()
+        create_form_B()
+        create_form_XXI()
+        create_form_XXII()
+        create_form_XXIII()
+        create_form_XX()
+        create_wages()
+        create_form_H_F('FORM H')
+        create_form_H_F('FORM F')
+        create_muster()
+        create_formXIX()
+        create_ecard()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

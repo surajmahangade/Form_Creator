@@ -16,7 +16,7 @@ import logging
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Contractor_Process(data,contractor_name,contractor_address,filelocation,month,year):
+def Contractor_Process(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Contractorfilespath = os.path.join(Statefolder,'CLRA')
     logging.info('Contractor files path is :'+str(Contractorfilespath))
     data.reset_index(drop=True, inplace=True)
@@ -971,16 +971,22 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         ecardfile.remove(sheetecard)
         ecardfile.save(filename=ecardfinalfile)
             
-
-    create_form_A()
-    create_form_B()
-    Form_C()
-    Form_D()
-    Form_E()
-    create_formXIX()
-    create_formXV()
-    create_form_XX()
-    create_form_XXI()
-    create_form_XXII()
-    create_form_XXIII()
-    create_ecard()
+    try:
+        create_form_A()
+        create_form_B()
+        Form_C()
+        Form_D()
+        Form_E()
+        create_formXIX()
+        create_formXV()
+        create_form_XX()
+        create_form_XXI()
+        create_form_XXII()
+        create_form_XXIII()
+        create_ecard()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

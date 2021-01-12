@@ -16,7 +16,7 @@ import logging
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Gujarat(data,contractor_name,contractor_address,filelocation,month,year):
+def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Gujaratfilespath = os.path.join(Statefolder,'Gujarat')
     logging.info('Gujarat files path is :'+str(Gujaratfilespath))
     data.reset_index(drop=True, inplace=True)
@@ -513,11 +513,17 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year):
         formNotice_holidayfinalfile = os.path.join(filelocation,'Notice of holiday.xlsx')
         formNotice_holidayfile.save(filename=formNotice_holidayfinalfile)
 
-
-    Form_F()
-    Form_IV()
-    Form_M()
-    Form_P()
-    Form_Notice_holiday()
-    #No need
-    # Form_I()
+    try:
+        Form_F()
+        Form_IV()
+        Form_M()
+        Form_P()
+        Form_Notice_holiday()
+        #No need
+        # Form_I()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

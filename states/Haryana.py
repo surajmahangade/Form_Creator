@@ -17,7 +17,7 @@ from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Haryana(data,contractor_name,contractor_address,filelocation,month,year):
+def Haryana(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Haryanafilespath = os.path.join(Statefolder,'Haryana')
     logging.info('Haryana files path is :'+str(Haryanafilespath))
     data.reset_index(drop=True, inplace=True)
@@ -250,9 +250,14 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year):
         formEfile.save(filename=formEfinalfile)
 
 
-
-    Form_C()    
-    Form_D()
-    Form_E()
-    
+    try:
+        Form_C()    
+        Form_D()
+        Form_E()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError    
 

@@ -17,7 +17,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 
-def Delhi(data,contractor_name,contractor_address,filelocation,month,year):
+def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Delhifilespath = os.path.join(Statefolder,'Delhi')
     logging.info('Goa files path is :'+str(Delhifilespath))
     data.reset_index(drop=True, inplace=True)
@@ -726,10 +726,16 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year):
         #formIVsheet['A4']="Month Ending: "+month+" "+str(year)
         formIVfinalfile = os.path.join(filelocation,'Form IV.xlsx')
         formIVfile.save(filename=formIVfinalfile)
-        
-    Form_H()
-    Form_I_reg()
-    Form_I()
-    Form_II()
-    Form_IV()
-    Form_G()
+    try:   
+        Form_H()
+        Form_I_reg()
+        Form_I()
+        Form_II()
+        Form_IV()
+        Form_G()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

@@ -17,7 +17,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 
-def Central_Process(data,contractor_name,contractor_address,filelocation,month,year):
+def Central_Process(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Centralfilespath = os.path.join(Statefolder,'Central')
     logging.info('Central files path is :'+str(Centralfilespath))
     data.reset_index(drop=True, inplace=True)
@@ -448,11 +448,17 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         ecardfinalfile = os.path.join(filelocation,'Form XI wages slip.xlsx')
         ecardfile.remove(sheetecard)
         ecardfile.save(filename=ecardfinalfile)
-
-    Form_C()
-    Form_I()
-    Form_II_reg_damage_loss()
-    Form_IV()
-    Form_V()
-    Form_X()
-    create_ecard()
+    try:
+        Form_C()
+        Form_I()
+        Form_II_reg_damage_loss()
+        Form_IV()
+        Form_V()
+        Form_X()
+        create_ecard()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

@@ -20,7 +20,7 @@ from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year):
+def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     
     tnfilespath = os.path.join(Statefolder,'Tamilnadu')
     logging.info('Tamilnadu files path is :'+ str(tnfilespath))
@@ -227,6 +227,13 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year):
 
 
     ## --------FUNCTION CALL-------------------------
-    Form_p()  ## Call this function in the main def
-    Form_r()
-    Form_t()
+    try:
+        Form_p()  ## Call this function in the main def
+        Form_r()
+        Form_t()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

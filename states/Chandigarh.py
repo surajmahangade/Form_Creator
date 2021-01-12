@@ -15,7 +15,7 @@ import calendar
 import logging
 
 
-def Chandigarh(data,contractor_name,contractor_address,filelocation,month,year):
+def Chandigarh(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     
     Chandigarhfilespath = os.path.join(Statefolder,'Chandigarh')
     logging.info('Chandigarh files path is :'+str(Chandigarhfilespath))
@@ -58,5 +58,11 @@ def Chandigarh(data,contractor_name,contractor_address,filelocation,month,year):
         formAsheet['A4']=formAsheet['A4'].value+" : "+data_formA['Unit'][0]
         formAfinalfile = os.path.join(filelocation,'Form A.xlsx')
         formAfile.save(filename=formAfinalfile)
-
-    Form_A()
+    try:
+        Form_A()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

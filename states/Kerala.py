@@ -14,7 +14,7 @@ from openpyxl.styles import Font, Border, Alignment, Side
 import calendar
 import logging
 
-def Kerala(data,contractor_name,contractor_address,filelocation,month,year):
+def Kerala(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Keralafilespath = os.path.join(Statefolder,'Kerala')
     logging.info('Kerala files path is :'+str(Keralafilespath))
     data.reset_index(drop=True, inplace=True)
@@ -297,10 +297,16 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year):
         formXIVfile.save(filename=formXIVfinalfile)
 
 
-    
-    Form_A()
-    Form_C()
-    Form_I()
-    Form_II()
-    Form_III()
-    Form_XIV()
+    try:
+        Form_A()
+        Form_C()
+        Form_I()
+        Form_II()
+        Form_III()
+        Form_XIV()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

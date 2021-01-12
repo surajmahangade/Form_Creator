@@ -16,7 +16,7 @@ import logging
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year):
+def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     print("In Hyderabad")
     
     logging.info("Hyderabad form creation")
@@ -506,10 +506,16 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year):
         formXXVfile.remove(formXXVfile["Sheet3"])
         formXXVfinalfile = os.path.join(filelocation,'Form XXV Register of leave.xlsx')
         formXXVfile.save(filename=formXXVfinalfile)
-
-    Form_X()
-    Form_XI()
-    Form_XII_reg_advance()
-    Form_XXII_reg_employee()
-    Form_XXIII()
-    From_XXV()
+    try:
+        Form_X()
+        Form_XI()
+        Form_XII_reg_advance()
+        Form_XXII_reg_employee()
+        Form_XXIII()
+        From_XXV()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

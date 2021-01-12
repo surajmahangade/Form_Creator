@@ -16,7 +16,7 @@ import logging
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
-def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,year):
+def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Madhya_Pradeshfilespath = os.path.join(Statefolder,'Madhya Pradesh')
     logging.info('Madhya_Pradesh files path is :'+str(Madhya_Pradeshfilespath))
     data.reset_index(drop=True, inplace=True)
@@ -533,15 +533,20 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         formVfinalfile = os.path.join(filelocation,'Form v muster roll.xlsx')
         formVfile.save(filename=formVfinalfile)
 
-
-    Form_I_reg_fine()
-    Form_I_reg_leave()
-    Form_I_reg_fine_2()
-    Form_II()
-    Form_IV_Overtime()
-    Form_J()
-    Form_N()
-    Form_V()
-    
+    try:
+        Form_I_reg_fine()
+        Form_I_reg_leave()
+        Form_I_reg_fine_2()
+        Form_II()
+        Form_IV_Overtime()
+        Form_J()
+        Form_N()
+        Form_V()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError    
 
     

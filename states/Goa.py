@@ -18,7 +18,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 
-def Goa(data,contractor_name,contractor_address,filelocation,month,year):
+def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Goafilespath = os.path.join(Statefolder,'Goa')
     logging.info('Goa files path is :'+str(Goafilespath))
     data.reset_index(drop=True, inplace=True)
@@ -46,7 +46,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year):
         data_formI["Date of payment_fine_released"]=data_formI['Date of payment']
         data_formI["Date of payment_fine_imposed"]=data_formI['Date of payment']
         data_formI.loc[data_formI['Fine']==0,["FIXED MONTHLY GROSS","Date of payment_fine_released","Date of payment_fine_imposed","remarks"]]="---"
-
+    
         formI_data=data_formI[columns]
         formIsheet = formIfile['Sheet1']
         formIsheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -705,10 +705,16 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year):
         
         formXXIIIfinalfile = os.path.join(filelocation,'Form XXIII Register of wages.xlsx')
         formXXIIIfile.save(filename=formXXIIIfinalfile)
-        
-    Form_I()
-    Form_II()
-    Form_VIII()
-    From_XII()
-    Form_XXI()
-    Form_XXIII()
+    try:  
+        Form_I()
+        Form_II()
+        Form_VIII()
+        From_XII()
+        Form_XXI()
+        Form_XXIII()
+    except KeyError as e:
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
+        master.update()
+        raise KeyError

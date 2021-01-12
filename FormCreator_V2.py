@@ -85,23 +85,23 @@ def create_pdf(folderlocation,file_name):
         wb.Close()
         excel.Quit()
 
-def Rajasthan(data,contractor_name,contractor_address,filelocation,month,year):
+def Rajasthan(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Rajasthan form creation")
 
-def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year):
+def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Tamilnadu forms')
 
-def Telangana(data,contractor_name,contractor_address,filelocation,month,year):
+def Telangana(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Telangana forms')
 
-def Uttar_Pradesh(data,contractor_name,contractor_address,filelocation,month,year):
+def Uttar_Pradesh(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Uttar Pradesh forms')
 
 
-def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year):
+def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("West_Bengal form creation")
 
-def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year):
+def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Uttarakhand form creation")
 
 Stateslist = ['Karnataka','Maharashtra','Delhi','Telangana','Uttar Pradesh','Tamilnadu','Goa','Gujarat','Kerala','Madhya Pradesh','Rajasthan','Haryana',
@@ -164,7 +164,7 @@ def Type1(inputfolder,month,year):
        'Type of Employment',	'Service Book No',	'Nature of work']
 
     salary_df_columns = ['Sr', 'DivisionName', 'Sal Status', 'Emp Code_salary', 'Emp Name_salary', 'Designation_salary',
-       'Date Joined', 'UnitName', 'Branch_salary', 'Days Paid', 'Earned Basic','DA', 'HRA',
+       'Date Joined_salary', 'UnitName', 'Branch_salary', 'Days Paid', 'Earned Basic','DA', 'HRA',
        'Conveyance', 'Medical Allowance', 'Telephone Reimb',
        'Tel and Int Reimb', 'Bonus', 'Other Allowance', 'Fuel Reimb',
        'Prof Dev Reimb', 'Corp Attire Reimb', 'Meal Allowance',
@@ -174,7 +174,7 @@ def Type1(inputfolder,month,year):
        'Total Earning', 'Insurance', 'CSR',
        'PF', 'ESIC','VPF', 'P.Tax', 'LWF EE', 'Salary Advance', 'Loan Deduction',
        'Loan Interest', 'Fine',	'Damage or Loss','Other Deduction', 'TDS', 'OtherDeduction1', 'OtherDeduction2', 'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5'
-       'Total Deductions','Net Paid', 'BankName', 'Bank A/c Number_salary', 'Account Code_salary', 'Remarks_salary_salary',
+       'Total Deductions','Net Paid', 'BankName', 'Bank A/c Number_salary', 'Account Code_salary', 'Remarks_salary',
        'PF Number (Old)', 'UAN Number_salary', 'ESIC Number_salary', 'Personal A/c Number',
        'E-Mail_salary', 'Mobile No.', 'FIXED MONTHLY GROSS', 'CHECK CTC Gross','Date of payment',	'Arrears salary', 'Cheque No - NEFT date']
 
@@ -196,10 +196,10 @@ def Type1(inputfolder,month,year):
     leave_df_columns = ['Emp. Code', 'Emp. Name', 'Leave Type', 'Opening', 'Monthly Increment',
        'Used', 'Closing', 'Leave Accrued', 'Encash']
 
-    leftemp_df_columns = ['Employee Name', 'Employee Code', 'Date Joined', 'Date Left',
+    leftemp_df_columns = ['Employee Name', 'Employee Code_left', 'Date Joined', 'Date Left',
        'UAN Number']
 
-    unit_df_columns = ['Unit', 'Location_code','Location', 'Address', 'Registration_no','Unit_PAN','Unit_LIN','Unit_email','Unit_mobile', 'PE_or_contract',
+    unit_df_columns = ['Unit', 'Location Code','Location', 'Address', 'Registration_no','Unit_PAN','Unit_LIN','Unit_email','Unit_mobile', 'PE_or_contract',
        'State_or_Central', 'start_time', 'end_time', 'rest_interval','Contractor_name','Contractor_Address','Contractor_PAN', 
         'Contractor_LIN', 'Contractor_email',	'Contractor_mobile','Normal hrs', 'overtime rate']
 
@@ -235,6 +235,7 @@ def Type1(inputfolder,month,year):
         if 'masterfilename' in locals():
             masterfile = os.path.join(inputfolder,masterfilename)
             employee_data = pd.read_excel(masterfile)
+            print(employee_data.columns)
             employee_data.dropna(subset=['Employee Code','Location Code'], inplace=True)
             employee_data.dropna(how='all', inplace=True)
             employee_data.reset_index(drop=True, inplace=True)
@@ -332,74 +333,76 @@ def Type1(inputfolder,month,year):
 
         if str(leftemp_data['Employee Code_left'].dtype)[0:3] != 'obj':
             leftemp_data['Employee Code_left'] = leftemp_data['Employee Code_left'].astype(str)
+
+        CDE_Data = salary_data.merge(employee_data,how='left',left_on='Emp Code_salary', right_on='Employee Code_master').merge(
+            unit_data,how='left',on='Location Code').merge(
+                attendance_data,how='left',left_on='Emp Code_salary', right_on='Emp Code').merge(
+                    leave_data, how='left', left_on='Emp Code_salary', right_on='Emp. Code').merge(
+                        leftemp_data, how='left', left_on='Emp Code_salary', right_on='Employee Code_left')
+        
+        '''
+        CDE_Data = employee_data.merge(unit_data,how='left',on='Location Code').merge(
+            salary_data,how='left',left_on='Employee Code',right_on='Emp Code').merge(
+                attendance_data,how='left',left_on='Employee Code', right_on='Emp Code').merge(
+                    leave_data, how='left', left_on='Employee Code', right_on='Emp. Code').merge(
+                        leftemp_data, how='left', on='Employee Code')
+        '''
+        
+
+        CDE_Data['Employee Code'] = CDE_Data['Emp Code_salary']
+        CDE_Data['Employee Name'] = CDE_Data['Emp Name_salary'].combine_first(CDE_Data['Employee Name_master'])
+        CDE_Data['Designation'] = CDE_Data['Designation_salary'].combine_first(CDE_Data['Designation_master'])
+        CDE_Data['Branch'] = CDE_Data['Branch_salary'].combine_first(CDE_Data['Branch_master'])
+        CDE_Data['Date Joined'] = CDE_Data['Date Joined_salary'].combine_first(CDE_Data['Date Joined_master'])
+        CDE_Data['UAN Number'] = CDE_Data['UAN Number_salary'].combine_first(CDE_Data['UAN Number_master'])
+        CDE_Data['ESIC Number'] = CDE_Data['ESIC Number_salary'].combine_first(CDE_Data['ESIC Number_master'])
+        CDE_Data['Bank A/c Number'] = CDE_Data['Bank A/c Number_salary'].combine_first(CDE_Data['Bank A/c Number_master'])
+        CDE_Data['Account Code'] = CDE_Data['Account Code_salary'].combine_first(CDE_Data['Account Code_master'])
+        CDE_Data['E-Mail'] = CDE_Data['E-Mail_salary'].combine_first(CDE_Data['E-Mail_master'])
+        CDE_Data['Remarks'] = CDE_Data['Remarks_salary'].combine_first(CDE_Data['Remarks_master'])
+
+        
+        logging.info('merged all data sets')
+
+        logging.info(len(salary_data))
+        logging.info(len(CDE_Data))
+
+
+
+        rename_list=[]
+        renamed=[]
+        drop_list=[]
+        for x in list(CDE_Data.columns):
+            if x[-2:]=='_x':
+                rename_list.append(x)
+                renamed.append(x[0:-2])
+            if x[-2:]=='_y':
+                drop_list.append(x)
+        
+        rename_dict = dict(zip(rename_list,renamed))
+
+        CDE_Data.rename(columns=rename_dict, inplace=True)
+
+        logging.info('columns renamed correctly')
+
+        CDE_Data.drop(columns=drop_list, inplace=True)
+
+        logging.info('dropped duplicate columns')
+
+        print(CDE_Data['Date of payment'].dtype)
+
+        if str(CDE_Data['Date of payment'].dtype)[0:8] == 'datetime':
+            CDE_Data['Date of payment'] = CDE_Data['Date of payment'].dt.date
+            
     except KeyError as e:
-        logging.info("Key error {}".format(e))
-        output_text="Failed: Check input file format  \n Check log file for error"
+        logging.info("Key error : Check if {} column exsists".format(e))
+        print("Key error {}".format(e))
+        output_text="Failed: Check input file format  \n column {} not found".format(e)
         return
 
-
-    CDE_Data = salary_data.merge(employee_data,how='left',left_on='Emp Code_salary', right_on='Employee Code_master').merge(
-        unit_data,how='left',on='Location Code').merge(
-            attendance_data,how='left',left_on='Emp Code_salary', right_on='Emp Code').merge(
-                leave_data, how='left', left_on='Emp Code_salary', right_on='Emp. Code').merge(
-                    leftemp_data, how='left', left_on='Emp Code_salary', right_on='Employee Code_left')
-    
-    '''
-    CDE_Data = employee_data.merge(unit_data,how='left',on='Location Code').merge(
-        salary_data,how='left',left_on='Employee Code',right_on='Emp Code').merge(
-            attendance_data,how='left',left_on='Employee Code', right_on='Emp Code').merge(
-                leave_data, how='left', left_on='Employee Code', right_on='Emp. Code').merge(
-                    leftemp_data, how='left', on='Employee Code')
-    '''
-    
-
-    CDE_Data['Employee Code'] = CDE_Data['Emp Code_salary']
-    CDE_Data['Employee Name'] = CDE_Data['Emp Name_salary'].combine_first(CDE_Data['Employee Name_master'])
-    CDE_Data['Designation'] = CDE_Data['Designation_salary'].combine_first(CDE_Data['Designation_master'])
-    CDE_Data['Branch'] = CDE_Data['Branch_salary'].combine_first(CDE_Data['Branch_master'])
-    CDE_Data['Date Joined'] = CDE_Data['Date Joined_salary'].combine_first(CDE_Data['Date Joined_master'])
-    CDE_Data['UAN Number'] = CDE_Data['UAN Number_salary'].combine_first(CDE_Data['UAN Number_master'])
-    CDE_Data['ESIC Number'] = CDE_Data['ESIC Number_salary'].combine_first(CDE_Data['ESIC Number_master'])
-    CDE_Data['Bank A/c Number'] = CDE_Data['Bank A/c Number_salary'].combine_first(CDE_Data['Bank A/c Number_master'])
-    CDE_Data['Account Code'] = CDE_Data['Account Code_salary'].combine_first(CDE_Data['Account Code_master'])
-    CDE_Data['E-Mail'] = CDE_Data['E-Mail_salary'].combine_first(CDE_Data['E-Mail_master'])
-    CDE_Data['Remarks'] = CDE_Data['Remarks_salary'].combine_first(CDE_Data['Remarks_master'])
-
-    
-    logging.info('merged all data sets')
-
-    logging.info(len(salary_data))
-    logging.info(len(CDE_Data))
-
-
-
-    rename_list=[]
-    renamed=[]
-    drop_list=[]
-    for x in list(CDE_Data.columns):
-        if x[-2:]=='_x':
-            rename_list.append(x)
-            renamed.append(x[0:-2])
-        if x[-2:]=='_y':
-            drop_list.append(x)
-    
-    rename_dict = dict(zip(rename_list,renamed))
-
-    CDE_Data.rename(columns=rename_dict, inplace=True)
-
-    logging.info('columns renamed correctly')
-
-    CDE_Data.drop(columns=drop_list, inplace=True)
-
-    logging.info('dropped duplicate columns')
-
-    print(CDE_Data['Date of payment'].dtype)
-
-    if str(CDE_Data['Date of payment'].dtype)[0:8] == 'datetime':
-        CDE_Data['Date of payment'] = CDE_Data['Date of payment'].dt.date
-
     monthyear = month+' '+str(year)
-    
+    print(monthyear)
+    print(masterfilename.upper())
     if monthyear.upper() in masterfilename.upper():
         progress['maximum']=calculate_num_loop(CDE_Data)
         logging.info('month year matches with data')
@@ -439,7 +442,7 @@ def Type1(inputfolder,month,year):
                     logging.info(inputdata)
                     contractor_name= inputdata['Contractor_name'].unique()[0]
                     contractor_address= inputdata['Contractor_Address'].unique()[0]
-                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
+                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year,report=report,master=master)
                 else:
                     logging.info('making directory')
                     os.makedirs(inpath)
@@ -447,7 +450,7 @@ def Type1(inputfolder,month,year):
                     logging.info(inputdata)
                     contractor_name= inputdata['Contractor_name'].unique()[0]
                     contractor_address= inputdata['Contractor_Address'].unique()[0]
-                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
+                    State_Process[state](data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year,report=report,master=master)
                 progress["value"]+=1
                 percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
                 progress.update()
@@ -475,7 +478,7 @@ def Type1(inputfolder,month,year):
                 os.makedirs(inpath)
                 logging.info('directory created')
             if not inputdata.empty:
-                Contractor_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)
+                Contractor_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year,report=report,master=master)
             progress["value"]+=1
             percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
             progress.update()
@@ -500,7 +503,7 @@ def Type1(inputfolder,month,year):
                 os.makedirs(inpath)
                 logging.info('directory created')
             if not inputdata.empty:
-                Central_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year)    
+                Central_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year,report=report,master=master)    
             progress["value"]+=1
             percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
             progress.update()
