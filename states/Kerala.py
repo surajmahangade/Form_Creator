@@ -25,18 +25,38 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('Form A file has sheet: '+str(formAfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formA = data.copy()
+        data_formA = data.copy(deep=True)
+        data_formA=data_formA.drop_duplicates(subset="Employee Name", keep="last")
         
         columns=['S.no',"Employee Name","young_or_not","start_time","end_time","rest_interval","Hrs_worked","days_overtime","Overtime"]
-        data_formA_columns=list(data_formA.columns)
-        start=data_formA_columns.index('Arrears salary')
-        end=data_formA_columns.index('Total\r\nDP')
-        columns.extend(data_formA_columns[start+1:end])
+        # data_formA_columns=list(data_formA.columns)
+        # start=data_formA_columns.index('Arrears salary')
+        # end=data_formA_columns.index('Total\r\nDP')
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formA.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formA['29'] = ''
+            data_formA['30'] = ''
+            data_formA['31'] = ''
+            
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formA['30'] = ''
+            data_formA['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formA['31'] = ''
         
-        less=31-len(data_formA_columns[start+1:end])
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formA["less"+str(i+1)]=""
+        columns.extend(columnstotake)
 
         columns.extend(["Total\r\nDP"])
         data_formA['S.no'] = list(range(1,len(data_formA)+1))
@@ -62,14 +82,15 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         formAfinalfile = os.path.join(filelocation,'Form A Register of employment.xlsx')
         formAfile.save(filename=formAfinalfile)
 
-    #Not complete
     def Form_C():
         formCfilepath = os.path.join(Keralafilespath,'Form C notice of working day.xlsx')
         formCfile = load_workbook(filename=formCfilepath)
         logging.info('Form C file has sheet: '+str(formCfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formC = data.copy()
+        data_formC = data.copy(deep=True)
+        data_formC=data_formC.drop_duplicates(subset="Employee Name", keep="last")
+        
         
         columns=["Employee Name","young_or_not"]
         
@@ -120,7 +141,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         formCsheet.merge_cells("A"+str(20+len(data_formC))+":F"+str(20+len(data_formC)))
         formCsheet.merge_cells("A"+str(21+len(data_formC))+":F"+str(21+len(data_formC)))
         
-#        formCsheet['A5']="Name and Address of the Establishment "+str(data_formC['Unit'].unique()[0])+","+str(data_formC['Address'].unique()[0])
+        # formCsheet['A5']="Name and Address of the Establishment "+str(data_formC['Unit'].unique()[0])+","+str(data_formC['Address'].unique()[0])
         formCfinalfile = os.path.join(filelocation,'Form C notice of working day.xlsx')
         formCfile.save(filename=formCfinalfile)
     
@@ -131,9 +152,11 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formI = data.copy()
-        columns=['S.no',"Employee Name","Father's Name","Department","act_of_fine","Fine","Designation","Date of payment ","cause_against_fine",
-                                        "amount","month","Fine","Date of payment "]
+        data_formI = data.copy(deep=True)
+        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+
+        columns=['S.no',"Employee Name","Father's Name","Department","act_of_fine","Fine","Designation","Date of payment","cause_against_fine",
+                                        "amount","month","Fine","Date of payment"]
     
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI["month"]=month
@@ -181,9 +204,10 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('Form II file has sheet: '+str(formIIfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formII = data.copy()
+        data_formII = data.copy(deep=True)
+        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Department","Damage or Loss",'Total Deductions',
-                                        "Designation","Date of payment ","whether_work_showed_cause","num_instalments","date_amt_deduction","remarks"]
+                                        "Designation","Date of payment","whether_work_showed_cause","num_instalments","date_amt_deduction","remarks"]
 
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
         data_formII[["whether_work_showed_cause","num_instalments","date_amt_deduction"]]="-----"
@@ -218,12 +242,13 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('Form III file has sheet: '+str(formIIIfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formIII = data.copy()
-        columns=['S.no',"Employee Name","Father's Name","Department","Date of payment ",
+        data_formIII = data.copy(deep=True)
+        data_formIII = data_formIII.drop_duplicates(subset="Employee Name", keep="last")
+        columns=['S.no',"Employee Name","Father's Name","Department","Date of payment",
                                         "purpose_advance","num_instalments","postponements_granted","date_total_repaid","remarks"]
         
         data_formIII['S.no'] = list(range(1,len(data_formIII)+1))
-        data_formIII[["purpose_advance","num_instalments","postponements_granted","date_total_repaid"]]="-----"
+        data_formIII[["purpose_advance","num_instalments","postponements_granted","date_total_repaid"]]="---"
         data_formIII["remarks"]=""
         formIII_data=data_formIII[columns]
         formIIIsheet = formIIIfile['Sheet1']
@@ -255,7 +280,8 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('Form XIV file has sheet: '+str(formXIVfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formXIV = data.copy()
+        data_formXIV = data.copy(deep=True)
+        data_formXIV=data_formXIV.drop_duplicates(subset="Employee Name", keep="last")
 
         columns=['S.no',"Emp Code","Father's Name","Gender","Date of Birth","Designation","Designation_code","Date Joined","Mobile Tel No.",
                                                     "E-Mail","Bank Name","IFSC_code","Bank A/c Number","Days Paid","LOP","num_weekly_granted",
@@ -263,9 +289,11 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                                                     "Overtime","Leave Encashment","Festival_wages","Arrears","Bonus",
                                                     "Maternity_benefit","Other Allowance","Salary Advance","Total Earning",
                                                     "PF","ESIC","Salary Advance","LWF EE","P.Tax","TDS","Fine",
-                                                    "Damage or Loss","Other Deduction","Total Deductions","Net Paid","Date of payment ",
+                                                    "Damage or Loss","Other Deduction","Total Deductions","Net Paid","Date of payment",
                                                     "remarks"]
         
+        remove_point=lambda input_str: input_str.split(".")[0]
+        data_formXIV["Bank A/c Number"]=data_formXIV["Bank A/c Number"].apply(str).apply(remove_point)
         data_formXIV['S.no'] = list(range(1,len(data_formXIV)+1))
         #data_formXIV[["purpose_advance","num_instalments","postponements_granted","date_total_repaid"]]="-----"
         data_formXIV[["IFSC_code","LOP","num_weekly_granted","num_leave","DA","City_compensation","Festival_wages","Maternity_benefit",'Designation_code','remarks']]=""

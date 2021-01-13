@@ -27,9 +27,6 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,re
     
     data.reset_index(drop=True, inplace=True)
     month_num = monthdict[month]
-
-    print("inside")
-    
     
     def Form_p():
 

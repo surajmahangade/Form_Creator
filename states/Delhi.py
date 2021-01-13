@@ -229,15 +229,38 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
             data_formH=data_formH.drop_duplicates(subset="Employee Name", keep="last")
             columns=['S.no',"Employee Name",'Nature of work']
 
-            data_formH_columns=list(data_formH.columns)
-            start=data_formH_columns.index('Emp Code')
-            end=data_formH_columns.index('Total\r\nDP')
-            columns.extend(data_formH_columns[start+1:end])
+            # data_formH_columns=list(data_formH.columns)
             
-            less=31-len(data_formH_columns[start+1:end])
-            for i in range(less):
-                columns.extend(["less"+str(i+1)])
-                data_formH["less"+str(i+1)]=""
+            # start=data_formH_columns.index('Emp Code')
+            # end=data_formH_columns.index('Total\r\nDP')
+            columnstotake =[]
+            days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+            for day in days:
+                for col in data_formH.columns:
+                    if col[5:7]==day:
+                        columnstotake.append(col)
+            if len(columnstotake)==28:
+
+                columnstotake.append('29')
+                columnstotake.append('30')
+                columnstotake.append('31')
+                data_formH['29'] = ''
+                data_formH['30'] = ''
+                data_formH['31'] = ''
+                
+            elif len(columnstotake)==29:
+                columnstotake.append('30')
+                columnstotake.append('31')
+                data_formH['30'] = ''
+                data_formH['31'] = ''
+
+            elif len(columnstotake)==30:
+                columnstotake.append('31')
+                data_formH['31'] = ''
+            
+            columns.extend(columnstotake)
+                
+            
             columns.extend(["remarks"])
 
 

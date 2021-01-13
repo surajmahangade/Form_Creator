@@ -276,16 +276,34 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         
         columns=['S.no',"Employee Name","Father's Name","Gender",'Nature of work']
         
-        data_formV_columns=list(data_formV.columns)
-        start=data_formV_columns.index('Emp Code')
-        end=data_formV_columns.index('Total\r\nDP')
-        columns.extend(data_formV_columns[start+1:end])
-        
-        less=31-len(data_formV_columns[start+1:end])
+        # data_formV_columns=list(data_formV.columns)
+        # start=data_formV_columns.index('Emp Code')
+        # end=data_formV_columns.index('Total\r\nDP')
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formV.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formV['29'] = ''
+            data_formV['30'] = ''
+            data_formV['31'] = ''
             
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formV["less"+str(i+1)]=""
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formV['30'] = ''
+            data_formV['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formV['31'] = ''
+        
+        columns.extend(columnstotake)
         columns.append('Total\r\nDP')
         data_formV['S.no'] = list(range(1,len(data_formV)+1))
 

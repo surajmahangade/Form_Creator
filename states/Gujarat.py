@@ -284,11 +284,36 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
 
 
         data_formM[['balance_days']]=""
-        data_formM_columns=list(data_formM.columns)
-        start=data_formM_columns.index('Arrears salary')
-        end=data_formM_columns.index('Total\r\nDP')
-        columns.extend(data_formM_columns[start+1:end])
+        # data_formM_columns=list(data_formM.columns)
+        # start=data_formM_columns.index('Arrears salary')
+        # end=data_formM_columns.index('Total\r\nDP')
 
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formM.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formM['29'] = ''
+            data_formM['30'] = ''
+            data_formM['31'] = ''
+            
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formM['30'] = ''
+            data_formM['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formM['31'] = ''
+        
+        columns.extend(columnstotake)
 
         formM_data=data_formM[columns]
         formMsheet = formMfile['Sheet1']
@@ -411,16 +436,37 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
                                                                 "end_time",'interval_for_reset_from','interval_for_reset_to']
         data_formP['interval_for_reset_to']=data_formP.rest_interval.str.split("-",expand=True)[1]
         data_formP['interval_for_reset_from']=data_formP.rest_interval.str.split("-",expand=True)[0]
-        data_formP_columns=list(data_formP.columns)
-        start=data_formP_columns.index('Emp Code')
-        end=data_formP_columns.index('Total\r\nDP')
-        columns.extend(data_formP_columns[start+1:end])
+        # data_formP_columns=list(data_formP.columns)
+        # start=data_formP_columns.index('Emp Code')
+        # end=data_formP_columns.index('Total\r\nDP')
         
-        less=31-len(data_formP_columns[start+1:end])
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formP.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formP['29'] = ''
+            data_formP['30'] = ''
+            data_formP['31'] = ''
             
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formP["less"+str(i+1)]=""
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formP['30'] = ''
+            data_formP['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formP['31'] = ''
+        
+        columns.extend(columnstotake)
+        
         columns.append('Total\r\nDP')
         data_formP['S.no'] = list(range(1,len(data_formP)+1))
 

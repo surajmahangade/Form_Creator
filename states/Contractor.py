@@ -323,16 +323,34 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         columns=['S.no',"Employee Name","Relay_or_set_work",'Branch']
         
         
-        data_formD_columns=list(data_formD.columns)
-        start=data_formD_columns.index('Emp Code')
-        end=data_formD_columns.index('Total\r\nDP')
-        columns.extend(data_formD_columns[start+1:end])
-        
-        less=31-len(data_formD_columns[start+1:end])
+        # data_formD_columns=list(data_formD.columns)
+        # start=data_formD_columns.index('Emp Code')
+        # end=data_formD_columns.index('Total\r\nDP')
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formD.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formD['29'] = ''
+            data_formD['30'] = ''
+            data_formD['31'] = ''
             
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formD["less"+str(i+1)]=""
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formD['30'] = ''
+            data_formD['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formD['31'] = ''
+        
+        columns.extend(columnstotake)
         
         columns.extend(['in','out','Total\r\nDP','num_hours','sign'])
 

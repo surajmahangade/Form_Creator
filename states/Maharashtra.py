@@ -16,7 +16,9 @@ import logging
 from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
-
+from dateutil import parser
+            
+            
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     print("In Maharashtra")
     logging.info('Maharashtra forms')
@@ -43,7 +45,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             holiday=pd.read_excel(holidayfile).dropna()
             holiday.columns=[ "SN.", "Date"," Day"," Occasion"]
             convert=lambda variable: datetime.datetime.strptime(variable,'%d%m%Y')
-            from dateutil import parser
             holiday=holiday[1:]
             holiday["Date"]=holiday["Date"].apply(str)
             holiday["Date"]=holiday["Date"].apply(parser.parse)
@@ -116,14 +117,34 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         columns=['S.no',"Employee Code","Employee Name","start_time","end_time",
                                         "interval_for_reset_from","interval_for_reset_to"]
         
-        data_formII_columns=list(data_formII.columns)
-        start=data_formII_columns.index('Emp Code')
-        end=data_formII_columns.index('Total\r\nDP')
-        columns.extend(data_formII_columns[start+1:end])
-        less=31-len(data_formII_columns[start+1:end])
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formII["less"+str(i+1)]=""
+        # data_formII_columns=list(data_formII.columns)
+        # start=data_formII_columns.index('Emp Code')
+        # end=data_formII_columns.index('Total\r\nDP')
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formII.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formII['29'] = ''
+            data_formII['30'] = ''
+            data_formII['31'] = ''
+            
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formII['30'] = ''
+            data_formII['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formII['31'] = ''
+        
+        columns.extend(columnstotake)
 
         columns.extend(["Total\r\nDP"])
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
@@ -673,7 +694,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                     if code =="nan":
                         code=name
                     target=formOfile[code]
-                    import calendar
                     last_day=calendar.monthrange(int(year),month_num)[1]
                     start_date = str(year)+"-"+str(month_num)+"-01"
                     end_date = str(year)+"-"+str(month_num)+"-"+str(last_day)

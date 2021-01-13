@@ -225,16 +225,34 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         columns=['S.no','Employee Code',"Employee Name",'Gender','Date of Birth',"start_time","end_time",
                 "rest_interval"]
 
-        data_formXXII_columns=list(data_formXXII.columns)
-        start=data_formXXII_columns.index('Emp Code')
-        end=data_formXXII_columns.index('Total\r\nDP')
-        columns.extend(data_formXXII_columns[start+1:end])
-        
-        less=31-len(data_formXXII_columns[start+1:end])
+        # data_formXXII_columns=list(data_formXXII.columns)
+        # start=data_formXXII_columns.index('Emp Code')
+        # end=data_formXXII_columns.index('Total\r\nDP')
+        columnstotake =[]
+        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
+        for day in days:
+            for col in data_formXXII.columns:
+                if col[5:7]==day:
+                    columnstotake.append(col)
+        if len(columnstotake)==28:
+            columnstotake.append('29')
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formXXII['29'] = ''
+            data_formXXII['30'] = ''
+            data_formXXII['31'] = ''
             
-        for i in range(less):
-            columns.extend(["less"+str(i+1)])
-            data_formXXII["less"+str(i+1)]=""
+        elif len(columnstotake)==29:
+            columnstotake.append('30')
+            columnstotake.append('31')
+            data_formXXII['30'] = ''
+            data_formXXII['31'] = ''
+
+        elif len(columnstotake)==30:
+            columnstotake.append('31')
+            data_formXXII['31'] = ''
+        
+        columns.extend(columnstotake)
         
         columns.extend(["Date","from","to","extent","remarks"])
 

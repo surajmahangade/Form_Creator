@@ -13,8 +13,10 @@ import logging
 master = Tk()
 master.title("Form Creator")
 master.minsize(640,400)
+Testing=True
 
-from states import Goa,Karnataka,Delhi,Maharashtra,Kerala,Gujarat,Madhya_Pradesh,Haryana,Chandigarh,Central,Contractor,Hyderabad
+from states import Goa,Karnataka,Delhi,Maharashtra,Kerala,Gujarat,Madhya_Pradesh,Haryana,Chandigarh,Central,Contractor,Hyderabad,Tamilnadu
+Tamilnadu=Tamilnadu.Tamilnadu
 Madhya_Pradesh=Madhya_Pradesh.Madhya_Pradesh
 Goa=Goa.Goa
 Karnataka=Karnataka.Karnataka
@@ -88,8 +90,6 @@ def create_pdf(folderlocation,file_name):
 def Rajasthan(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Rajasthan form creation")
 
-def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info('Tamilnadu forms')
 
 def Telangana(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Telangana forms')
@@ -103,9 +103,6 @@ def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year,
 
 def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Uttarakhand form creation")
-
-Stateslist = ['Karnataka','Maharashtra','Delhi','Telangana','Uttar Pradesh','Tamilnadu','Goa','Gujarat','Kerala','Madhya Pradesh','Rajasthan','Haryana',
-                'West Bengal','Uttarakhand','Hyderabad']
 
 State_Process = {'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'tamilnadu':Tamilnadu,'goa':Goa,
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
@@ -124,10 +121,6 @@ def Type3(inputfolder,month,year):
 
 def Type2(inputfolder,month,year):
     logging.info('type2 data process running')
-
-    
-
-
 
 def Type1(inputfolder,month,year):
     global output_text
@@ -411,6 +404,9 @@ def Type1(inputfolder,month,year):
         statedata.State=statedata.State.str.lower()
         CDE_States = list(statedata['State'].unique())
         implemented_state_list=[x.lower() for x in State_Process.keys()]
+        if Testing==True:
+            print("In testing Mode")
+            CDE_States=implemented_state_list
         
         for state in CDE_States:
             report.configure(text="Creating state forms for {}".format(state))
@@ -418,6 +414,8 @@ def Type1(inputfolder,month,year):
             print("-----------------------------")
             state=state.lower()
             print(state)
+            if Testing==True:
+                statedata.State=state
             # continue
             if state not in implemented_state_list:
                 logging.info('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
@@ -519,8 +517,12 @@ def calculate_num_loop(CDE_Data):
     statedata.State=statedata.State.str.lower()
     CDE_States = list(statedata['State'].unique())
     implemented_state_list=[x.lower() for x in State_Process.keys()]
+    if Testing==True:
+        CDE_States=implemented_state_list
     for state in CDE_States:
         state=state.lower()
+        if Testing==True:
+            statedata.State=state
         if state not in implemented_state_list:
             continue
         count +=len(list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique()))
@@ -530,7 +532,6 @@ def calculate_num_loop(CDE_Data):
     
     centraldata = CDE_Data[CDE_Data['State_or_Central']=='Central'].copy()
     count += len(list((centraldata['Unit']+','+centraldata['Location']).unique()))
-
     return count
 
 
@@ -688,7 +689,9 @@ Detailbox.grid(column=0,row=2,padx=20,pady=20)
 report = Label(Detailbox, text="                                                            ")
 report.grid(column=0, row=0, padx=20,pady=20)
 
-
+if Testing==True:
+    report.configure(text="In testing Mode,will override state variable.\n Forms will be created for all implemented states")
+    master.update()
 
 button2 = ttk.Button(master, text = "Convert forms to PDF", command=convert_forms_to_pdf)
 button2.grid(column=0, row=3, columnspan=2,padx=20, pady=20)
