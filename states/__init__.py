@@ -10,6 +10,8 @@ from pathlib import Path
 import sys
 path = Path(sys.executable)
 systemdrive = path.drive + path.root
+if systemdrive=="/":
+    systemdrive="/home/"+os.getlogin()
 
 # systemdrive = os.getenv('WINDIR')[0:3]
 # print(systemdrive)
@@ -20,8 +22,10 @@ State_forms = os.path.join(systemdrive,'Forms','State forms')
 #State_forms = "D:\Company Projects\Form creator\State forms"
 Statefolder = Path(State_forms)
 logfolder = os.path.join(systemdrive,'Forms','logs')
-if (not os.path.isdir(logfolder)) and os.path.isdir(os.path.join(systemdrive,'Forms')):
-    os.mkdir(logfolder)
+
+if not os.path.isdir(logfolder):
+    os.makedirs(logfolder)
+    
 
 #logfolder = "D:\Company Projects\Form creator\logs"
 
