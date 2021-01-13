@@ -14,7 +14,7 @@ master = Tk()
 master.title("Form Creator")
 master.minsize(640,400)
 Testing=True
-
+from states import Register_folder,logfolder,Statefolder,State_forms,dbfolder,systemdrive,monthdict
 from states import Goa,Karnataka,Delhi,Maharashtra,Kerala,Gujarat,Madhya_Pradesh,Haryana,Chandigarh,Central,Contractor,Hyderabad,Tamilnadu
 Tamilnadu=Tamilnadu.Tamilnadu
 Madhya_Pradesh=Madhya_Pradesh.Madhya_Pradesh
@@ -31,20 +31,6 @@ Contractor_Process=Contractor.Contractor_Process
 Hyderabad=Hyderabad.Hyderabad
 
 #backend code starts here
-
-systemdrive = os.getenv('WINDIR')[0:3]
-dbfolder = os.path.join(systemdrive,'Forms\DB')
-#dbfolder = "D:\Company Projects\Form creator\DB"
-State_forms = os.path.join(systemdrive,'Forms\State forms')
-#State_forms = "D:\Company Projects\Form creator\State forms"
-Statefolder = Path(State_forms)
-logfolder = os.path.join(systemdrive,'Forms\logs')
-#logfolder = "D:\Company Projects\Form creator\logs"
-
-
-monthdict= {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
-
-
 log_filename = datetime.datetime.now().strftime(os.path.join(logfolder,'logfile_%d_%m_%Y_%H_%M_%S.log'))
 logging.basicConfig(filename=log_filename, level=logging.INFO)
 
@@ -104,11 +90,11 @@ def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year,
 def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Uttarakhand form creation")
 
-State_Process = {'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'tamilnadu':Tamilnadu,'goa':Goa,
+State_Process = {'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad}
+                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad}#'tamilnadu':Tamilnadu,
 
-State_Process = {'kerala':Kerala}
+# State_Process = {'kerala':Kerala}
 
 
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
@@ -436,7 +422,7 @@ def Type1(inputfolder,month,year):
                     ULis = UL.strip()[0:-1]
                 else:
                     ULis = UL.strip()
-                inpath = os.path.join(inputfolder,'Registers','States',state,ULis)
+                inpath = os.path.join(inputfolder,Register_folder,'States',state,ULis)
                 logging.info('folder for forms path is'+str(inpath))
                 if os.path.exists(inpath):
                     logging.info('running state process')
@@ -471,7 +457,7 @@ def Type1(inputfolder,month,year):
                 ULis = UL.strip()[0:-1]
             else:
                 ULis = UL.strip()
-            inpath = os.path.join(inputfolder,'Registers','Contractors',ULis)
+            inpath = os.path.join(inputfolder,Register_folder,'Contractors',ULis)
             if os.path.exists(inpath):
                 logging.info('running contractor process')
             else:
@@ -496,7 +482,7 @@ def Type1(inputfolder,month,year):
             contractor_address= inputdata['Contractor_Address'].unique()[0]
             inputdata.fillna(value=0, inplace=True)
                     
-            inpath = os.path.join(inputfolder,'Registers','Central',UL)
+            inpath = os.path.join(inputfolder,Register_folder,'Central',UL)
             if os.path.exists(inpath):
                 logging.info('running contractor process')
             else:
@@ -660,7 +646,7 @@ def convert_forms_to_pdf():
     if getfolder=="":
         report.configure(text="Please select company folder")
     else:
-        registerfolder = os.path.join(Path(getfolder),'Registers')
+        registerfolder = os.path.join(Path(getfolder),Register_folder)
         if os.path.exists(registerfolder):
             for root, dirs, files in os.walk(registerfolder):
                 for fileis in files:
@@ -694,6 +680,9 @@ report.grid(column=0, row=0, padx=20,pady=20)
 
 if Testing==True:
     report.configure(text="In testing Mode,will override state variable.\n Forms will be created for all implemented states")
+    master.update()
+if not os.path.isdir(State_forms):
+    report.configure(text="Directory  {} not found, Need to have Form formats in the folder".format(State_forms))
     master.update()
 
 button2 = ttk.Button(master, text = "Convert forms to PDF", command=convert_forms_to_pdf)

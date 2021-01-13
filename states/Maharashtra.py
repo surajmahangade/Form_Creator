@@ -17,7 +17,7 @@ from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 from dateutil import parser
-            
+from states import Register_folder  
             
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     print("In Maharashtra")
@@ -28,12 +28,12 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     data.reset_index(drop=True, inplace=True)
     month_num = monthdict[month]
     #Min wages xl
-    input_filelocation=filelocation.split("Registers")[0]
+    input_filelocation=filelocation.split(Register_folder)[0]
     min_wages_maharashtra=read_min_wages_file("MAHARASHTRA","SEMI-SKILLED",input_filelocation)
     
     def Read_Holiday_file():
 
-        inputfolder = filelocation.split("Registers")[0]
+        inputfolder = filelocation.split(Register_folder)[0]
         file_list = os.listdir(inputfolder)
         logging.info('input folder is '+str(inputfolder))
         for f in file_list:
@@ -851,3 +851,8 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
         raise KeyError
+    except FileNotFoundError as e:
+        logging.info("File not found : Check if {} exsists".format(e))
+        report.configure(text="Failed: File {} not found".format(e))
+        master.update()
+        raise FileNotFoundError

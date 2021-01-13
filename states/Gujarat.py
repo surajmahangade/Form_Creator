@@ -573,3 +573,8 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
         raise KeyError
+    except FileNotFoundError as e:
+        logging.info("File not found : Check if {} exsists".format(e))
+        report.configure(text="Failed: File {} not found".format(e))
+        master.update()
+        raise FileNotFoundError

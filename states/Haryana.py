@@ -220,7 +220,7 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
 
         data_formE = data.copy()
-        columns=['S.no',"Employee Name","Parentage","month","FIXED MONTHLY GROSS","Total Deductions","fault_deductions","Date of payment ",
+        columns=['S.no',"Employee Name","Parentage","month","FIXED MONTHLY GROSS","Total Deductions","fault_deductions","Date of payment",
                                                             "cause_against deduction","amt_of_deduction","date_utilization","balance_employer"]
                 
         
@@ -259,5 +259,10 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
         print("Key error {}".format(e))
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
-        raise KeyError    
+        raise KeyError
+    except FileNotFoundError as e:
+        logging.info("File not found : Check if {} exsists".format(e))
+        report.configure(text="Failed: File {} not found".format(e))
+        master.update()
+        raise FileNotFoundError  
 

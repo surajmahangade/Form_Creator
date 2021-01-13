@@ -582,7 +582,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
 
         columns.extend(["normal_hours",'Overtime_hrs',"remarks"])
         data_formXXI["Date_of_appoinment"]=data_formXXI['Date Joined']
-        data_formXXI["normal_hours"]=len(data_formXXI_columns[start+1:end])-data_formXXI['Total\r\nDP'].astype(float)
+        data_formXXI["normal_hours"]=""
         data_formXXI['Overtime_hrs']=data_formXXI['Total\r\nOT Hrs']
         data_formXXI["remarks"]=""
         data_formXXI['S.no'] = list(range(1,len(data_formXXI)+1))
@@ -737,3 +737,8 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
         raise KeyError
+    except FileNotFoundError as e:
+        logging.info("File not found : Check if {} exsists".format(e))
+        report.configure(text="Failed: File {} not found".format(e))
+        master.update()
+        raise FileNotFoundError

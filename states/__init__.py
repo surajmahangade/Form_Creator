@@ -6,16 +6,26 @@ import pandas as pd
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 #backend code starts here
 
-systemdrive = os.getenv('WINDIR')[0:3]
-dbfolder = os.path.join(systemdrive,'Forms\DB')
+from pathlib import Path
+import sys
+path = Path(sys.executable)
+systemdrive = path.drive + path.root
+
+# systemdrive = os.getenv('WINDIR')[0:3]
+# print(systemdrive)
+
+dbfolder = os.path.join(systemdrive,'Forms','DB')
 #dbfolder = "D:\Company Projects\Form creator\DB"
-State_forms = os.path.join(systemdrive,'Forms\State forms')
+State_forms = os.path.join(systemdrive,'Forms','State forms')
 #State_forms = "D:\Company Projects\Form creator\State forms"
 Statefolder = Path(State_forms)
-logfolder = os.path.join(systemdrive,'Forms\logs')
+logfolder = os.path.join(systemdrive,'Forms','logs')
+if (not os.path.isdir(logfolder)) and os.path.isdir(os.path.join(systemdrive,'Forms')):
+    os.mkdir(logfolder)
+
 #logfolder = "D:\Company Projects\Form creator\logs"
 
-
+Register_folder='Registers'
 monthdict= {'JAN':1,'FEB':2,'MAR':3,'APR':4,'MAY':5,'JUN':6,'JUL':7,'AUG':8,'SEP':9,'OCT':10,'NOV':11,'DEC':12}
 
 

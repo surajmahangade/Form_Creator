@@ -30,7 +30,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         
         data_formI = data.copy()
         columns=["S.no","Employee Name","Father's Name","Gender","Department","nature_date_offence","showed_cause_fine","FIXED MONTHLY GROSS",
-                                                    "Date of payment ","Date of payment ","remarks"]
+                                                    "Date of payment","Date of payment","remarks"]
         
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         
@@ -68,7 +68,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         columns=["Employee Name","Father's Name","Unit_address",'Date Joined',
                                 "Acc_balance","Balance_leave","leave_refuse",#"leave_salary_paid"
                                 "Salary Advance","return","Date Left",
-                                "Date of payment ","leave_balance","Used","Closing"]
+                                "Date of payment","leave_balance","Used","Closing"]
 
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI["Unit_address"]=data_formI['Unit']+", "+data_formI['Address']
@@ -263,14 +263,14 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         data_formIV = data.copy()
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time","Total over-time","Normal hrs ",
-                                        "FIXED MONTHLY GROSS","overtime rate","Overtime","ot","FIXED MONTHLY GROSS","Date of payment "]
+                                        "FIXED MONTHLY GROSS","overtime rate","Overtime","ot","FIXED MONTHLY GROSS","Date of payment"]
         
         data_formIV['S.no'] = list(range(1,len(data_formIV)+1))
         data_formIV['Designation_Dept']=data_formIV["Designation"]+"_"+data_formIV["Department"]
         data_formIV[["Extent of over-time","Total over-time"]]="-----"
         data_formIV["ot"]=""
         data_formIV["Date_overtime_worked"]=""
-        data_formIV["Date of payment & amount of deduction"]=data_formIV["Date of payment "]+"\n"+data_formIV["Total Deductions"]
+        data_formIV["Date of payment& amount of deduction"]=data_formIV["Date of payment"].astype(str)+"\n"+data_formIV["Total Deductions"].astype(str)
         formIV_data=data_formIV[columns]
         formIVsheet = formIVfile['Sheet1']
         formIVsheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -291,7 +291,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
                 formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
     
         formIVsheet['A4']=formIVsheet['A4'].value+" : "+month
-        formIVsheet['A6']="Name of the Establishment : "+data_formIV['Unit'].uique()[0]+","+str(data_formIV['Address'].unique()[0])
+        formIVsheet['A6']="Name of the Establishment : "+data_formIV['Unit'].unique()[0]+","+str(data_formIV['Address'].unique()[0])
         formIVfinalfile = os.path.join(filelocation,'Form IV Overtime register.xlsx')
         formIVfile.save(filename=formIVfinalfile)
 
@@ -305,7 +305,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         data_formJ = data.copy()
         columns=["Employee Name","Father's Name","Unit_address",'Date Joined',
                                 "Acc_balance","Balance_leave","leave_refuse","leave_salary_paid","Date Left",
-                                "Date of payment ","Opening","Used","Closing"]
+                                "Date of payment","Opening","Used","Closing"]
 
         data_formJ['S.no'] = list(range(1,len(data_formJ)+1))
         data_formJ["Unit_address"]=data_formJ['Unit']+", "+data_formJ['Address']
@@ -425,7 +425,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
                     "Date Joined",'interval_for_reset_from','interval_for_reset_to',
                     "Date Left","ot_from_hrs","ot_tohrs","ot","Earned Basic",
                     "Dearness_Allowance","HRA","Telephone Reimb","Bonus","Fuel Reimb",
-                    "Corp Attire Reimb","CCA","ot",'Salary Advance',"Date of payment ",
+                    "Corp Attire Reimb","CCA","ot",'Salary Advance',"Date of payment",
                     "amt_recovered","balance","Fine","Total Deductions","Net Paid",
                     "sign","remarks"]
                                         
@@ -567,6 +567,11 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         print("Key error {}".format(e))
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
-        raise KeyError    
+        raise KeyError
+    except FileNotFoundError as e:
+        logging.info("File not found : Check if {} exsists".format(e))
+        report.configure(text="Failed: File {} not found".format(e))
+        master.update()
+        raise FileNotFoundError
 
     
