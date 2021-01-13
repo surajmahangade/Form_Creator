@@ -55,7 +55,7 @@ def Chandigarh(data,contractor_name,contractor_address,filelocation,month,year,r
                 formAsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
                 formAsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-        formAsheet['A4']=formAsheet['A4'].value+" : "+data_formA['Unit'][0]
+        formAsheet['A4']=formAsheet['A4'].value+" : "+data_formA['Unit'].unique()[0]
         formAfinalfile = os.path.join(filelocation,'Form A.xlsx')
         formAfile.save(filename=formAfinalfile)
     try:

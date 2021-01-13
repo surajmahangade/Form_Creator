@@ -1,4 +1,4 @@
-from states import logging,monthdict,Statefolder
+from states import logging,monthdict,Statefolder,create_border
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -19,6 +19,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
     logging.info('Kerala files path is :'+str(Keralafilespath))
     data.reset_index(drop=True, inplace=True)
     month_num = monthdict[month]
+
     def Form_A():
         formAfilepath = os.path.join(Keralafilespath,'Form A Register of employment.xlsx')
         formAfile = load_workbook(filename=formAfilepath)
@@ -70,7 +71,10 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         rows = dataframe_to_rows(formA_data, index=False, header=False)
 
         logging.info('rows taken out from data')
-        for r_idx, row in enumerate(rows, 7):
+        r_idx=0
+        c_idx=0
+        start_row=7
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formAsheet.cell(row=r_idx, column=c_idx, value=value)
                 formAsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
@@ -78,6 +82,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                 border_sides = Side(style='thin')
                 formAsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
         
+        formAsheet=create_border(formAsheet,r_idx,c_idx,start_row)
         formAsheet['A4']="Month : "+month+"  Year:  "+str(year)
         formAfinalfile = os.path.join(filelocation,'Form A Register of employment.xlsx')
         formAfile.save(filename=formAfinalfile)
@@ -92,10 +97,11 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         data_formC=data_formC.drop_duplicates(subset="Employee Name", keep="last")
         
         
-        columns=["Employee Name","young_or_not"]
+        columns=["Employee Name","young_or_not","Employee_to_commence","intervals_meal_rest","employment_to_cease"]
         
         #data_formC['S.no'] = list(range(1,len(data_formC)+1))
         data_formC["young_or_not"]="----"
+        data_formC[["Employee_to_commence","intervals_meal_rest","employment_to_cease"]]=""
         #data_formC[["Date of payment & amount of deduction","remarks"]]=""
         formC_data=data_formC[columns]
         formCsheet = formCfile['Sheet1']
@@ -123,8 +129,10 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('rows taken out from data')
         added=0
         formCsheet.insert_rows(9,len(data_formC))
-
-        for r_idx, row in enumerate(rows, 9):
+        start_row=9
+        r_idx=0
+        c_dix=0
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formCsheet.cell(row=r_idx, column=c_idx, value=value)
                 formCsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
@@ -133,6 +141,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                 formCsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
                 added+=1
         
+        formCsheet=create_border(formCsheet,r_idx,c_idx,start_row)
         formCsheet.merge_cells("B"+str(14+len(data_formC))+":E"+str(14+len(data_formC)))
         formCsheet.merge_cells("B"+str(16+len(data_formC))+":E"+str(16+len(data_formC)))
         formCsheet.merge_cells("B"+str(17+len(data_formC))+":E"+str(17+len(data_formC)))
@@ -156,13 +165,13 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
 
         columns=['S.no',"Employee Name","Father's Name","Department","act_of_fine","Fine","Designation","Date of payment","cause_against_fine",
-                                        "amount","month","Fine","Date of payment"]
+                                        "amount","month","Fine","Date of payment","remarks"]
     
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI["month"]=month
         data_formI["act_of_fine"]="-----"
         data_formI["cause_against_fine"]="-----"
-        data_formI[["Date of Fine","amount"]]=""
+        data_formI[["Date of Fine","amount","remarks"]]=""
         formI_data=data_formI[columns]
         formIsheet = formIfile['Sheet1']
         formIsheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -180,8 +189,10 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         formIsheet.unmerge_cells("A11:N11")
         formIsheet.unmerge_cells("A12:N12")
         formIsheet.insert_rows(7,len(data_formI))
-        
-        for r_idx, row in enumerate(rows, 7):
+        start_row=7
+        r_dix=0
+        c_idx=0
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
@@ -189,11 +200,12 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                 border_sides = Side(style='thin')
                 formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
         
+        formIsheet=create_border(formIsheet,r_idx,c_idx,start_row)
         formIsheet.merge_cells("A"+str(11+len(data_formI))+":N"+str(11+len(data_formI)))
         formIsheet.merge_cells("A"+str(12+len(data_formI))+":N"+str(12+len(data_formI)))
 
 
-        formIsheet['A4']=formIsheet['A4'].value+" : "+data_formI['Unit'][0]
+        formIsheet['A4']=formIsheet['A4'].value+" : "+data_formI['Unit'].unique()[0]
         formIfinalfile = os.path.join(filelocation,'Form I Register of fines.xlsx')
         formIfile.save(filename=formIfinalfile)
 
@@ -221,8 +233,10 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         rows = dataframe_to_rows(formII_data, index=False, header=False)
 
         logging.info('rows taken out from data')
-
-        for r_idx, row in enumerate(rows, 8):
+        start_row=7
+        r_dix=0
+        c_idx=0
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formIIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
@@ -230,7 +244,8 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                 border_sides = Side(style='thin')
                 formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
 
-        formIIsheet['A4']=formIIsheet['A4'].value+" : "+data_formII['Unit'][0]
+        formIIsheet=create_border(formIIsheet,r_idx,c_idx,start_row)
+        formIIsheet['A4']=formIIsheet['A4'].value+" : "+data_formII['Unit'].unique()[0]
         formIIfinalfile = os.path.join(filelocation,'Form II Register of damage or loss.xlsx')
         formIIfile.save(filename=formIIfinalfile)
 
@@ -259,16 +274,18 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         rows = dataframe_to_rows(formIII_data, index=False, header=False)
 
         logging.info('rows taken out from data')
-
-        for r_idx, row in enumerate(rows, 8):
+        r_idx=0
+        c_idx=0
+        start_row=7
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formIIIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formIIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
                 formIIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
                 formIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
-        formIIIsheet['A4']=formIIIsheet['A4'].value+" : "+data_formIII['Unit'][0]
+        formIIIsheet=create_border(formIIIsheet,r_idx,c_idx,start_row)
+        formIIIsheet['A4']=formIIIsheet['A4'].value+" : "+data_formIII['Unit'].unique()[0]
         formIIIfinalfile = os.path.join(filelocation,'Form III register of advance.xlsx')
         formIIIfile.save(filename=formIIIfinalfile)
 
@@ -306,7 +323,9 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         rows = dataframe_to_rows(formXIV_data, index=False, header=False)
 
         logging.info('rows taken out from data')
-
+        r_idx=0
+        c_idx=0
+        start_row=18
         for r_idx, row in enumerate(rows, 18):
             for c_idx, value in enumerate(row, 1):
                 formXIVsheet.cell(row=r_idx, column=c_idx, value=value)
@@ -314,7 +333,8 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
                 formXIVsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
                 formXIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
+        
+        formXIVsheet=create_border(formXIVsheet,r_idx,c_idx,start_row)
         formXIVsheet['A4']=formXIVsheet['A4'].value+" : "+str(data_formXIV['Location'].unique()[0])
         formXIVsheet['A5']=formXIVsheet['A5'].value+" : "+str(data_formXIV['Unit'].unique()[0])+", "+str(data_formXIV['Location'].unique()[0])
         formXIVsheet['A6']=formXIVsheet['A6'].value+" : "+str(data_formXIV['Unit'].unique()[0])+", "+str(data_formXIV['Location'].unique()[0])

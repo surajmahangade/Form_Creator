@@ -245,7 +245,7 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
                 border_sides = Side(style='thin')
                 formEsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
 
-        formEsheet['A5']="Name of the establishment"+data_formE['Unit'][0]+"  "+ month+ "  Year " +str(year)+"   Acts and omission approved by the authorities"
+        formEsheet['A5']="Name of the establishment"+data_formE['Unit'].unique()[0]+"  "+ month+ "  Year " +str(year)+"   Acts and omission approved by the authorities"
         formEfinalfile = os.path.join(filelocation,'Form E register of deduction.xlsx')
         formEfile.save(filename=formEfinalfile)
 

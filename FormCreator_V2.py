@@ -108,6 +108,9 @@ State_Process = {'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
                 'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad}
 
+State_Process = {'kerala':Kerala}
+
+
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
 
 def Type5(inputfolder,month,year):

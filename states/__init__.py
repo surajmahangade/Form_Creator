@@ -3,6 +3,7 @@ from pathlib import Path
 import logging
 import datetime
 import pandas as pd
+from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 #backend code starts here
 
 systemdrive = os.getenv('WINDIR')[0:3]
@@ -35,3 +36,26 @@ def read_min_wages_file(state_name,type_skilled,input_filelocation):
     min_wages=min_wages.set_index("STATE")
     min_wages=min_wages.loc[state_name,type_skilled]
     return min_wages
+
+border_sides_thick = Side(style='thick')       
+border_sides_thin = Side(style='thin')
+
+def create_border(sheet,last_row,last_column,start_row):
+    
+    for c_idx in range(1,last_column):
+        sheet.cell(row=last_row, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
+    
+    for r_idx in range(start_row,last_row):
+        sheet.cell(row=r_idx, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin)
+    
+    sheet.cell(row=last_row, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
+    
+    return sheet
+
+def cell_write(sheet,value,r_idx,c_idx):
+    sheet.cell(row=r_idx, column=c_idx, value=value)
+    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
+    sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+    border_sides = Side(style='thin')
+    sheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
+    return sheet

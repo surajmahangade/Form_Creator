@@ -57,6 +57,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         
         formIfinalfile = os.path.join(filelocation,'Form I register of fine.xlsx')
         formIfile.save(filename=formIfinalfile)
+    
     def Form_I_reg_leave():
         formIfilepath = os.path.join(Madhya_Pradeshfilespath,'Form I register of leave.xlsx')
         formIfile = load_workbook(filename=formIfilepath)
@@ -249,7 +250,7 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
                 border_sides = Side(style='thin')
                 formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
 
-        formIIsheet['A4']=formIIsheet['A4'].value+" : "+data_formII['Unit'][0]
+        formIIsheet['A4']=formIIsheet['A4'].value+" : "+data_formII['Unit'].unique()[0]
         formIIfinalfile = os.path.join(filelocation,'Form II register of damage or loss.xlsx')
         formIIfile.save(filename=formIIfinalfile)
 
@@ -288,9 +289,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
                 formIVsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
                 formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
+    
         formIVsheet['A4']=formIVsheet['A4'].value+" : "+month
-        formIVsheet['A6']="Name of the Establishment : "+data_formIV['Unit'][0]+","+str(data_formIV['Address'].unique()[0])
+        formIVsheet['A6']="Name of the Establishment : "+data_formIV['Unit'].uique()[0]+","+str(data_formIV['Address'].unique()[0])
         formIVfinalfile = os.path.join(filelocation,'Form IV Overtime register.xlsx')
         formIVfile.save(filename=formIVfinalfile)
 
