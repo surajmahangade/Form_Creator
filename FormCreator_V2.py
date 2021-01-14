@@ -92,7 +92,7 @@ def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,
 
 State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'tamilnadu':Tamilnadu,'karnataka':Karnataka,'maharashtra':Maharashtra}
+                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra}#'tamilnadu':Tamilnadu,
 
 
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
