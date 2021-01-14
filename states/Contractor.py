@@ -24,8 +24,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
     # data_formIV = data.copy(deep=True)
     #Comment this line if in future leave file data is needed in any of functions below
     data=data.drop_duplicates(subset='Employee Code', keep="last")
-    # print(list(data.columns))
-
+    
     def create_form_A():
     
         formAfilepath = os.path.join(Contractorfilespath,'Form A Employee register.xlsx')
@@ -34,9 +33,8 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         
         logging.info('create columns which are now available')
-
-        data_formA = data.drop_duplicates(subset=['Employee Code']).copy()
-
+        data_formA=data.copy(deep=True)
+        
         data_formA.fillna(value=0, inplace=True)
 
         data_formA['S.no'] = list(range(1,len(data_formA)+1))
@@ -96,12 +94,6 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
             data_formA['Branch'] = data_formA['Branch'].astype(str)
 
         establishment = formAsheet['A5'].value
-        # print(establishment)
-        # print(data_formA['Contractor_name'].unique()[0])
-        # print(data_formA['Contractor_Address'].unique()[0])
-        print(data_formA)
-        print(data_formA['PE_or_contract'])
-        print(data_formA['PE_or_contract'].unique()[0])
         
         if data_formA['PE_or_contract'].unique()[0] == 'PE':
             A5_data = establishment+' '+data_formA['Company Name'].unique()[0] +', '+data_formA['Company Address'].unique()[0]  
@@ -127,9 +119,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         
         logging.info('create columns which are now available')
-
-
-        data_formB = data.drop_duplicates(subset=['Employee Code']).copy()
+        data_formB=data.copy(deep=True)
         data_formB.fillna(value=0, inplace=True)
 
         #data_formB['OT hours'] = 0
@@ -255,7 +245,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         logging.info('create columns which are now available')
 
         data_formC = data.copy(deep=True)
-        data_formC=data_formC.drop_duplicates(subset="Employee Name", keep="last")
+        
         columns=['Employee Code',"Employee Name","Recovery_Type","Particulars","Date of payment and damage loss",'Damage or Loss',"whether_show_cause_issue","explaination_heard_in_presence_of",
                                     "num_installments","first_month_year","last_month_year","Date_of_complete_recovery","remarks"]
         
@@ -318,7 +308,6 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         logging.info('create columns which are now available')
 
         data_formD = data.copy(deep=True)
-        data_formD=data_formD.drop_duplicates(subset="Employee Name", keep="last")
         
         columns=['S.no',"Employee Name","Relay_or_set_work",'Branch']
         
@@ -409,7 +398,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         logging.info('create columns which are now available')
 
         data_formE = data.copy(deep=True)
-        data_formE=data_formE.drop_duplicates(subset="Employee Name", keep="last")
+        
         columns=['Employee Code',"Employee Name","Days Paid","opening_bal","added","rest_allowed","rest_availed",
                     "closing_bal","Opening","Monthly Increment","Leave Accrued","Closing",
                     "Monthly Increment","Leave Accrued","Closing","openeing_bal","added","leave_availed","closing_bal",
@@ -466,8 +455,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         
         logging.info('create columns which are now available')
 
-        data_formXIX = data.drop_duplicates(subset=['Employee Code']).copy()
-
+        data_formXIX=data.copy(deep=True)
         data_formXIX.fillna(value=0, inplace=True)
 
         emp_count = len(data_formXIX.index)
@@ -481,7 +469,6 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
             sheet1 = formXIXfile.copy_worksheet(sheetformXIX)
             sheet1.title = sheet_key
             sheet1['B4'] = contractor_name+', '+contractor_address
-            print(emp_data['Nature of work'],emp_data['Location'])
             sheet1['B5'] = str(emp_data['Nature of work'])+', '+str(emp_data['Location'])
             if emp_data['PE_or_contract'][0]== 'PE':
                 sheet1['B6'] = emp_data['Company Name']+', '+emp_data['Company Address']
@@ -524,8 +511,8 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         
         logging.info('create columns which are now available')
 
-        data_formXIX = data.drop_duplicates(subset=['Employee Code']).copy()
-
+        data_formXIX=data.copy(deep=True)
+        
         data_formXIX.fillna(value=0, inplace=True)
 
         emp_count = len(data_formXIX.index)
@@ -565,7 +552,8 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         
         logging.info('create columns which are now available')
 
-        data_formXX = data.drop_duplicates(subset=['Employee Code']).copy()
+        data_formXX=data.copy(deep=True)
+        
         data_formXX.fillna(value=0, inplace=True)
 
         data_formXX['S.no'] = list(range(1,len(data_formXX)+1))
@@ -665,8 +653,8 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         
         logging.info('create columns which are now available')
 
-        data_formXXI = data.drop_duplicates(subset=['Employee Code']).copy()
-
+        data_formXXI=data.copy(deep=True)
+        
         data_formXXI.fillna(value=0, inplace=True)
 
         data_formXXI['S.no'] = list(range(1,len(data_formXXI)+1))
@@ -761,9 +749,9 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         
         logging.info('create columns which are now available')
-
-        data_formXXII = data.drop_duplicates(subset=['Employee Code']).copy()
-
+        
+        data_formXXII=data.copy(deep=True)
+        
         data_formXXII.fillna(value=0, inplace=True)
 
         data_formXXII['S.no'] = list(range(1,len(data_formXXII)+1))
@@ -854,8 +842,8 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         
         logging.info('create columns which are now available')
-
-        data_formXXIII = data.drop_duplicates(subset=['Employee Code']).copy()
+        data_formXXIII=data.copy(deep=True)
+        
         data_formXXIII.fillna(value=0, inplace=True)
 
         data_formXXIII['S.no'] = list(range(1,len(data_formXXIII)+1))
@@ -946,8 +934,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         
         logging.info('create columns which are now available')
-
-        data_ecard = data.drop_duplicates(subset=['Employee Code']).copy()
+        data_ecard=data.copy(deep=True)
         data_ecard.fillna(value=0, inplace=True)
 
         emp_count = len(data_ecard.index)
@@ -957,8 +944,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
             sheet_key = 'Employment card_'+str(key)
 
             emp_data = (data_ecard).iloc[i]
-            emp_data.fillna(value='', inplace=True)
-
+            
             sheet1 = ecardfile.copy_worksheet(sheetecard)
             sheet1.title = sheet_key
             sheet1['B4'] = contractor_name

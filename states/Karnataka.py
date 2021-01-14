@@ -1068,13 +1068,13 @@ def Karnataka(data,contractor_name,contractor_address,filelocation,month,year,re
         data_ecard.fillna(value=0, inplace=True)
 
         emp_count = len(data_ecard.index)
-        
+        data_ecard.fillna(value='', inplace=True)
         for i in range(0,emp_count):
-            key = (data_ecard).iloc[i]['Employee Code']
+            key = data_ecard.iloc[i]['Employee Code']
             sheet_key = 'Employment card_'+str(key)
 
-            emp_data = (data_ecard).iloc[i]
-            emp_data.fillna(value='', inplace=True)
+            emp_data = data_ecard.iloc[i]
+            
 
             sheet1 = ecardfile.copy_worksheet(sheetecard)
             sheet1.title = sheet_key

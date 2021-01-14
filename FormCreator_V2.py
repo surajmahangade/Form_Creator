@@ -90,11 +90,9 @@ def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year,
 def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info("Uttarakhand form creation")
 
-State_Process = {'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
+State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad}#'tamilnadu':Tamilnadu,
-
-# State_Process = {'kerala':Kerala}
+                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'tamilnadu':Tamilnadu,'karnataka':Karnataka,'maharashtra':Maharashtra}
 
 
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
@@ -217,7 +215,6 @@ def Type1(inputfolder,month,year):
         if 'masterfilename' in locals():
             masterfile = os.path.join(inputfolder,masterfilename)
             employee_data = pd.read_excel(masterfile)
-            print(employee_data.columns)
             employee_data.dropna(subset=['Employee Code','Location Code'], inplace=True)
             employee_data.dropna(how='all', inplace=True)
             employee_data.reset_index(drop=True, inplace=True)
@@ -389,7 +386,8 @@ def Type1(inputfolder,month,year):
         progress['maximum']=calculate_num_loop(CDE_Data)
         logging.info('month year matches with data')
         #for all state employees(PE+contractor)
-        statedata = CDE_Data[CDE_Data['State_or_Central']=='State'].copy()
+        statedata = CDE_Data.loc[CDE_Data['State_or_Central']=='State'].copy(deep=True)
+        
         statedata.State=statedata.State.str.lower()
         CDE_States = list(statedata['State'].unique())
         implemented_state_list=[x.lower() for x in State_Process.keys()]
@@ -414,7 +412,7 @@ def Type1(inputfolder,month,year):
             unit_with_location = list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique())
             
             for UL in unit_with_location:
-                inputdata = statedata[(statedata['State']==state) & (statedata['Unit']==UL.split(';')[0]) & (statedata['Location']==UL.split(';')[1])].copy()
+                inputdata = statedata[(statedata['State']==state) & (statedata['Unit']==UL.split(';')[0]) & (statedata['Location']==UL.split(';')[1])].copy(deep=True)
                 inputdata['Contractor_name'] = inputdata['Contractor_name'].fillna(value='')
                 inputdata['Contractor_Address'] = inputdata['Contractor_Address'].fillna(value='')
                 inputdata.fillna(value=0, inplace=True)
@@ -443,12 +441,13 @@ def Type1(inputfolder,month,year):
                 progress.update()
                 master.update()
         #for contractors form
-        contractdata = CDE_Data[(CDE_Data['State_or_Central']=='State') & (CDE_Data['PE_or_contract']=='Contract')].copy()
+        contractdata = CDE_Data.loc[(CDE_Data['State_or_Central']=='State') & (CDE_Data['PE_or_contract']=='Contract')].copy(deep=True)
         contractor_units = list((contractdata['Unit']+';'+contractdata['Location']).unique())
         report.configure(text="Creating contractor Forms")
         master.update()
+        
         for UL in contractor_units:
-            inputdata = contractdata[(contractdata['Unit']==UL.split(';')[0]) & (contractdata['Location']==UL.split(';')[1])]
+            inputdata = contractdata.loc[(contractdata['Unit']==UL.split(';')[0]) & (contractdata['Location']==UL.split(';')[1])].copy(deep=True)
             contractor_name= inputdata['Contractor_name'].unique()[0]
             contractor_address= inputdata['Contractor_Address'].unique()[0]
             inputdata.fillna(value=0, inplace=True)
@@ -464,20 +463,22 @@ def Type1(inputfolder,month,year):
                 logging.info('making directory')
                 os.makedirs(inpath)
                 logging.info('directory created')
+            
             if not inputdata.empty:
                 Contractor_Process(data=inputdata,contractor_name=contractor_name,contractor_address=contractor_address,filelocation=inpath,month=month,year=year,report=report,master=master)
             progress["value"]+=1
             percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
             progress.update()
             master.update()
-
+            
         #for central form
-        centraldata = CDE_Data[CDE_Data['State_or_Central']=='Central'].copy()
+        centraldata = CDE_Data.loc[CDE_Data['State_or_Central']=='Central'].copy(deep=True)
         central_units = list((centraldata['Unit']+','+centraldata['Location']).unique())
         report.configure(text="Creating central Forms")
         master.update()
+        
         for UL in central_units:
-            inputdata = centraldata[(centraldata['Unit']==UL.split(',')[0]) & (centraldata['Location']==UL.split(',')[1])]
+            inputdata = centraldata.loc[(centraldata['Unit']==UL.split(',')[0]) & (centraldata['Location']==UL.split(',')[1])].copy(deep=True)
             contractor_name= inputdata['Contractor_name'].unique()[0]
             contractor_address= inputdata['Contractor_Address'].unique()[0]
             inputdata.fillna(value=0, inplace=True)
@@ -622,7 +623,7 @@ def generateforms(comptype,mn,yr):
     elif (companytype!="" and getfolder!="" and (month =="" or year=="")):
         report.configure(text="Please select month year")
     else:
-        logging.info(companytype, getfolder,  month,  year)
+        logging.info("{} , {} , {} , {}".format(companytype, getfolder,  month,  year))
         report.configure(text="Processing")
         try:
             CompanyDataProcessing(companytype,getfolder,month,year)

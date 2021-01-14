@@ -20,7 +20,6 @@ from dateutil import parser
 from states import Register_folder  
             
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    print("In Maharashtra")
     logging.info('Maharashtra forms')
 
     Maharashtrafilespath = os.path.join(Statefolder,'Maharashtra')

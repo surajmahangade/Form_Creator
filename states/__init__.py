@@ -42,13 +42,17 @@ def read_min_wages_file(state_name,type_skilled,input_filelocation):
         if f[0:13].upper()=='MINIMUM WAGES':
             min_wagesfilename = f
             logging.info('min_wagesfilename is :'+f)
-    min_wages=pd.read_excel(os.path.join(input_filelocation,min_wagesfilename))
-    min_wages=min_wages.dropna(how="all",axis=1)
-    min_wages=min_wages.dropna(how="all",axis=0)
-    min_wages.columns=["SR NO" ,"STATE" ,"HIGHLY SKILLED" , "SKILLED" ,"SEMI-SKILLED" ,"UNSKILLED"]
-    min_wages=min_wages.drop(["SR NO"],axis=1)
-    min_wages=min_wages.set_index("STATE")
-    min_wages=min_wages.loc[state_name,type_skilled]
+    if 'min_wagesfilename' in locals():
+        min_wages=pd.read_excel(os.path.join(input_filelocation,min_wagesfilename))
+        min_wages=min_wages.dropna(how="all",axis=1)
+        min_wages=min_wages.dropna(how="all",axis=0)
+        min_wages.columns=["SR NO" ,"STATE" ,"HIGHLY SKILLED" , "SKILLED" ,"SEMI-SKILLED" ,"UNSKILLED"]
+        min_wages=min_wages.drop(["SR NO"],axis=1)
+        min_wages=min_wages.set_index("STATE")
+        min_wages=min_wages.loc[state_name,type_skilled]
+    else:
+        logging.info("Didin't find min wages file hence setting minimum wages to 0")
+        min_wages=0
     return min_wages
 
 border_sides_thick = Side(style='thick')       

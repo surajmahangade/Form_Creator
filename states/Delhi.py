@@ -455,7 +455,6 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
                     formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
                     formIsheet.row_dimensions[r_idx].height = 20
 
-        print(data_formI['Company Name'].unique()[0])
         formIsheet['A4']=formIsheet['A4'].value+" : "+data_formI['Company Name'].unique()[0]
         formIfinalfile = os.path.join(filelocation,'Form I register of Fine.xlsx')
         formIfile.save(filename=formIfinalfile)
