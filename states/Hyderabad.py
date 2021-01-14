@@ -17,7 +17,6 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    print("In Hyderabad")
     
     logging.info("Hyderabad form creation")
     Hyderabadfilespath = os.path.join(Statefolder,'Hyderabad')
