@@ -164,7 +164,8 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
         
         data_formD['interval_for_reset_to']=data_formD.rest_interval.str.split("-",expand=True)[1]
         data_formD['interval_for_reset_from']=data_formD.rest_interval.str.split("-",expand=True)[0]
-        data_formD[['payment_rs', 'payment_p', 'Total Deductions_rs', 'advance_made_date', 'wages_due_p', 'advance_p', 'Total Deductions_p', 'ordinary', 'advance_rs', 'wages_due_rs']]="test"
+        data_formD[['payment_rs', 'payment_p', 'Total Deductions_rs', 'advance_made_date', 'wages_due_p', 
+                    'advance_p', 'Total Deductions_p', 'ordinary', 'advance_rs', 'wages_due_rs']]=""
         formD_data=data_formD[columns]
         formDsheet = formDfile['Sheet1']
         formDsheet.sheet_properties.pageSetUpPr.fitToPage = True

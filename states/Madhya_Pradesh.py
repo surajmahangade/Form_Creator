@@ -28,7 +28,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         
-        data_formI = data.copy()
+        data_formI = data.copy(deep=True)
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=["S.no","Employee Name","Father's Name","Gender","Department","nature_date_offence","showed_cause_fine","FIXED MONTHLY GROSS",
                                                     "Date of payment","Date of payment","remarks"]
         
@@ -64,12 +66,15 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         
-        data_formI = data.copy()
-        columns=["Employee Name","Father's Name","Unit_address",'Date Joined',
+        data_formI = data.copy(deep=True)
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
+
+        columns=["Employee Name & Code","Father's Name","Unit_address",'Date Joined',
                                 "Acc_balance","Balance_leave","leave_refuse",#"leave_salary_paid"
                                 "Salary Advance","return","Date Left",
                                 "Date of payment","leave_balance","Used","Closing"]
-
+        
+        data_formI["Employee Name & Code"]=data_formI["Employee Name"].astype(str)+"||"+data_formI["Employee Code"].astype(str)
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI["Unit_address"]=data_formI['Unit']+", "+data_formI['Address']
         data_formI[['Acc_balance', 'leave_balance', 'Balance_leave', 'return', 'leave_refuse']]=""
@@ -91,12 +96,15 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         row_number=17
         for r_idx, row in enumerate(rows, 16):
             for c_idx, value in enumerate(row, 1):
+                value=str(value)
                 if c_idx==1:
+                    name=value.split("||")[0]
+                    code=value.split("||")[1]
                     try:
-                        target=formIfile[value[:31]]
+                        target=formIfile[code]
                     except:
                         target = formIfile.copy_worksheet(formIsheet)
-                        target.title=value[:31] 
+                        target.title=code
                         target["A4"] =target["A4"].value+"  "+value
                 elif c_idx==2:
                     target["A5"]=target["A5"].value+" : "+value
@@ -182,7 +190,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         
-        data_formI = data.copy()
+        data_formI = data.copy(deep=True)
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=["S.no","Employee Name","Father's Name","Department","occupation","act","Designation","against_fine",
                                                     "Net Paid","wages_period","date_amount","date_fine","remarks"]
         
@@ -225,7 +235,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form II file has sheet: '+str(formIIfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formII = data.copy()
+        data_formII = data.copy(deep=True)
+        data_formII = data_formII.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=['S.no',"Employee Name","Father's Name","Department","occupation","Damage or Loss","cause_deduction","date_amt_deduction",'Total Deductions',
                                                     "num_instalments","date",'Total Deductions',"remarks"]
                                         
@@ -260,7 +272,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form IV file has sheet: '+str(formIVfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formIV = data.copy()
+        data_formIV = data.copy(deep=True)
+        data_formIV = data_formIV.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time","Total over-time","Normal hrs ",
                                         "FIXED MONTHLY GROSS","overtime rate","Overtime","ot","FIXED MONTHLY GROSS","Date of payment"]
@@ -295,14 +309,15 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         formIVfinalfile = os.path.join(filelocation,'Form IV Overtime register.xlsx')
         formIVfile.save(filename=formIVfinalfile)
 
-    ###################
     def Form_J():
         formJfilepath = os.path.join(Madhya_Pradeshfilespath,'Form J leave book.xlsx')
         formJfile = load_workbook(filename=formJfilepath)
         logging.info('Form J file has sheet: '+str(formJfile.sheetnames))
         logging.info('create columns which are now available')
         
-        data_formJ = data.copy()
+        data_formJ = data.copy(deep=True)
+        data_formJ = data_formJ.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=["Employee Name","Father's Name","Unit_address",'Date Joined',
                                 "Acc_balance","Balance_leave","leave_refuse","leave_salary_paid","Date Left",
                                 "Date of payment","Opening","Used","Closing"]
@@ -418,7 +433,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form N file has sheet: '+str(formNfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formN = data.copy()
+        data_formN = data.copy(deep=True)
+        data_formN = data_formN.drop_duplicates(subset="Employee Code", keep="last")
+
         columns=["Employee Name",'Unit_address',"Father's Name","Age","emp_address",
                     "Designation","rate_wages","Date Joined","Date Left",
                     
@@ -494,7 +511,9 @@ def Madhya_Pradesh(data,contractor_name,contractor_address,filelocation,month,ye
         logging.info('Form V file has sheet: '+str(formVfile.sheetnames))
         logging.info('create columns which are now available')
 
-        data_formV = data.copy()
+        data_formV = data.copy(deep=True)
+        data_formV = data_formV.drop_duplicates(subset="Employee Code", keep="last")
+
         
         columns=['S.no',"Emp Code","Employee Name","Father's Name","Gender","Designation"]
         

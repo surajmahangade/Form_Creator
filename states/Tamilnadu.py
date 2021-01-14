@@ -1,7 +1,7 @@
 
 # This code is used to develop the form P,R,T section of Tamil Nadu state
 # Author: Riddhi Pravin Shah
-from states import logging,monthdict,Statefolder
+from states import logging,monthdict,Statefolder,create_border
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -20,160 +20,185 @@ from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
+
 def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    
-    tnfilespath = os.path.join(Statefolder,'Tamilnadu')
-    logging.info('Tamilnadu files path is :'+ str(tnfilespath))
-    
+    Tamilnadufilespath = os.path.join(Statefolder,'Tamilnadu')
+    logging.info('Tamilnadu files path is :'+str(Tamilnadufilespath))
     data.reset_index(drop=True, inplace=True)
     month_num = monthdict[month]
-    
-    def Form_p():
 
-        # Importing file path of Form P
-        formPFilePath = os.path.join(tnfilespath,'Form P register of deduction.xlsx')
-        formPFile = load_workbook(filename = formPFilePath)
-        logging.info('Form P file has sheet: ' + str(formPFile.sheetnames))
+    def Form_P():
+        formPfilepath = os.path.join(Tamilnadufilespath,'Form P register of deduction.xlsx')
+        formPfile = load_workbook(filename=formPfilepath)
+        logging.info('Form P file has sheet: '+str(formPfile.sheetnames))
         logging.info('create columns which are now available')
-
-        # Preparing Master data for form P with columns required.
-        data_formP = data.copy()
-
-        ## Adding placeholder columns where data isnot found
-        data_formP['S.no'] = list(range(1,len(data_formP)+1))
-        colToAdd = ['Number of Instalments to be recovered',
-                                    'Date on which recovery completed','Date of Show Cause Notice'
-                                    ,'Date on which deduction completed','Act or omission','Date on which fine recovery completed'
-                                    ,'Signature or thumb impression of the person employed']
-        data_formP = data_formP.reindex(data_formP.columns.tolist() + colToAdd, axis=1)
-        data_formP.loc[:,colToAdd] = '----'
-
-        ## Appending columns in order required for FORM P
-        columns = ['S.no','Employee Name','Father\'s Name','Employee Code','Designation','Date of payment ',
-                   'Net Paid','Number of Instalments to be recovered','Date on which recovery completed',
-                   'Damage or Loss','Date of Show Cause Notice','Total Deductions','Number of Instalments to be recovered',
-                   'Date on which deduction completed','Act or omission','Date of Show Cause Notice','Fine',
-                   'Date on which fine recovery completed','Signature or thumb impression of the person employed','Remarks']
-
-
-        formP_data = data_formP[columns]
-
-        formPsheet = formPFile['Sheet1']
-        formPsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        print("Here")
         
-        logging.info('data for form P is ready')
+        data_formP = data.copy(deep=True)
+        data_formP=data_formP.drop_duplicates(subset="Employee Code", keep="last")
+        
+        columns=['S.no',"Employee Name","Father's Name","Employee Code","Designation","Date of payment","Net Paid","num_instalments_recovered","Date_recovery_completed",
+                                    "Damage or Loss","Date_show_cause_notice","Total Deductions","num_installments_to_recovered","Date_deduction_completed",
+                                    "act_or_ommision","date_of_show_cause_notice","Fine","Date_fine_recovery_completed","sign","remarks"]
+        
+        data_formP['S.no'] = list(range(1,len(data_formP)+1))
+        data_formP[["num_instalments_recovered","Date_recovery_completed","Date_show_cause_notice","num_installments_to_recovered","Date_deduction_completed",
+                                    "act_or_ommision","date_of_show_cause_notice","Date_fine_recovery_completed","sign","remarks"]]=""
+        
+        formP_data=data_formP[columns]
+        formPsheet = formPfile['Sheet1']
+        formPsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        logging.info('data for form E is ready')
 
-        # Load data into rows of Form P
+        
         rows = dataframe_to_rows(formP_data, index=False, header=False)
-        logging.info('rows taken out from data')
 
-        for r_idx, row in enumerate(rows, 8):
+        logging.info('rows taken out from data')
+        start_row=9
+        r_idx=0
+        c_idx=0
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
-                formPsheet.cell(row=r_idx, column=c_idx, value = value)
-                formPsheet.cell(row=r_idx, column=c_idx).fill = PatternFill(fill_type=None)
-                formPsheet.cell(row=r_idx, column=c_idx).font = Font(name ='Bell MT', size = 10)
+                formPsheet.cell(row=r_idx, column=c_idx, value=value)
+                formPsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
                 formPsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
                 formPsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
-        # Adding Unitfile Unitname and address
-        formPsheet.cell(row=5, column=4, value = 'PLACEHOLDER') # Add variable that needs to be added
-        formPsheet.merge_cells('D5:G5')
-
-        # Formatting the table 
-        formPsheet.merge_cells('A5:C5')
-        formPsheet.merge_cells('D5:T5')
-        formPsheet.merge_cells('A4:T4')
-        formPsheet.row_dimensions[5].height = 30
-
-        for row in formPsheet.iter_rows():
-            for cell in row:      
-                cell.alignment =  cell.alignment.copy(wrapText=True)
-
-        for row_id in range(1,7):
-            for col_id in range(1,21):
-                formPsheet.cell(row=row_id, column=col_id).border = Border(left=Side(style='thick'), 
-                                                                           right=Side(style='thick'), 
-                                                                           top=Side(style='thick'), 
-                                                                           bottom=Side(style='thick'))
-
-        #formPsheet['A4'] = formPsheet['A4'].value + " : " + data_formP['Unit'][0]
-        formPfinalfile = os.path.join(outputPath,'Form P register of deduction.xlsx')
-        formPFile.save(filename = formPfinalfile)  
-
-    def Form_r():
         
-        form_data = data.copy()   # will be passed inside the func
+        formPsheet=create_border(formPsheet,r_idx,c_idx,start_row)
+        formPsheet['A6']=str(data_formP['Unit'].unique()[0])+","+str(data_formP['Address'].unique()[0])
+        formPfinalfile = os.path.join(filelocation,'Form P register of deduction.xlsx')
+        formPfile.save(filename=formPfinalfile)
+
+    def Form_Q():
+        formQfilepath = os.path.join(Tamilnadufilespath,'Form Q register of employment.xlsx')
+        formQfile = load_workbook(filename=formQfilepath)
+        logging.info('Form I file has sheet: '+str(formQfile.sheetnames))
+        logging.info('create columns which are now available')
         
-        # cls required for form R from main DF
-        # whatever has "-" has no corresponding match
-
-        # TODO: update as and when you h=get new cols
-        colsRequired = {1:'Employee Name',2:'Gender',3:'Designation',4:'-',
-                        5:'-',6:'Days Paid',7:'-',8:'-',9:'overtime rate',10:'-',
-                        11:'-',12:'-',13:'-',14:'CHECK CTC Gross',15:'FIXED MONTHLY GROSS',
-                        16:'-',17:'-',18:'-',19:'Fine',20:'Net Paid',21:'-',22:'-',}
-
-        # load form
-        formPath = os.path.join(tnfilespath,'Form R register of wages.xlsx')
-        formfile = load_workbook(filename=formPath)
-
-        # select sheet to write in and set page properties
-        formsheet = formfile['Sheet1']
-        formsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        data_formQ = data.copy(deep=True)
+        data_formQ=data_formQ.drop_duplicates(subset="Employee Code", keep="last")
+        
+        columns=['S.no',"Employee Name","Date Joined","Date of Birth","Designation",
         
         
-        ## initialize variables
-        rownum = 9 # starting row count
-        pushDownIdx = 11
-        serialNum = 0
+                    "Gender","Age","start_time","end_time","rest_interval","mon","tue","wed","thu","Fri","sat","sun",
+                                                "days_overtime","extent_of_overtime","extent_of_overtime_previously"]
+    
+        data_formQ['S.no'] = list(range(1,len(data_formQ)+1))
+        
+        formQ_data=data_formQ[columns]
+        formQsheet = formQfile['Sheet1']
+        formQsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        logging.info('data for form Q is ready')
 
-        # populate ros with required employee information
-        for idx in form_data.index:
+        
+        rows = dataframe_to_rows(formQ_data, index=False, header=False)
 
-            formsheet.cell(row= rownum, column=1, value=serialNum)
-            for col_idx in colsRequired.keys():
-                col = colsRequired[col_idx]
+        logging.info('rows taken out from data')
 
-                if  col == "-":  # if no value exisits
-                    populate = "-----"
-                else: # fetch value from dataframe
-                    populate = form_data.loc[idx, col]
-
-                # write to excel
-                print("rownum",rownum, "column", col_idx+1)
-                formsheet.cell(row= rownum, column=col_idx+1, value=populate)
-                formsheet.cell(row= rownum, column=col_idx+1).font =Font(name ='Bell MT', size =10)
-                formsheet.cell(row= rownum, column=col_idx+1).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+        row_num=0
+        for r_idx, row in enumerate(rows, 7):
+            row_num+=1
+            for c_idx, value in enumerate(row, 1):
+                formQsheet.cell(row=r_idx, column=c_idx, value=value)
+                formQsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
+                formQsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                 border_sides = Side(style='thin')
-                formsheet.cell(row=rownum, column=col_idx +1).border = Border(outline= True, right=border_sides, bottom=border_sides)
+                formQsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
+                border_sides_thick = Side(style='thick')       
+                border_sides_thin = Side(style='thin')
+                if len(row)==c_idx and row_num==len(data_formI):
+                    formQsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
+                    formQsheet.row_dimensions[r_idx].height = 20
+                elif len(row)==c_idx:
+                    formQsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
+                    formQsheet.row_dimensions[r_idx].height = 20
+                elif row_num==len(data_formI):
+                    formQsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
+                    formQsheet.row_dimensions[r_idx].height = 20
+                else:
+                    formQsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
+                    formQsheet.row_dimensions[r_idx].height = 20
+        
+        
+        formQfinalfile = os.path.join(filelocation,'Form Q register of employment.xlsx')
+        formQfile.save(filename=formQfinalfile)
 
-            # format table
-            for row_id in range(1,rownum+1):
-                for col_id in range(1,24):
-                    formsheet.cell(row=row_id, column=col_id).border = Border(left=Side(style='medium'), 
-                                                                               right=Side(style='medium'), 
-                                                                                   top=Side(style='medium'), 
-                                                                                   bottom=Side(style='medium'))
-            # insery rows to push down the note
-            formsheet.insert_rows(idx=pushDownIdx, amount=1)
-            rownum +=1
-            pushDownIdx+=1
-            serialNum +=1
 
-        # save file
-        formIfinalfile = os.path.join(outputPath,'Form R register of wages.xlsx')      
-        formfile.save(filename=formIfinalfile)
+    def Form_R():
+        formRfilepath = os.path.join(Tamilnadufilespath,'Form R register of wages.xlsx')
+        formRfile = load_workbook(filename=formRfilepath)
+        logging.info('Form R file has sheet: '+str(formRfile.sheetnames))
+        logging.info('create columns which are now available')
 
-    def Form_t():# - Form T wages slip
+        data_formR = data.copy(deep=True)
+        data_formR=data_formR.drop_duplicates(subset="Employee Code", keep="last")
+        
+        columns=['S.no',"Employee Name","Gender","Designation","Daily_rated","wages_period","Days Paid","units_of_work_done",
+                    "Daily_rate_wages","Overtime","Earned Basic",'DA',"all_Other_Allowance","Overtime","leave_wages","FIXED MONTHLY GROSS",
+                    'PF',"Insurance","all_Other_deductions","Fine","Net Paid","sign","total_unpaid_amt"]
+        
+        
+        data_formR[["Daily_rate_wages"]]="--"
+        data_formR[["Daily_rated","units_of_work_done","leave_wages","sign","total_unpaid_amt"]]=""
+        data_formR["wages_period"]=str(month)+" "+str(year)
+        data_formR['Dearness_Allowance']=data_formR['DA']
+        
+        # data_formR["Basic"]=min_wages_goa
+        all_other_allowance_columns=['Other Allowance','OtherAllowance1','OtherAllowance2', 'OtherAllowance3', 'OtherAllowance4', 'OtherAllowance5']
+        
+        data_formR[all_other_allowance_columns]=data_formR[all_other_allowance_columns].astype(float)
+        data_formR['all_Other_Allowance']= data_formR.loc[:,all_other_allowance_columns].sum(axis=1)
 
-        form_data = data.copy()   # will be passed inside the func
+        all_Other_deductions_columns=['Other Deduction','OtherDeduction1', 'OtherDeduction2','OtherDeduction3', 
+                                        'OtherDeduction4', 'OtherDeduction5']
+        
+        data_formR[all_Other_deductions_columns]=data_formR[all_Other_deductions_columns].astype(float)
+        data_formR[all_Other_deductions_columns]=data_formR[all_Other_deductions_columns].fillna(0)
 
-        # load form
-        formPath = os.path.join(tnfilespath,'Form T wages slip.xlsx')
+        data_formR["all_Other_deductions"]=data_formR.loc[:,all_Other_deductions_columns].sum(axis=1)
+
+        data_formR['S.no'] = list(range(1,len(data_formR)+1))
+
+        formR_data=data_formR[columns]
+        formRsheet = formRfile['Sheet1']
+        formRsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        logging.info('data for form R is ready')
+
+        
+        rows = dataframe_to_rows(formR_data, index=False, header=False)
+        rows_copy = list(dataframe_to_rows(formR_data, index=False, header=False))
+        logging.info('rows taken out from data')
+        r_idx=0
+        c_idx=0
+        start_row=9
+        formRsheet.insert_rows(start_row,len(data_formR)-2)
+        for r_idx, row in enumerate(rows, start_row):
+            for c_idx, value in enumerate(row, 1):
+                formRsheet.cell(row=r_idx, column=c_idx, value=value)
+                formRsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
+                formRsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+                border_sides = Side(style='thin')
+                formRsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
+        
+        formRsheet=create_border(formRsheet,r_idx,c_idx,start_row)
+        
+        formRsheet['A4']=" Name of Establishment:-   "+str(data_formR['UnitName'].unique()[0])
+        formRsheet['A5']="Name of Employer and address:-   "+str(data_formR['UnitName'].unique()[0])+","+str(data_formR['Address'].unique()[0])+" / "+str(data_formR['Contractor_name'].unique()[0])
+        
+        formRfinalfile = os.path.join(filelocation,'Form R Register of wages.xlsx')
+        formRfile.save(filename=formRfinalfile)
+
+    def Form_T():# - Form T wages slip
+
+        formPath = os.path.join(Tamilnadufilespath,'Form T wages slip.xlsx')
         formfile = load_workbook(filename=formPath)
+        logging.info('Form T file has sheet: '+str(formfile.sheetnames))
+        logging.info('create columns which are now available')
 
+        form_data = data.copy(deep=True)
+        form_data=form_data.drop_duplicates(subset="Employee Code", keep="last")
+        
         # select sheet to write in and set page properties
         formsheet = formfile['Sheet1']
         formsheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -181,12 +206,11 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,re
         # for each employee create a new sheet
         for idx in form_data.index:
 
-            empName = form_data.loc[idx, "Employee Name"]
-            print("Employee:", empName)
-
+            empCode = form_data.loc[idx, "Employee Code"]
+            
             # create a new sheet for employee
             new = formfile.copy_worksheet(formsheet)
-            new.title = empName
+            new.title = empCode
 
             # popoluate every cell with required employee information 
             new.cell(row= 4, column=3, value=form_data.loc[idx, "Company Name"])# Name of company
@@ -217,20 +241,16 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,re
         formfile.remove(formfile['Sheet3']) 
 
         # save file
-        formIfinalfile = os.path.join(outputPath,'Form T wages slip.xlsx')      
-        formfile.save(filename=formIfinalfile)
-
-
-
-
+        formTfinalfile = os.path.join(filelocation,'Form T wages slip.xlsx')      
+        formfile.save(filename=formTfinalfile)
     ## --------FUNCTION CALL-------------------------
     try:
-        Form_p()  ## Call this function in the main def
-        Form_r()
-        Form_t()
+        Form_P()  ## Call this function in the main def
+        Form_R()
+        Form_T()
+        # Form_Q()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
-        print("Key error {}".format(e))
         report.configure(text="Failed: Check input file format  \n column {} not found".format(e))
         master.update()
         raise KeyError

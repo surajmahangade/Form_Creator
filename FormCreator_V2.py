@@ -92,9 +92,9 @@ def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,
 
 State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
                 'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra}#'tamilnadu':Tamilnadu,
+                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'tamilnadu':Tamilnadu}
 
-
+# State_Process={'tamilnadu':Tamilnadu}
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
 
 def Type5(inputfolder,month,year):
@@ -405,8 +405,8 @@ def Type1(inputfolder,month,year):
                 statedata.State=state
             # continue
             if state not in implemented_state_list:
-                logging.info('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
-                print('State {} not implemented in our set,that is {} hence continuing'.format(state,implemented_state_list))
+                logging.info('State {} not implemented in our set,that is {} hence not making forms(Check if the state name matches any from the implemented set)'.format(state,implemented_state_list))
+                print('State {} not implemented in our set,that is {} hence not making forms'.format(state,implemented_state_list))
                 continue
             
             unit_with_location = list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique())

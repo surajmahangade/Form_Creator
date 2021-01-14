@@ -27,7 +27,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formA = data.copy(deep=True)
-        data_formA=data_formA.drop_duplicates(subset="Employee Name", keep="last")
+        data_formA=data_formA.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=['S.no',"Employee Name","young_or_not","start_time","end_time","rest_interval","Hrs_worked","days_overtime","Overtime"]
         # data_formA_columns=list(data_formA.columns)
@@ -94,7 +94,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formC = data.copy(deep=True)
-        data_formC=data_formC.drop_duplicates(subset="Employee Name", keep="last")
+        data_formC=data_formC.drop_duplicates(subset="Employee Code", keep="last")
         
         
         columns=["Employee Name","young_or_not","Employee_to_commence","intervals_meal_rest","employment_to_cease"]
@@ -162,7 +162,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
 
         columns=['S.no',"Employee Name","Father's Name","Department","act_of_fine","Fine","Designation","Date of payment","cause_against_fine",
                                         "amount","month","Fine","Date of payment","remarks"]
@@ -217,7 +217,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Department","Damage or Loss",'Total Deductions',
                                         "Designation","Date of payment","whether_work_showed_cause","num_instalments","date_amt_deduction","remarks"]
 
@@ -258,7 +258,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formIII = data.copy(deep=True)
-        data_formIII = data_formIII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIII = data_formIII.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Department","Date of payment",
                                         "purpose_advance","num_instalments","postponements_granted","date_total_repaid","remarks"]
         
@@ -298,9 +298,9 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         logging.info('create columns which are now available')
 
         data_formXIV = data.copy(deep=True)
-        data_formXIV=data_formXIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXIV=data_formXIV.drop_duplicates(subset="Employee Code", keep="last")
 
-        columns=['S.no',"Emp Code","Father's Name","Gender","Date of Birth","Designation","Designation_code","Date Joined","Mobile Tel No.",
+        columns=['S.no',"Employee Code","Father's Name","Gender","Date of Birth","Designation","Designation_code","Date Joined","Mobile Tel No.",
                                                     "E-Mail","Bank Name","IFSC_code","Bank A/c Number","Days Paid","LOP","num_weekly_granted",
                                                     "num_leave","Earned Basic","DA","HRA","City_compensation","FIXED MONTHLY GROSS",
                                                     "Overtime","Leave Encashment","Festival_wages","Arrears","Bonus",
@@ -326,7 +326,7 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
         r_idx=0
         c_idx=0
         start_row=18
-        for r_idx, row in enumerate(rows, 18):
+        for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, 1):
                 formXIVsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXIVsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)

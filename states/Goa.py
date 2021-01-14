@@ -35,7 +35,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         logging.info('create columns which are now available')
 
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","name&date_of_offence","cause_against_fine","FIXED MONTHLY GROSS",
                                         "Date of payment_fine_released","Date of payment_fine_imposed","remarks"]
 
@@ -91,7 +91,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","attendancefile",
                                         "Damage_loss_with_date","whether_work_showed_cause",
                                         "Date of payment & amount of deduction","num_instalments","Date on which total amount realised","remarks"]
@@ -156,7 +156,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         logging.info('create columns which are now available')
 
         data_formVIII = data.copy(deep=True)
-        data_formVIII=data_formVIII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formVIII=data_formVIII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formVIII['Designation_Dept']=data_formVIII["Designation"]+"_"+data_formVIII["Department"]
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","attendancefile",
@@ -276,7 +276,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         data_formXII = data.copy(deep=True)
         leave_file_data=data_formXII[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
         
-        data_formXII=data_formXII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXII=data_formXII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formXII["Employee Name & Code"]=data_formXII["Employee Name"].astype(str)+"||"+data_formXII["Employee Code"].astype(str)
 
@@ -541,7 +541,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         logging.info('create columns which are now available')
 
         data_formXXI = data.copy(deep=True)
-        data_formXXI=data_formXXI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXXI=data_formXXI.drop_duplicates(subset="Employee Code", keep="last")
 
         
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation","Date_of_appoinment"]
@@ -646,7 +646,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         logging.info('create columns which are now available')
 
         data_formXXIII = data.copy(deep=True)
-        data_formXXIII=data_formXXIII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXXIII=data_formXXIII.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=['S.no',"Employee Name","Father's Name","Designation",'Basic','DA',
                                 'Earned Basic','Dearness_Allowance','all_Other_Allowance','Overtime',

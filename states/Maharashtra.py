@@ -66,7 +66,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formI.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","name&date_of_offence","cause_against_fine",
@@ -110,7 +110,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formII.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Code","Employee Name","start_time","end_time",
@@ -192,7 +192,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
@@ -244,7 +244,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
         data_formII = data.copy(deep=True)
         leave_file_data=data_formII[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
         columns=['S.no',"Employee Code","Employee Name",'Age',"Gender","Designation","Date Joined","Days Paid",
@@ -353,7 +353,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
 
 
         if str(data_formIV['Designation'].dtype)[0:3] != 'obj':
@@ -418,7 +418,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formIV.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Name","Father's Name","Department","Salary Advance","purpose_advance",
@@ -481,7 +481,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
         data_formO = data.copy(deep=True)
         leave_file_data=data_formO[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
-        data_formO=data_formO.drop_duplicates(subset="Employee Name", keep="last")
+        data_formO=data_formO.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formO.fillna(value=0, inplace=True)
         columns=["Employee Name & Code","Date Joined","Department","Registration_no"]

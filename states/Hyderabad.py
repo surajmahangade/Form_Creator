@@ -34,7 +34,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('create columns which are now available')
 
         data_formX = data.copy(deep=True)
-        data_formX=data_formX.drop_duplicates(subset="Employee Name", keep="last")
+        data_formX=data_formX.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Act of Commission",
                                         "cause_against_fine","Total wages fine imposed",
                                         "amount of fine","Date of payment_fine_imposed","Date of payment_fine_realized","remarks"]
@@ -92,7 +92,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('create columns which are now available')
 
         data_formXI = data.copy(deep=True)
-        data_formXI=data_formXI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXI=data_formXI.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Damage_loss_cause","whether_work_showed_cause",
                                         "amount of deduction","date_deduction_imposed","num_instalments","Date on which total amount realised","remarks"]
         
@@ -159,7 +159,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('create columns which are now available')
 
         data_formXII = data.copy(deep=True)
-        data_formXII=data_formXII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXII=data_formXII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formXII.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Name","Father's Name","Salary Advance","date_advance_given","purpose_advance",
@@ -219,7 +219,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('create columns which are now available')
 
         data_formXXII = data.copy(deep=True)
-        data_formXXII=data_formXXII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXXII=data_formXXII.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=['S.no','Employee Code',"Employee Name",'Gender','Date of Birth',"start_time","end_time",
                 "rest_interval"]
@@ -312,7 +312,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('create columns which are now available')
 
         data_formXXIII = data.copy(deep=True)
-        data_formXXIII=data_formXXIII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXXIII=data_formXXIII.drop_duplicates(subset="Employee Code", keep="last")
         columns=["Employee Name","Date Joined","FIXED MONTHLY GROSS",'Total Earning',"Overtime","basic_and_allo",
                 'HRA','Bonus','Fuel Reimb','Prof Dev Reimb', 'Corp Attire Reimb','Telephone Reimb',
                 'CCA','Other Earning','Leave Encashment',"Overtime",'Total Earning','Insurance',
@@ -401,7 +401,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         data_formXXV = data.copy(deep=True)
         leave_file_data=data_formXXV[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
         
-        data_formXXV=data_formXXV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formXXV=data_formXXV.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formXXV["Employee Name & Code"]=data_formXXV["Employee Name"].astype(str)+"||"+data_formXXV["Employee Code"].astype(str)
 

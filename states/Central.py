@@ -32,7 +32,7 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         logging.info('create columns which are now available')
 
         data_formC = data.copy(deep=True)
-        data_formC=data_formC.drop_duplicates(subset="Employee Name", keep="last")
+        data_formC=data_formC.drop_duplicates(subset="Employee Code", keep="last")
         columns=['Employee Code',"Employee Name","Recovery_Type","Particulars","Date of payment","amount","whether_show_cause_issue","explaination_heard_in_presence_of",
                                     "num_installments","first_month_year","last_month_year","Date_of_complete_recovery","remarks"]
         
@@ -89,7 +89,7 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         logging.info('create columns which are now available')
 
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","name&date_of_offence","cause_against_fine","FIXED MONTHLY GROSS",
                                         "Date of payment_fine_released","Date of payment_fine_imposed","remarks"]
 
@@ -148,7 +148,7 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
 
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
@@ -197,7 +197,7 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         logging.info('create columns which are now available')
 
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time","Total over-time","Normal hrs ",
                                         "FIXED MONTHLY GROSS","overtime rate",
@@ -272,7 +272,7 @@ def Central_Process(data,contractor_name,contractor_address,filelocation,month,y
         logging.info('create columns which are now available')
 
         data_formV = data.copy(deep=True)
-        data_formV=data_formV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formV=data_formV.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=['S.no',"Employee Name","Father's Name","Gender",'Nature of work']
         

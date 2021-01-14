@@ -34,7 +34,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         # data_formG.fillna(value=0, inplace=True)
 
         leave_file_data=data_formG[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
-        data_formG=data_formG.drop_duplicates(subset="Employee Name", keep="last")
+        data_formG=data_formG.drop_duplicates(subset="Employee Code", keep="last")
         
 
         #Part 1 form
@@ -226,7 +226,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
 
         def Part_I():
             data_formH = data.copy(deep=True)
-            data_formH=data_formH.drop_duplicates(subset="Employee Name", keep="last")
+            data_formH=data_formH.drop_duplicates(subset="Employee Code", keep="last")
             columns=['S.no',"Employee Name",'Nature of work']
 
             # data_formH_columns=list(data_formH.columns)
@@ -327,7 +327,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
                     
         def Part_II():
             data_formH = data.copy(deep=True)
-            data_formH=data_formH.drop_duplicates(subset="Employee Name", keep="last")
+            data_formH=data_formH.drop_duplicates(subset="Employee Code", keep="last")
             columns=["Employee Name","Designation",'Earned Basic','DA','All_Other_Allowance',
                                 'Total Earning','Overtime','Salary Advance',"sal_fine_damage",
                                 'All_other_deductions','Total Deductions','Net Paid','sign','Date of payment']
@@ -406,7 +406,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         logging.info('create columns which are now available')
 
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","nature_of_offence","cause_against_fine","FIXED MONTHLY GROSS",
                                         "Date of payment&Fine",'Date_fine',"remarks"]
 
@@ -468,7 +468,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         data_formI = data.copy(deep=True)
         leave_file_data=data_formI[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
         
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
         columns=["Employee Name & Code","Date Joined"]
         data_formI["Employee Name & Code"]=data_formI["Employee Name"].astype(str)+"||"+data_formI["Employee Code"].astype(str)
         data_formI_columns=list(data_formI.columns)
@@ -616,7 +616,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Name", keep="last")
+        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Department",
                                         "Damage_loss_with_date","whether_work_showed_cause",
                                         "Date of payment & amount of deduction","num_instalments",'Date on which total amount realised',"remarks"]
@@ -684,7 +684,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         logging.info('create columns which are now available')
 
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time","Total over-time","Normal hrs ",
                                         "FIXED MONTHLY GROSS","overtime rate",

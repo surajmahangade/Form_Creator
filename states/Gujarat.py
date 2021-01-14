@@ -31,7 +31,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
 
         data_formF = data.copy(deep=True)
-        data_formF=data_formF.drop_duplicates(subset="Employee Name", keep="last")
+        data_formF=data_formF.drop_duplicates(subset="Employee Code", keep="last")
 
         columns=['S.no',"name_employer",'Company Name',"Address","Employee Name","Leave_due","Encash","Date_of_refusal","sign","remarks"]
         
@@ -92,7 +92,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
         
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Name", keep="last")
+        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=["Employee Name","Gender","Age","start_time","end_time","rest_interval","mon","tue","wed","thu","Fri","sat","sun",
                                                 "days_overtime","extent_of_overtime","extent_of_overtime_previously"]
@@ -152,7 +152,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
 
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Name", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
         columns=['S.no',"Employee Name","Father's Name","Designation","basic","DA","Earned Basic","DA","Days Paid",
                                         "Overtime","HRA",'Tel and Int Reimb',"Bonus","Fuel Reimb","Prof Dev Reimb","Corp Attire Reimb","CCA",
                                         "deductions-advance",'Total Earning','PF',"H.R.","all_Other_deductions","Insurance","P.Tax","Total Deductions","Net Paid",
@@ -248,7 +248,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         data_formM = data.copy(deep=True)
         leave_file_data=data_formM[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
         
-        data_formM=data_formM.drop_duplicates(subset="Employee Name", keep="last")
+        data_formM=data_formM.drop_duplicates(subset="Employee Code", keep="last")
         data_formM["Employee Name & Code"]=data_formM["Employee Name"].astype(str)+"||"+data_formM["Employee Code"].astype(str)
 
         columns=["Employee Name & Code","Department","Date Joined","month_year","num_days","balance_days","Date Left",'Leave Encashment']
@@ -430,7 +430,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
 
         data_formP = data.copy(deep=True)
-        data_formP=data_formP.drop_duplicates(subset="Employee Name", keep="last")
+        data_formP=data_formP.drop_duplicates(subset="Employee Code", keep="last")
         
         columns=['S.no',"Employee Name","Designation","Age","Gender","Date Joined","start_time",
                                                                 "end_time",'interval_for_reset_from','interval_for_reset_to']
@@ -528,7 +528,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         logging.info('create columns which are now available')
 
         data_formNotice_holiday = data.copy(deep=True)
-        data_formNotice_holiday=data_formNotice_holiday.drop_duplicates(subset="Employee Name", keep="last")
+        data_formNotice_holiday=data_formNotice_holiday.drop_duplicates(subset="Employee Code", keep="last")
         columns=["Employee Name","day_holiday_allowed"]
 
         data_formNotice_holiday["day_holiday_allowed"]="Sunday , Saturday"
