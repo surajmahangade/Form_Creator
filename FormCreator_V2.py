@@ -91,8 +91,9 @@ def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,
     logging.info("Uttarakhand form creation")
 
 State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
-                'gujarat':Gujarat,'kerala':Kerala,'madhya pradesh':Madhya_Pradesh,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'uttarakhand':Uttarakhand,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'tamilnadu':Tamilnadu}
+                'gujarat':Gujarat,'kerala':Kerala,'rajasthan':Rajasthan,'haryana':Haryana,
+                'west bengal':West_Bengal,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'tamilnadu':Tamilnadu}
+                #'madhya pradesh':Madhya_Pradesh,'uttarakhand':Uttarakhand
 
 # State_Process={'tamilnadu':Tamilnadu}
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
@@ -516,6 +517,9 @@ def calculate_num_loop(CDE_Data):
         if state not in implemented_state_list:
             continue
         count +=len(list((statedata[statedata.State==state]['Unit']+';'+statedata[statedata.State==state]['Location']).unique()))
+        report.configure(text="Calculating...Wait to start(This may time is files are too big) Num loops found {}".format(count))
+        master.update()  
+        
     
     contractdata = CDE_Data[(CDE_Data['State_or_Central']=='State') & (CDE_Data['PE_or_contract']=='Contract')].copy()
     count += len(list((contractdata['Unit']+';'+contractdata['Location']).unique()))
