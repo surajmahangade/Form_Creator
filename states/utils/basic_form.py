@@ -1,8 +1,15 @@
 import os
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font, Border, Alignment, Side
+from openpyxl.styles import Font, Border, Alignment, Side,numbers
 
+
+def get_data(data,columns):
+    for column in columns:
+        if column not in data.columns:
+            data[column]=""
+    return data
+    
 #Create borders 
 def create_border(sheet,last_row,last_column,start_row,start_column):
     border_sides_thick = Side(style='thick')       
@@ -13,11 +20,18 @@ def create_border(sheet,last_row,last_column,start_row,start_column):
         sheet.cell(row=r_idx, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin)    
     sheet.cell(row=last_row, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
 
+#Check if given value is numeric
+def if_num(value):
+    import numbers
+    return isinstance(value, numbers.Number)
+
 #Write value to required cell
 def cell_write(sheet,value,r_idx,c_idx):
     sheet.cell(row=r_idx, column=c_idx, value=value)
-    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
+    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =15)
     sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+    if if_num(value):
+        sheet.cell(row=r_idx, column=c_idx).number_format= numbers.FORMAT_NUMBER
 
 '''
 This function writes data like Contrator name,Unit name which is only written once in the entire file
@@ -25,7 +39,10 @@ This function writes data like Contrator name,Unit name which is only written on
 
 def write_data_once_per_sheet(data_once_per_sheet,sheet):
     for location in data_once_per_sheet.keys():
-        sheet[location]=data_once_per_sheet[location]
+        if sheet[location].value==None:
+            sheet[location]=data_once_per_sheet[location]
+        elif not str(data_once_per_sheet[location]).lower() in ["nan","na"]:
+            sheet[location]=sheet[location].value+"  "+str(data_once_per_sheet[location])
 
 '''
 This function will create basic forms which will have only one sheet and will keep adding data of each employee one below other
@@ -33,6 +50,26 @@ data_once_per_sheet is dict such that key is position and value is actual value 
 only pass in data which is only used once, like company name,
 contrator address etc
 '''
+def combine_columns_of_dataframe(dataframe,columns,delimiter=","):
+    dataframe.fillna(value="",inplace=True)
+    dataframe["combined"]=""
+    for column in columns:
+        if str(dataframe[column].dtype)[0:8] == 'datetime':
+            dataframe[column]=dataframe[column].apply(lambda x:x.strftime('%d-%m-%y'))
+        elif str(dataframe[column].dtype)[0:3]!='str':
+            dataframe[column]=dataframe[column].astype(str)
+        dataframe["combined"]+=dataframe[column]+delimiter
+    return dataframe["combined"]
+
+def sum_columns_of_dataframe(dataframe,columns):
+    dataframe.fillna(value=0,inplace=True)
+    dataframe["sum"]=0
+    for column in columns:
+        if not dataframe[column].str.isnumeric().all():
+            dataframe[column]=dataframe[column].astype(float)
+        dataframe["sum"]+=dataframe[column]
+    return dataframe["sum"]
+
 
 def create_basic_form(filename,to_read,to_write,sheet_name,all_employee_data,
                 start_row,start_column,report,master,data_once_per_sheet={}):
@@ -47,7 +84,7 @@ def create_basic_form(filename,to_read,to_write,sheet_name,all_employee_data,
     if not sheet_name in work_book.sheetnames:
         raise Exception("Sheet {} not found in file {}".format(sheet_name,file_read))
     #Check if data to be populated once is a dictionary or not
-    if not str(type(data_once_per_sheet))=='dict':
+    if not isinstance(data_once_per_sheet,dict):
         raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
     #Get the sheet
     sheet = work_book[sheet_name]
@@ -79,7 +116,8 @@ def create_per_employee_form(filename,to_read,to_write,sheet_name,start_row,star
     work_book=openpyxl.load_workbook(file_read)
     if not sheet_name in work_book.sheetnames:
         raise Exception("Sheet {} not found".format(sheet_name))
-    if not str(type(data_once_per_sheet))=='dict':
+    
+    if not isinstance(data_once_per_sheet,dict):
         raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
 
     sheet = work_book[sheet_name]
@@ -89,7 +127,7 @@ def create_per_employee_form(filename,to_read,to_write,sheet_name,start_row,star
     c_idx=0
     if not all_employee_data==None:
         rows = dataframe_to_rows(all_employee_data, index=False, header=False)
-        for row,emp_code zip(rows,employee_codes):
+        for row,emp_code in zip(rows,employee_codes):
             sheet=work_book.copy_worksheet(sheet_name)
             sheet.title=emp_code
             sheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -108,3 +146,6 @@ def create_per_employee_form(filename,to_read,to_write,sheet_name,start_row,star
     work_book.save(filename=file_write)
     
     return rows_added
+
+def get_from_to_attendance():
+    pass

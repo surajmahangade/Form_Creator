@@ -18,7 +18,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 from dateutil import parser
 from states import Register_folder  
-from utils import basic_form
+from states.utils import basic_form
 
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Maharashtra forms')
@@ -32,7 +32,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     min_wages_maharashtra=read_min_wages_file("MAHARASHTRA","SEMI-SKILLED",input_filelocation)
     
     def Read_Holiday_file():
-
         inputfolder = filelocation.split(Register_folder)[0]
         file_list = os.listdir(inputfolder)
         logging.info('input folder is '+str(inputfolder))
@@ -54,55 +53,22 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             holiday = pd.DataFrame(columns = holiday_columns)
             holiday=holiday.set_index(pd.PeriodIndex(data=holiday.Date,freq='D'))
         return holiday.sort_index()
-    # print(sorted(list(data.columns)))
-    #print("------------")
-    #print(data["Opening"])
-    #print("-------------------")
-    #print(data["Employee Name"])
-    
         
     def Form_I():
-        formIfilepath = os.path.join(Maharashtrafilespath,'Form I register of fine.xlsx')
-        formIfile = load_workbook(filename=formIfilepath)
         logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         data_formI = data.copy(deep=True)
         data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
 
-        data_formI.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","name&date_of_offence","cause_against_fine",
                                         "FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]
 
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI[["name&date_of_offence","cause_against_fine","FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]]="NIL"
-        formI_data=data_formI[columns]
-        formIsheet = formIfile['Sheet1']
-        formIsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form I is ready')
-
-        
-        rows = dataframe_to_rows(formI_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-        border_sides_thick = Side(style='thick')
-        border_sides_thin = Side(style='thin')
-        for r_idx, row in enumerate(rows, 8):
-            for c_idx, value in enumerate(row, 1):
-                formIsheet.cell(row=r_idx, column=c_idx, value=value)
-                formIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
-                formIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formI):
-                   formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                elif len(row)==c_idx:
-                    formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                elif int(row[0])==len(data_formI):
-                    formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                else:
-                    formIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-        formIsheet['A5']=formIsheet['A5'].value+" : "+str(data_formI['Company Name'].unique()[0])
-        formIsheet['A6']=formIsheet['A6'].value+" : "+str(month)+" "+str(year)
-        formIfinalfile = os.path.join(filelocation,'Form I register of fine.xlsx')
-        formIfile.save(filename=formIfinalfile)
+        formI_data=basic_form.get_data(data_formI,columns)
+        data_once_per_sheet={'A5':data_formI['Company Name'].unique()[0],'A6':str(month)+" "+str(year)}
+        basic_form.create_basic_form('Form I register of fine.xlsx',Maharashtrafilespath,filelocation,'Sheet1',
+                                    formI_data,8,1,report,master,data_once_per_sheet)
     
     def Form_II_Muster_Roll():
         formIIfilepath = os.path.join(Maharashtrafilespath,'Form II muster roll.xlsx')
@@ -260,8 +226,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII["Designation"] = data_formII["Designation"].astype(str)
         def date_format_change(val):
             return val.strftime('%d-%m-%y')
+        if str(data_formII["Date of payment"].dtype)[0:8] == 'datetime':
+            data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
 
-        data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
         for employee_name_leave_file in data_formII["Employee Name"]:
             #opening
             emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
@@ -839,6 +806,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         formOfile.save(filename=formOfinalfile)
     try:
         Form_I()
+        return
         Form_II_Muster_Roll()
         Form_II_reg_damage_loss()
         Form_II_wages_reg()
