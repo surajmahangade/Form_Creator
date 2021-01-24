@@ -18,7 +18,8 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 from dateutil import parser
 from states import Register_folder  
-            
+from utils import basic_form
+
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Maharashtra forms')
 
@@ -83,8 +84,8 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         rows = dataframe_to_rows(formI_data, index=False, header=False)
 
         logging.info('rows taken out from data')
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')            
+        border_sides_thick = Side(style='thick')
+        border_sides_thin = Side(style='thin')
         for r_idx, row in enumerate(rows, 8):
             for c_idx, value in enumerate(row, 1):
                 formIsheet.cell(row=r_idx, column=c_idx, value=value)
