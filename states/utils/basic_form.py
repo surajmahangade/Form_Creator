@@ -8,8 +8,8 @@ def get_data(data,columns):
     for column in columns:
         if column not in data.columns:
             data[column]=""
-    return data
-    
+    return data[columns]
+
 #Create borders 
 def create_border(sheet,last_row,last_column,start_row,start_column):
     border_sides_thick = Side(style='thick')       
@@ -146,6 +146,37 @@ def create_per_employee_form(filename,to_read,to_write,sheet_name,start_row,star
     work_book.save(filename=file_write)
     
     return rows_added
+
+def get_attendance_columns(data):
+    columnstotake =[]
+    days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18',
+        '19','20','21','22','23','24','25','26','27','28','29','30','31']
+    for day in days:
+        for col in data.columns:
+            if col[5:7]==day:
+                columnstotake.append(col)
+    if len(columnstotake)==28:
+        columnstotake.append('29')
+        columnstotake.append('30')
+        columnstotake.append('31')
+        data['29'] = ''
+        data['30'] = ''
+        data['31'] = ''
+        
+    elif len(columnstotake)==29:
+        columnstotake.append('30')
+        columnstotake.append('31')
+        data['30'] = ''
+        data['31'] = ''
+
+    elif len(columnstotake)==30:
+        columnstotake.append('31')
+        data['31'] = ''
+    elif len(columnstotake)==31:
+        pass
+    else:
+        raise Exception("Didnot find all attendance columns, please check format")
+    return columnstotake
 
 def get_from_to_attendance():
     pass

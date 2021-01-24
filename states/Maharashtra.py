@@ -55,7 +55,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         return holiday.sort_index()
         
     def Form_I():
-        logging.info('Form I file has sheet: '+str(formIfile.sheetnames))
         logging.info('create columns which are now available')
         data_formI = data.copy(deep=True)
         data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
@@ -79,38 +78,10 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII = data.copy(deep=True)
         data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
 
-        data_formII.fillna(value=0, inplace=True)
         columns=['S.no',"Employee Code","Employee Name","start_time","end_time",
                                         "interval_for_reset_from","interval_for_reset_to"]
         
-        # data_formII_columns=list(data_formII.columns)
-        # start=data_formII_columns.index('Emp Code')
-        # end=data_formII_columns.index('Total\r\nDP')
-        columnstotake =[]
-        days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31']
-        for day in days:
-            for col in data_formII.columns:
-                if col[5:7]==day:
-                    columnstotake.append(col)
-        if len(columnstotake)==28:
-            columnstotake.append('29')
-            columnstotake.append('30')
-            columnstotake.append('31')
-            data_formII['29'] = ''
-            data_formII['30'] = ''
-            data_formII['31'] = ''
-            
-        elif len(columnstotake)==29:
-            columnstotake.append('30')
-            columnstotake.append('31')
-            data_formII['30'] = ''
-            data_formII['31'] = ''
-
-        elif len(columnstotake)==30:
-            columnstotake.append('31')
-            data_formII['31'] = ''
-        
-        columns.extend(columnstotake)
+        columns.extend(basic_form.get_attendance_columns(data_formII))
 
         columns.extend(["Total\r\nDP"])
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
@@ -118,39 +89,15 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII['interval_for_reset_from']="1:00 PM"
         data_formII["start_time"]="9:30 AM"
         data_formII["end_time"]="6:30 PM"
-        formII_data=data_formII[columns]
-        formIIsheet = formIIfile['Sheet1']
-        formIIsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form II is ready')
-
         
-        rows = dataframe_to_rows(formII_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')
-        for r_idx, row in enumerate(rows, 8):
-            for c_idx, value in enumerate(row, 1):
-                formIIsheet.cell(row=r_idx, column=c_idx, value=value)
-                formIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
-                formIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formII):
-                       formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                elif len(row)==c_idx:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                elif int(row[0])==len(data_formII):
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                else:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                #border_sides = Side(style='thin')
-                #formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-        
-        formIIsheet['A2']=formIIsheet['A2'].value+"   "+month
+        formII_data=basic_form.get_data(data_formII,columns)
+        data_once_per_sheet={'A2':month+str(year)}
         if not data["PE_or_contract"].unique()[0].upper()=="PE":
-            formIIsheet['A3']=formIIsheet['A3'].value+"   "+str(data_formII['Contractor_name'].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
-            formIIsheet['A4']=formIIsheet['A4'].value+" "+str(data_formII['Unit'].unique()[0])+","+str(data_formII['Address'].unique()[0])
-        formIIfinalfile = os.path.join(filelocation,'Form II muster roll.xlsx')
-        formIIfile.save(filename=formIIfinalfile)
+            data_once_per_sheet['A3']=str(data_formII['Contractor_name'].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
+            data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII['Address'].unique()[0])
+        
+        basic_form.create_basic_form('Form II muster roll.xlsx',Maharashtrafilespath,filelocation,'Sheet1',
+                                    formII_data,9,1,report,master,data_once_per_sheet)
 
     def Form_II_reg_damage_loss():
         formIIfilepath = os.path.join(Maharashtrafilespath,'Form II register of damage or losses.xlsx')
@@ -806,8 +753,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         formOfile.save(filename=formOfinalfile)
     try:
         Form_I()
-        return
         Form_II_Muster_Roll()
+        return
+        
         Form_II_reg_damage_loss()
         Form_II_wages_reg()
         Form_VI_Overtime()
