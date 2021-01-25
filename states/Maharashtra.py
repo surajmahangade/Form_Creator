@@ -20,6 +20,7 @@ from dateutil import parser
 from states import Register_folder  
 from states.utils import forms_template
 
+
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Maharashtra forms')
 
@@ -30,6 +31,8 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     #Min wages xl
     input_filelocation=filelocation.split(Register_folder)[0]
     min_wages_maharashtra=read_min_wages_file("MAHARASHTRA","SEMI-SKILLED",input_filelocation)
+    
+    templates=forms_template.Templates(to_read=Maharashtrafilespath,to_write=filelocation,report=report,master=master)
     
     def Read_Holiday_file():
         inputfolder = filelocation.split(Register_folder)[0]
@@ -64,10 +67,11 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI[["name&date_of_offence","cause_against_fine","FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]]="NIL"
-        formI_data=forms_template.get_data(data_formI,columns)
+        formI_data=templates.get_data(data_formI,columns)
         data_once_per_sheet={'A5':data_formI['Company Name'].unique()[0],'A6':str(month)+" "+str(year)}
-        forms_template.create_basic_form('Form I register of fine.xlsx',Maharashtrafilespath,filelocation,'Sheet1',
-                                    formI_data,8,1,report,master,data_once_per_sheet)
+        templates.create_basic_form(filename='Form I register of fine.xlsx',
+                                    sheet_name='Sheet1',all_employee_data=formI_data,start_row=8,start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
     
     def Form_II_Muster_Roll():
         formIIfilepath = os.path.join(Maharashtrafilespath,'Form II muster roll.xlsx')
@@ -81,7 +85,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         columns=['S.no',"Employee Code","Employee Name","start_time","end_time",
                                         "interval_for_reset_from","interval_for_reset_to"]
         
-        columns.extend(forms_template.get_attendance_columns(data_formII))
+        columns.extend(templates.get_attendance_columns(data_formII))
 
         columns.extend(["Total\r\nDP"])
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
@@ -90,14 +94,14 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII["start_time"]="9:30 AM"
         data_formII["end_time"]="6:30 PM"
         
-        formII_data=forms_template.get_data(data_formII,columns)
+        formII_data=templates.get_data(data_formII,columns)
         data_once_per_sheet={'A2':month+str(year)}
         if not data["PE_or_contract"].unique()[0].upper()=="PE":
             data_once_per_sheet['A3']=str(data_formII['Contractor_name'].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
             data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII['Address'].unique()[0])
         
-        forms_template.create_basic_form('Form II muster roll.xlsx',Maharashtrafilespath,filelocation,'Sheet1',
-                                    formII_data,9,1,report,master,data_once_per_sheet)
+        templates.create_basic_form(filename='Form II muster roll.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
+                                    start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
     def Form_II_reg_damage_loss():
         formIIfilepath = os.path.join(Maharashtrafilespath,'Form II register of damage or losses.xlsx')
