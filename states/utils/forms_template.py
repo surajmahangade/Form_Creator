@@ -7,6 +7,7 @@ employee_code_column="Employee Code"
 class Helper_functions():
     def __init__(self):
         self.columns_not_found=[]
+        self.merged_cells_bounds=[]
     #Check if given value is numeric
     def if_num(self,value):
         import numbers
@@ -107,12 +108,25 @@ class Helper_functions():
             raise Exception("Didnot find all attendance columns, please check format")
         return columnstotake
 
+    def unmerge_cells(self,sheet,start_row):
+        for item in sheet.merged_cell_ranges:
+            if item.bounds[1]>=start_row:
+                print(item)
+                self.merged_cells_bounds.append(item.bounds)
+                sheet.unmerge_cells(str(item))
+
+    def merge_cells(self,sheet,num_rows_added):
+        for cell in self.merged_cells_bounds:
+            sheet.merge_cells(start_row=cell[1]+num_rows_added, start_column=cell[0], end_row=cell[3]+num_rows_added, end_column=cell[2])
+        self.merged_cells_bounds=[]
+
 class Templates(Helper_functions):
     def __init__(self,to_read,to_write,report,master):
         self.to_read=to_read
         self.to_write=to_write
         self.report=report
         self.master=master
+        super().__init__()
         
     '''
     This function will create basic forms which will have only one sheet and will keep adding data of each employee one below other
@@ -145,6 +159,7 @@ class Templates(Helper_functions):
         for r_idx, row in enumerate(rows, start_row):
             for c_idx, value in enumerate(row, start_column):
                 self.cell_write(sheet,value,r_idx,c_idx)
+            sheet.insert_rows(r_idx+1)
         #create borders 
         self.create_border(sheet,last_row=r_idx,last_column=c_idx,start_row=start_row,start_column=start_column)
         #Write data like company name,unit name etc 
@@ -157,7 +172,7 @@ class Templates(Helper_functions):
         return r_idx
 
 
-    def create_per_employee_form(self,filename,sheet_name,start_row,start_column,
+    def create_per_employee_basic_form(self,filename,sheet_name,start_row,start_column,
                                     employee_codes,data_once_per_sheet={},all_employee_data=None):
         file_read=os.path.join(self.to_read,filename)
         if not os.path.exists(file_read):
