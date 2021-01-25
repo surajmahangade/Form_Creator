@@ -19,7 +19,11 @@ from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 from dateutil import parser
 from states import Register_folder  
 from states.utils import forms_template
-
+employee_name_column="Employee Name"
+fathers_name_column="Father's Name"
+gender_column="Gender"
+employee_code_column="Employee Code"
+contractor_name_column='Contractor_name'
 
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Maharashtra forms')
@@ -39,7 +43,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         file_list = os.listdir(inputfolder)
         logging.info('input folder is '+str(inputfolder))
         for f in file_list:
-            if f[0:12].upper()=='HOLIDAY LIST':
+            if 'HOLIDAY' in f.upper() and 'LIST' in f.upper():
                 holidayfilename = f
                 logging.info('holidayfilename is :'+f)
         if 'holidayfilename' in locals():
@@ -60,9 +64,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     def Form_I():
         logging.info('create columns which are now available')
         data_formI = data.copy(deep=True)
-        data_formI=data_formI.drop_duplicates(subset="Employee Code", keep="last")
+        data_formI=data_formI.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',"Employee Name","Father's Name","Gender","Department","name&date_of_offence","cause_against_fine",
+        columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Department","name&date_of_offence","cause_against_fine",
                                         "FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]
 
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
@@ -80,9 +84,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
+        data_formII=data_formII.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',"Employee Code","Employee Name","start_time","end_time",
+        columns=['S.no',employee_code_column,employee_name_column,"start_time","end_time",
                                         "interval_for_reset_from","interval_for_reset_to"]
         
         columns.extend(templates.get_attendance_columns(data_formII))
@@ -97,7 +101,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         formII_data=templates.get_data(data_formII,columns)
         data_once_per_sheet={'A2':month+str(year)}
         if not data["PE_or_contract"].unique()[0].upper()=="PE":
-            data_once_per_sheet['A3']=str(data_formII['Contractor_name'].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
+            data_once_per_sheet['A3']=str(data_formII[contractor_name_column].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
             data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII['Address'].unique()[0])
         
         templates.create_basic_form(filename='Form II muster roll.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
@@ -105,9 +109,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
     def Form_II_reg_damage_loss():
         data_formII = data.copy(deep=True)
-        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
+        data_formII=data_formII.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',"Employee Name","Father's Name","Gender","Department","Damage or Loss","whether_work_showed_cause",
+        columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Department","Damage or Loss","whether_work_showed_cause",
                                         "Date of payment & amount of deduction","num_instalments","Date of payment","remarks"]
         
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
@@ -121,11 +125,11 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     def Form_II_wages_reg():
         
         data_formII = data.copy(deep=True)
-        leave_file_data=templates.get_data(data_formII,["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"])
-        data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
+        leave_file_data=templates.get_data(data_formII,[employee_code_column,employee_name_column,"Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"])
+        data_formII=data_formII.drop_duplicates(subset=employee_code_column, keep="last")
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
-        columns=['S.no',"Employee Code","Employee Name",'Age',"Gender","Designation","Date Joined","Days Paid",
+        columns=['S.no',employee_code_column,employee_name_column,'Age',gender_column,"Designation","Date Joined","Days Paid",
                                     "min_wages","FIXED MONTHLY GROSS","Total_Production_Piece_Rate",'Total\r\nOT Hrs',
                                     "FIXED MONTHLY GROSS","Earned Basic","HRA/Earned_basic","HRA","Tel and Int Reimb",
                                     "Bonus","Fuel Reimb","Corp Attire Reimb","CCA","Overtime","Total Earning",
@@ -138,36 +142,36 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         def date_format_change(val):
             return val.strftime('%d-%m-%y')
         
-        for employee_name_leave_file in data_formII["Employee Name"]:
+        for employee_name_leave_file in data_formII[employee_name_column]:
             #opening
-            emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
+            emp_details=leave_file_data.loc[leave_file_data[employee_name_column]==employee_name_leave_file,:]
             opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             opening_cl=emp_details["Opening"].loc[emp_details["Leave Type"]=="CL"].astype(float)
             opening_sl=emp_details["Opening"].loc[emp_details["Leave Type"]=="SL"].astype(float)
             prev_bal=opening_pl.add(opening_cl.add(opening_sl,fill_value=0), fill_value=0).sum()
             
-            data_formII.loc[data_formII["Employee Name"]==employee_name_leave_file,"Prev_balance"]=prev_bal
+            data_formII.loc[data_formII[employee_name_column]==employee_name_leave_file,"Prev_balance"]=prev_bal
             
             #monthly_inr
             mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             mon_inr_cl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="CL"].astype(float)
             mon_inr_sl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="SL"].astype(float)
             earned=mon_inr_cl.add(mon_inr_pl.add(mon_inr_sl,fill_value=0), fill_value=0).sum()
-            data_formII.loc[data_formII["Employee Name"]==employee_name_leave_file,"Earned_during_month"]=earned
+            data_formII.loc[data_formII[employee_name_column]==employee_name_leave_file,"Earned_during_month"]=earned
             #availed during month
             Used_pl=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             Used_cl=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"].astype(float)
             Used_sl=emp_details["Used"].loc[emp_details["Leave Type"]=="SL"].astype(float)
             availed=Used_cl.add(Used_pl.add(Used_sl,fill_value=0), fill_value=0).sum()
             
-            data_formII.loc[data_formII["Employee Name"]==employee_name_leave_file,"Availed"]=availed
+            data_formII.loc[data_formII[employee_name_column]==employee_name_leave_file,"Availed"]=availed
             #closing
             Closing_pl=emp_details["Closing"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             Closing_cl=emp_details["Closing"].loc[emp_details["Leave Type"]=="CL"].astype(float)
             Closing_sl=emp_details["Closing"].loc[emp_details["Leave Type"]=="SL"].astype(float)
             closing=Closing_cl.add(Closing_pl.add(Closing_sl,fill_value=0), fill_value=0).sum()
             
-            data_formII.loc[data_formII["Employee Name"]==employee_name_leave_file,"colsing_bal"]=closing
+            data_formII.loc[data_formII[employee_name_column]==employee_name_leave_file,"colsing_bal"]=closing
 
         if str(data_formII["Date of payment"].dtype)[0:8] == 'datetime':
             data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
@@ -188,9 +192,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     def Form_VI_Overtime():
         
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
+        columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time",'Total\r\nOT Hrs','Normal hrs ',
                                         "FIXED MONTHLY GROSS","overtime rate","Total Earning-Overtime","Overtime",'Total Earning',"Date of payment"]
         
@@ -205,7 +209,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formIV[["Date_overtime_worked","Extent of over-time"]]="NIL"
         formIV_data=templates.get_data(data_formIV,columns)
 
-        data_once_per_sheet={'A5':str(month)+" "+str(year),"A7":str(data_formIV['Contractor_name'].unique()[0])}
+        data_once_per_sheet={'A5':str(month)+" "+str(year),"A7":str(data_formIV[contractor_name_column].unique()[0])}
         templates.create_basic_form(filename='Form IV Overtime register.xlsx',sheet_name='Sheet1',all_employee_data=formIV_data,
                                     start_row=10,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
@@ -215,10 +219,10 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     def Form_VI_reg_advance():
         
         data_formIV = data.copy(deep=True)
-        data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
+        data_formIV=data_formIV.drop_duplicates(subset=employee_code_column, keep="last")
 
         data_formIV.fillna(value=0, inplace=True)
-        columns=['S.no',"Employee Name","Father's Name","Department","Salary Advance","purpose_advance",
+        columns=['S.no',employee_name_column,fathers_name_column,"Department","Salary Advance","purpose_advance",
                                         "num_installments_advance","Postponement_granted",
                                         "Date repaid","remarks"]
                                         
@@ -241,17 +245,17 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         logging.info('create columns which are now available')
 
         data_formO = data.copy(deep=True)
-        leave_file_data=data_formO[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
-        data_formO=data_formO.drop_duplicates(subset="Employee Code", keep="last")
+        leave_file_data=data_formO[[employee_code_column,employee_name_column,"Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
+        data_formO=data_formO.drop_duplicates(subset=employee_code_column, keep="last")
 
         data_formO.fillna(value=0, inplace=True)
         columns=["Employee Name & Code","Date Joined","Department","Registration_no"]
-        data_formO["Employee Name & Code"]=data_formO["Employee Name"].astype(str)+"||"+data_formO["Employee Code"].astype(str)
+        data_formO["Employee Name & Code"]=data_formO[employee_name_column].astype(str)+"||"+data_formO[employee_code_column].astype(str)
 
         data_formO[["num_days","Earned_during_month","Availed","colsing_bal",'Cheque No - NEFT date']]=""
-        for employee_name_leave_file in data_formO["Employee Name"]:
+        for employee_name_leave_file in data_formO[employee_name_column]:
             #opening
-            emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
+            emp_details=leave_file_data.loc[leave_file_data[employee_name_column]==employee_name_leave_file,:]
             opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"]
             if opening_pl.empty:
                 opening_pl="0"
@@ -260,7 +264,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             if opening_pl.lower()=="nan":
                 opening_pl="0"
             
-            data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"num_days"]=opening_pl
+            data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"num_days"]=opening_pl
             
            
      
@@ -305,7 +309,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         def cell_write(sheet,r_idx,c_idx,value):
                 if not (str(value)=="nan" or str(value)=="NaN"):
                     sheet.cell(row=r_idx, column=c_idx, value=value)
-                    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
+                    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =15)
                     sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
                     border_sides = Side(style='thin')
                     sheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
@@ -379,12 +383,12 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                         added[target.title]=0
                         form_write[absent_label](row_index+row_offset[target.title],target,"","","")
                         cell_write(target,row_index+row_offset[target.title] , 1, str("01"+"-"+str(month_num)+"-"+str(year)))
-                        num=data_formO.loc[data_formO["Employee Name"]==emp_name,"num_days"]
+                        num=data_formO.loc[data_formO[employee_name_column]==emp_name,"num_days"]
                         if num.empty:
                             cell_write(target,row_index+row_offset[target.title] , 2,0)
                         else:
                             cell_write(target,row_index+row_offset[target.title] , 2,num.to_string(index=False))
-                        #cell_write(target,row_index+row_offset[target.title] , 2,data_formO.loc[data_formO["Employee Name"]==emp_name,"Opening"].to_string(index=False))
+                        #cell_write(target,row_index+row_offset[target.title] , 2,data_formO.loc[data_formO[employee_name_column]==emp_name,"Opening"].to_string(index=False))
                         
                     elif c_idx==2:
                         target['H8']="Date of entry into service :- "+str(value)
@@ -410,7 +414,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                         #added[target.title]+=1
                         
                         is_abs_num=0
-                        num=data_formO.loc[data_formO["Employee Name"]==emp_name,"num_days"]
+                        num=data_formO.loc[data_formO[employee_name_column]==emp_name,"num_days"]
                         if num.empty:
                             cell_write(target,row_index+row_offset[target.title] , 2,0)
                         else:
@@ -437,7 +441,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             formOfile[sheet].merge_cells("F"+str(offset[sheet]-2)+":G"+str(offset[sheet]-1))
             formOfile[sheet].merge_cells("H"+str(offset[sheet]-2)+":H"+str(offset[sheet]-1))
         columns=["Employee Name & Code"]
-        data_formO["Employee Name & Code"]=data_formO["Employee Name"].astype(str)+"||"+data_formO["Employee Code"].astype(str)
+        data_formO["Employee Name & Code"]=data_formO[employee_name_column].astype(str)+"||"+data_formO[employee_code_column].astype(str)
         formO_data=data_formO[columns]
         
         rows = dataframe_to_rows(formO_data, index=False, header=False)
@@ -510,23 +514,23 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
         columns=["Employee Name & Code","total_leave","availed","balance","remarks"]
         data_formO[["total_leave","availed","balance"]]=""
-        for employee_name_leave_file in data_formO["Employee Name"]:
+        for employee_name_leave_file in data_formO[employee_name_column]:
             #opening
-            emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
+            emp_details=leave_file_data.loc[leave_file_data[employee_name_column]==employee_name_leave_file,:]
             opening_cl=emp_details["Opening"].loc[emp_details["Leave Type"]=="CL"]
             if opening_cl.empty:
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"total_leave"]="0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"total_leave"]="0"
             else:
                 opening_cl=opening_cl.to_string(index=False)
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"total_leave"]=opening_cl if not opening_cl=="" else "0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"total_leave"]=opening_cl if not opening_cl=="" else "0"
 
             availed=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"]
             
             if availed.empty:
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"availed"]="0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"availed"]="0"
             else:
                 availed=availed.to_string(index=False)
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"availed"]=availed if not availed=="" else "0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"availed"]=availed if not availed=="" else "0"
                 # print("------------------------------------------------------------------------------------------------------")
                 # print("availed")
                 # print(availed)
@@ -534,17 +538,17 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             balance=emp_details["Closing"].loc[emp_details["Leave Type"]=="CL"]
            
             if balance.empty:
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"balance"]="0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"balance"]="0"
             else:
                 balance=balance.to_string(index=False)
-                data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"balance"]=balance if not balance=="" else "0"
+                data_formO.loc[data_formO[employee_name_column]==employee_name_leave_file,"balance"]=balance if not balance=="" else "0"
                 # print("balance")
                 # print(balance)
 
             
             
         data_formO[["remarks"]]=""
-        data_formO["Employee Name & Code"]=data_formO["Employee Name"].astype(str)+"||"+data_formO["Employee Code"].astype(str)
+        data_formO["Employee Name & Code"]=data_formO[employee_name_column].astype(str)+"||"+data_formO[employee_code_column].astype(str)
         formO_data=data_formO[columns]
         
         
