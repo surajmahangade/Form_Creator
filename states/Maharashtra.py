@@ -104,64 +104,24 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                                     start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
     def Form_II_reg_damage_loss():
-        formIIfilepath = os.path.join(Maharashtrafilespath,'Form II register of damage or losses.xlsx')
-        formIIfile = load_workbook(filename=formIIfilepath)
-        logging.info('Form II file has sheet: '+str(formIIfile.sheetnames))
-        logging.info('create columns which are now available')
-
         data_formII = data.copy(deep=True)
         data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
 
-        data_formII.fillna(value=0, inplace=True)
-        #print(sorted(data_formII.columns))
         columns=['S.no',"Employee Name","Father's Name","Gender","Department","Damage or Loss","whether_work_showed_cause",
                                         "Date of payment & amount of deduction","num_instalments","Date of payment","remarks"]
         
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
         data_formII[["Damage or Loss","whether_work_showed_cause","Date of payment & amount of deduction","num_instalments","Date of payment","remarks"]]="NIL"
-        formII_data=data_formII[columns]
-        formIIsheet = formIIfile['Sheet1']
-        formIIsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form II is ready')
-
-        
-        rows = dataframe_to_rows(formII_data, index=False, header=False)
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')
-        
-        logging.info('rows taken out from data')
-        for r_idx, row in enumerate(rows, 9):
-            for c_idx, value in enumerate(row, 1):
-                formIIsheet.cell(row=r_idx, column=c_idx, value=value)
-                formIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
-                formIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formII):
-                       formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                elif len(row)==c_idx:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                elif int(row[0])==len(data_formII):
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                else:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                #border_sides = Side(style='thin')
-                #formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-        
-        
-        formIIsheet['A5']="Name and Address of the Establishment "+str(data_formII['Company Name'].unique()[0])+","+str(data_formII['Address'].unique()[0])
-        formIIsheet['A6']="PERIOD "+str(month)+" "+str(year)
-        formIIfinalfile = os.path.join(filelocation,'Form II register of damage or losses.xlsx')
-        formIIfile.save(filename=formIIfinalfile)
+        formII_data=templates.get_data(data_formII,columns)
+        data_once_per_sheet={'A5':str(data_formII['Company Name'].unique()[0])+","+str(data_formII['Address'].unique()[0]),
+                            'A6':str(month)+" "+str(year)}
+        templates.create_basic_form(filename='Form II register of damage or losses.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
+                                    start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
     def Form_II_wages_reg():
-        # print("----------------------------------------------")
-        # print(filelocation)
-        formIIfilepath = os.path.join(Maharashtrafilespath,'Form II wages register.xlsx')
-        formIIfile = load_workbook(filename=formIIfilepath)
-        logging.info('Form II file has sheet: '+str(formIIfile.sheetnames))
-        logging.info('create columns which are now available')
-
+        
         data_formII = data.copy(deep=True)
-        leave_file_data=data_formII[["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"]]
+        leave_file_data=templates.get_data(data_formII,["Employee Code","Employee Name","Leave Type","Opening","Monthly Increment","Leave Accrued","Used","Encash","Closing"])
         data_formII=data_formII.drop_duplicates(subset="Employee Code", keep="last")
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
@@ -174,12 +134,10 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                                     "Bank A/c Number",'Cheque No - NEFT date',"Net Paid","sign"]
         # print(leave_file_data)
         data_formII[["Prev_balance","Earned_during_month","Availed","colsing_bal"]]=""
-        data_formII["Designation"] = data_formII["Designation"].astype(str)
+        
         def date_format_change(val):
             return val.strftime('%d-%m-%y')
-        if str(data_formII["Date of payment"].dtype)[0:8] == 'datetime':
-            data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
-
+        
         for employee_name_leave_file in data_formII["Employee Name"]:
             #opening
             emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
@@ -210,132 +168,52 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             closing=Closing_cl.add(Closing_pl.add(Closing_sl,fill_value=0), fill_value=0).sum()
             
             data_formII.loc[data_formII["Employee Name"]==employee_name_leave_file,"colsing_bal"]=closing
-     
-        def convert(input_str):
-            if input_str=="nan":
-                return ""
-            else:
-                return input_str.split(".")[0]+"."+input_str.split(".")[1][:2]
-        data_formII["HRA/Earned_basic"]=((data_formII["HRA"].apply(float)/data_formII["Earned Basic"].apply(float))*100.0).apply(str).apply(convert)
-        
-        data_formII["Fine"]=data_formII["Fine"].fillna(0)
-        data_formII["Damage or Loss"]=data_formII["Damage or Loss"].fillna(0)
-        
-        data_formII["sal_fine_damage"]=data_formII["Fine"].apply(float)+data_formII["Damage or Loss"].apply(float)
-        remove_point=lambda input_str: input_str.split(".")[0]
-        data_formII["Bank A/c Number"]=data_formII["Bank A/c Number"].apply(str).apply(remove_point)
-        data_formII['S.no'] = list(range(1,len(data_formII)+1))
 
+        if str(data_formII["Date of payment"].dtype)[0:8] == 'datetime':
+            data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
+
+        data_formII["HRA/Earned_basic"]=((data_formII["HRA"].apply(float)/data_formII["Earned Basic"].apply(float))*100.0)
+        data_formII["sal_fine_damage"]=templates.sum_columns_of_dataframe(data_formII,["Fine","Damage or Loss"])
+        data_formII['S.no'] = list(range(1,len(data_formII)+1))
         data_formII[["Total_Production_Piece_Rate"]]="----"
         data_formII["min_wages"]=min_wages_maharashtra
         data_formII[["sign"]]=""
-        formII_data=data_formII[columns]
-        formIIsheet = formIIfile['Sheet1']
-        formIIsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form II is ready')
-
         
-        rows = dataframe_to_rows(formII_data, index=False, header=False)
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')
-        logging.info('rows taken out from data')
-        for r_idx, row in enumerate(rows, 7):
-            for c_idx, value in enumerate(row, 1):
-                # if data_formII.loc[data_formII["Employee Name"]=="Nilesh Tanaji Patil","HRA"].apply(float):
-                if str(value)=="nan":
-                    value=""
-                formIIsheet.cell(row=r_idx, column=c_idx, value=value) 
-                formIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
-                formIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formII):
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                elif len(row)==c_idx:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                elif int(row[0])==len(data_formII):
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                else:
-                    formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                #formIIsheet.column.format("", str)
-                #border_sides = Side(style='thin')
-                #formIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-        
-        formIIsheet['A2']=formIIsheet['A2'].value+"   "+str(month)
-        #formIIsheet['A3']="Name and address of Contractor :- "+str(data_formII['Contractor_name'].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
-        formIIsheet['A4']="Name and   address of Principal Employer :- "+str(data_formII['Company Name'].unique()[0])#+","+str(data_formII['Address'].unique()[0])
-        formIIfinalfile = os.path.join(filelocation,'Form II wages register.xlsx')
-        formIIfile.save(filename=formIIfinalfile)
+        formII_data=templates.get_data(data_formII,columns)
+        data_once_per_sheet={'A2':str(month)+" "+str(year),
+                            'A4':str(data_formII['Company Name'].unique()[0])}
+        templates.create_basic_form(filename='Form II wages register.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
+                                    start_row=7,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
     def Form_VI_Overtime():
-        formIVfilepath = os.path.join(Maharashtrafilespath,'Form IV Overtime register.xlsx')
-        formIVfile = load_workbook(filename=formIVfilepath)
-        logging.info('Form IV file has sheet: '+str(formIVfile.sheetnames))
-        logging.info('create columns which are now available')
-
+        
         data_formIV = data.copy(deep=True)
         data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
 
-
-        if str(data_formIV['Designation'].dtype)[0:3] != 'obj':
-            data_formIV["Designation"] = data_formIV["Designation"].astype(str)
-        if str(data_formIV['Department'].dtype)[0:3] != 'obj':
-            data_formIV["Department"] = data_formIV["Department"].astype(str)
-
-        u = data_formIV.select_dtypes(exclude=['object'])
-        data_formIV[u.columns] = u.fillna(value=0)
         columns=['S.no',"Employee Name","Father's Name","Gender","Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time",'Total\r\nOT Hrs','Normal hrs ',
                                         "FIXED MONTHLY GROSS","overtime rate","Total Earning-Overtime","Overtime",'Total Earning',"Date of payment"]
         
         data_formIV['S.no'] = list(range(1,len(data_formIV)+1))
-        data_formIV["Overtime"]=data_formIV["Overtime"].astype(str)
-        
-        data_formIV["Overtime"]=data_formIV["Overtime"].str.replace("","0")
+        data_formIV["Overtime"]=data_formIV["Overtime"].fillna(value=0)
         data_formIV["Overtime"]=data_formIV["Overtime"].astype(float)
+
         data_formIV.loc[data_formIV["Overtime"]==0,"Date of payment"]="---"
         data_formIV["Date of payment"]=data_formIV["Date of payment"].replace(0,"---")
         data_formIV['Designation_Dept']=data_formIV["Designation"]+"_"+data_formIV["Department"]
         data_formIV["Total Earning-Overtime"]=data_formIV['Total Earning'].astype(float)-data_formIV["Overtime"].astype(float)
         data_formIV[["Date_overtime_worked","Extent of over-time"]]="NIL"
-        formIV_data=data_formIV[columns]
-        formIVsheet = formIVfile['Sheet1']
-        formIVsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        formIV_data=templates.get_data(data_formIV,columns)
+
+        data_once_per_sheet={'A5':str(month)+" "+str(year),"A7":str(data_formIV['Contractor_name'].unique()[0])}
+        templates.create_basic_form(filename='Form IV Overtime register.xlsx',sheet_name='Sheet1',all_employee_data=formIV_data,
+                                    start_row=10,start_column=1,data_once_per_sheet=data_once_per_sheet)
+
+        # for i in range(1,16):
+        #     formIVsheet.cell(row=7, column=i).border = Border(outline= True,bottom=border_sides_thick)
         
-        logging.info('data for form IV is ready')
-
-        
-        rows = dataframe_to_rows(formIV_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')
-        for r_idx, row in enumerate(rows, 10):
-            for c_idx, value in enumerate(row, 1):
-                formIVsheet.cell(row=r_idx, column=c_idx, value=value)
-                formIVsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
-                formIVsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formIV):
-                       formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                elif len(row)==c_idx:
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                elif int(row[0])==len(data_formIV):
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                else:
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                
-        #formIVsheet['A4']=formIVsheet['A4'].value+" : "+data_formIV['Unit'].unique()[0]
-        formIVsheet['A7']="Name of the Establishment : "+str(data_formIV['Contractor_name'].unique()[0])
-        for i in range(1,16):
-            formIVsheet.cell(row=7, column=i).border = Border(outline= True,bottom=border_sides_thick)
-        formIVsheet['A5']=formIVsheet['A5'].value+" "+str(month)+" "+str(year)
-        formIVfinalfile = os.path.join(filelocation,'Form IV Overtime register.xlsx')
-        formIVfile.save(filename=formIVfinalfile)
-
     def Form_VI_reg_advance():
-        formIVfilepath = os.path.join(Maharashtrafilespath,'Form IV register of advance.xlsx')
-        formIVfile = load_workbook(filename=formIVfilepath)
-        logging.info('Form IV file has sheet: '+str(formIVfile.sheetnames))
-        logging.info('create columns which are now available')
-
+        
         data_formIV = data.copy(deep=True)
         data_formIV=data_formIV.drop_duplicates(subset="Employee Code", keep="last")
 
@@ -346,48 +224,13 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                                         
                                         
         data_formIV['S.no'] = list(range(1,len(data_formIV)+1))
-        data_formIV["Salary Advance"]=data_formIV["Salary Advance"].astype(str)
-        data_formIV=data_formIV.replace({"Salary Advance":{"":"NIL","0.":"NIL","0":"NIL","0.0":"NIL"}})
         
         data_formIV[["purpose_advance","num_installments_advance","Postponement_granted","Date repaid","remarks"]]="NIL"
-        formIV_data=data_formIV[columns]
-        formIVsheet = formIVfile['Sheet1']
-        formIVsheet.sheet_properties.pageSetUpPr.fitToPage = True
+        formIV_data=templates.get_data(data_formIV,columns)
         
-        logging.info('data for form IV is ready')
-
-        
-        rows = dataframe_to_rows(formIV_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-        border_sides_thick = Side(style='thick')       
-        border_sides_thin = Side(style='thin')
-        for r_idx, row in enumerate(rows, 13):
-            for c_idx, value in enumerate(row, 1):
-                formIVsheet.cell(row=r_idx, column=c_idx, value=value)
-                formIVsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
-                formIVsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formIV):
-                       formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                       formIVsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formIVsheet.row_dimensions[r_idx].height = 20
-                elif int(row[0])==len(data_formIV):
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formIVsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formIVsheet.row_dimensions[r_idx].height = 20
-                #border_sides = Side(style='thin')
-                #formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
-        #formIVsheet['A4']=formIVsheet['A4'].value+" : "+data_formIV['Unit'].unique()[0]
-        formIVsheet['A6']="Name of Factory or Industrial Establishment. : "+str(data_formIV['Company Name'].unique()[0])
-        formIVsheet['A7']="PERIOD "+str(month)+" "+str(year)
-
-        formIVfinalfile = os.path.join(filelocation,'Form IV register of advance.xlsx')
-        formIVfile.save(filename=formIVfinalfile)
+        data_once_per_sheet={'A7':str(month)+" "+str(year),"A6":str(data_formIV['Company Name'].unique()[0])}
+        templates.create_basic_form(filename='Form IV register of advance.xlsx',sheet_name='Sheet1',all_employee_data=formIV_data,
+                                    start_row=13,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
 
     def From_O():
@@ -414,7 +257,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                 opening_pl="0"
             else:
                 opening_pl=opening_pl.to_string(index=False)
-            if opening_pl=="Nan" or opening_pl=="nan":
+            if opening_pl.lower()=="nan":
                 opening_pl="0"
             
             data_formO.loc[data_formO["Employee Name"]==employee_name_leave_file,"num_days"]=opening_pl
@@ -422,13 +265,11 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
            
      
         data_formO_columns=list(data_formO.columns)
-        start_col=data_formO_columns.index('Emp Code')
-        end=data_formO_columns.index('Total\r\nDP')
-        num_days=len(data_formO_columns[start_col+1:end])
-        start_month=data_formO_columns[start_col+1]
-        end_month=data_formO_columns[end-1]
+        start_month = datetime.date(year,month_num,1)
+        end_month = datetime.date(year,month_num,calendar.monthrange(year,month_num)[1])
         
-        columns.extend(data_formO_columns[start_col+1:end])
+        
+        columns.extend(templates.get_attendance_columns(data_formO))
 
 
         formO_data=data_formO[columns]
@@ -473,7 +314,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
             cell_write(target,row_index,3,start+"--"+end)
             target.row_dimensions[row_index].height = 50
-            cell_write(target,row_index , 1,data_formO_columns[start_col+1])
+            cell_write(target,row_index , 1,start_month)
             cell_write(target,row_index , 4,"----")
             cell_write(target,row_index , 5,"----")
             # cell_write(target,row_index , 6,"----")
@@ -521,8 +362,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                     if c_idx==1:
                         name=value.split("||")[0]
                         code=value.split("||")[1]
-                        if code =="nan":
-                            code=name
                         try:
                             target=formOfile[code]
                         except:
@@ -711,7 +550,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         
         rows = dataframe_to_rows(formO_data, index=False, header=False)
         logging.info('rows taken out from data')
-        offset[code]+=1
+        # offset[code]+=1
         border_sides_thin = Side(style='thin')
         border_sides_thick = Side(style='thick')
         for r_idx, row in enumerate(rows, 10):
@@ -719,8 +558,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                 if c_idx==1:
                     name=value.split("||")[0]
                     code=value.split("||")[1]
-                    if code =="nan":
-                        code=name
                     target=formOfile[code]
                     start_date = "01"+"-"+str(month_num)+"-"+str(year)
                     end_date = str(last_day)+"-"+str(month_num)+"-"+str(year)
@@ -747,7 +584,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                     target.row_dimensions[offset[code]].height = 20
             #offset[code]+=1
 
-
         #offset+=Counter(start_end_date_attendance(dataframe_to_rows(formO_data, index=False, header=False),"CL",offset,initial_offset))
         formOfile.remove(formOfile["Sheet1"])
         formOfile.remove(formOfile["Sheet2"])
@@ -758,8 +594,6 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     try:
         Form_I()
         Form_II_Muster_Roll()
-        return
-        
         Form_II_reg_damage_loss()
         Form_II_wages_reg()
         Form_VI_Overtime()

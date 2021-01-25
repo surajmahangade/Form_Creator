@@ -72,8 +72,7 @@ class Helper_functions():
         dataframe.fillna(value=0,inplace=True)
         dataframe["sum"]=0
         for column in columns:
-            if not dataframe[column].str.isnumeric().all():
-                dataframe[column]=dataframe[column].astype(float)
+            dataframe[column]=dataframe[column].astype(float)
             dataframe["sum"]+=dataframe[column]
         return dataframe["sum"]
 
