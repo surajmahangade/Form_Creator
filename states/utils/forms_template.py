@@ -2,6 +2,7 @@ import os
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side,numbers
+employee_code_column="Employee Code"
 
 class Helper_functions():
     def __init__(self):
@@ -37,10 +38,17 @@ class Helper_functions():
             sheet.cell(row=r_idx, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin)    
         sheet.cell(row=last_row, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
         
+    def write_to_column(sheet,values,c_idx,start_row):
+        for r_idx,value in enumerate(values,start_row):
+            self.cell_write(sheet,value,r_idx,c_idx)
+
+    def write_to_row(sheet,values,r_idx,start_column):
+        for c_idx,value in enumerate(values,start_column):
+            self.cell_write(sheet,value,r_idx,c_idx)
+
     '''
     This function writes data like Contrator name,Unit name which is only written once in the entire file
     '''
-
     def write_data_once_per_sheet(self,data_once_per_sheet,sheet):
         for location in data_once_per_sheet.keys():
             if sheet[location].value==None:
@@ -188,8 +196,33 @@ class Templates(Helper_functions):
         
         return rows_added
 
-    def get_from_to_attendance():
-        pass
+    def get_from_to_dates_attendance(data,absent_label):
+        columns=[employee_code_column]
+        columns.extend(self.get_attendance_columns(data))
+        attendance=data[columns]
+        rows = dataframe_to_rows(attendance, index=False, header=False)
+        from_to_dates={}
+        for row in rows:
+            for idx,value in enumerate(row):
+                if idx==0:
+                    emp_code=value
+                    from_to_dates[emp_code]["from"]=[]
+                    from_to_dates[emp_code]["to"]=[]
+                    from_to_dates[emp_code]["numdays"]=[]
+                elif is_abs_num==0 and value==absent_label:
+                    is_abs_num=1
+                    start=columns[idx]
+                    end=columns[idx]
+                elif value==absent_label:
+                    is_abs_num+=1
+                    end=columns[idx]
+                elif is_abs_num:
+                    is_abs_num=0
+                    from_to_dates[emp_code]["from"].append(start)
+                    from_to_dates[emp_code]["to"].append(end)
+                    from_to_dates[emp_code]["numdays"].append(is_abs_num)
 
+        return from_to_dates
+        
 
         
