@@ -86,7 +86,7 @@ def Karnataka(data,contractor_name,contractor_address,filelocation,month,year,re
                                     data=data_formF,columns=columns,data_once_per_sheet=data_once_per_sheet,per_employee_diff_data=True)
 
 
-
+    
     def create_form_A():
 
         formAfilepath = os.path.join(karnatakafilespath,'FormA.xlsx')

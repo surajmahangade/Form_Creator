@@ -24,6 +24,12 @@ fathers_name_column="Father's Name"
 gender_column="Gender"
 employee_code_column="Employee Code"
 contractor_name_column='Contractor_name'
+department_column='Department'
+fix_monthly_gross_column="FIXED MONTHLY GROSS"
+date_of_payment_column='Date of payment'
+company_name_column="Company Name"
+address_column="Address"
+PE_or_contract_column='PE_or_contract'
 
 def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     logging.info('Maharashtra forms')
@@ -36,7 +42,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
     input_filelocation=filelocation.split(Register_folder)[0]
     min_wages_maharashtra=read_min_wages_file("MAHARASHTRA","SEMI-SKILLED",input_filelocation)
     
-    templates=forms_template.Templates(to_read=Maharashtrafilespath,to_write=filelocation,report=report,master=master)
+    templates=forms_template.Templates(to_read=Maharashtrafilespath,to_write=filelocation,month=month,year=year,report=report,master=master)
     
     def Read_Holiday_file():
         inputfolder = filelocation.split(Register_folder)[0]
@@ -66,13 +72,13 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formI = data.copy(deep=True)
         data_formI=data_formI.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Department","name&date_of_offence","cause_against_fine",
-                                        "FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]
+        columns=['S.no',employee_name_column,fathers_name_column,gender_column,department_column,"name&date_of_offence","cause_against_fine",
+                                        fix_monthly_gross_column,date_of_payment_column,"Date of Fine","remarks"]
 
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
-        data_formI[["name&date_of_offence","cause_against_fine","FIXED MONTHLY GROSS","Date of payment","Date of Fine","remarks"]]="NIL"
-        formI_data=templates.get_data(data_formI,columns)
-        data_once_per_sheet={'A5':data_formI['Company Name'].unique()[0],'A6':str(month)+" "+str(year)}
+        data_formI[["name&date_of_offence","cause_against_fine",fix_monthly_gross_column,date_of_payment_column,"Date of Fine","remarks"]]="NIL"
+        formI_data=data_formI[columns]
+        data_once_per_sheet={'A5':data_formI[company_name_column].unique()[0],'A6':str(month)+" "+str(year)}
         templates.create_basic_form(filename='Form I register of fine.xlsx',
                                     sheet_name='Sheet1',all_employee_data=formI_data,start_row=8,start_column=1,
                                     data_once_per_sheet=data_once_per_sheet)
@@ -100,9 +106,9 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         
         formII_data=templates.get_data(data_formII,columns)
         data_once_per_sheet={'A2':month+str(year)}
-        if not data["PE_or_contract"].unique()[0].upper()=="PE":
-            data_once_per_sheet['A3']=str(data_formII[contractor_name_column].unique()[0])+","+str(data_formII['Contractor_Address'].unique()[0])
-            data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII['Address'].unique()[0])
+        if not data[PE_or_contract_column].unique()[0].upper()=="PE":
+            data_once_per_sheet['A3']=str(data_formII[contractor_name_column].unique()[0])+","+contractor_address
+            data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII[address_column].unique()[0])
         
         templates.create_basic_form(filename='Form II muster roll.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
                                     start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)
@@ -111,13 +117,14 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII = data.copy(deep=True)
         data_formII=data_formII.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Department","Damage or Loss","whether_work_showed_cause",
-                                        "Date of payment & amount of deduction","num_instalments","Date of payment","remarks"]
+        columns=['S.no',employee_name_column,fathers_name_column,gender_column,department_column,"Damage or Loss","whether_work_showed_cause",
+                                        "Date of payment & amount of deduction","num_instalments",date_of_payment_column,"remarks"]
         
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
-        data_formII[["Damage or Loss","whether_work_showed_cause","Date of payment & amount of deduction","num_instalments","Date of payment","remarks"]]="NIL"
+        data_formII[["Damage or Loss","whether_work_showed_cause","Date of payment & amount of deduction",
+                                                    "num_instalments",date_of_payment_column,"remarks"]]="NIL"
         formII_data=templates.get_data(data_formII,columns)
-        data_once_per_sheet={'A5':str(data_formII['Company Name'].unique()[0])+","+str(data_formII['Address'].unique()[0]),
+        data_once_per_sheet={'A5':str(data_formII[company_name_column].unique()[0])+","+str(data_formII[address_column].unique()[0]),
                             'A6':str(month)+" "+str(year)}
         templates.create_basic_form(filename='Form II register of damage or losses.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
                                     start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)
@@ -130,11 +137,11 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formII.fillna(value=0, inplace=True)
         #print(sorted(data_formII.columns))
         columns=['S.no',employee_code_column,employee_name_column,'Age',gender_column,"Designation","Date Joined","Days Paid",
-                                    "min_wages","FIXED MONTHLY GROSS","Total_Production_Piece_Rate",'Total\r\nOT Hrs',
-                                    "FIXED MONTHLY GROSS","Earned Basic","HRA/Earned_basic","HRA","Tel and Int Reimb",
+                                    "min_wages",fix_monthly_gross_column,"Total_Production_Piece_Rate",'Total\r\nOT Hrs',
+                                    fix_monthly_gross_column,"Earned Basic","HRA/Earned_basic","HRA","Tel and Int Reimb",
                                     "Bonus","Fuel Reimb","Corp Attire Reimb","CCA","Overtime","Total Earning",
                                     "PF","P.Tax","Insurance","sal_fine_damage","Total Deductions","Net Paid",
-                                    "Prev_balance","Earned_during_month","Availed","colsing_bal","Date of payment",
+                                    "Prev_balance","Earned_during_month","Availed","colsing_bal",date_of_payment_column,
                                     "Bank A/c Number",'Cheque No - NEFT date',"Net Paid","sign"]
         # print(leave_file_data)
         data_formII[["Prev_balance","Earned_during_month","Availed","colsing_bal"]]=""
@@ -173,8 +180,8 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
             
             data_formII.loc[data_formII[employee_name_column]==employee_name_leave_file,"colsing_bal"]=closing
 
-        if str(data_formII["Date of payment"].dtype)[0:8] == 'datetime':
-            data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
+        if str(data_formII[date_of_payment_column].dtype)[0:8] == 'datetime':
+            data_formII[date_of_payment_column]=data_formII[date_of_payment_column].apply(date_format_change)
 
         data_formII["HRA/Earned_basic"]=((data_formII["HRA"].apply(float)/data_formII["Earned Basic"].apply(float))*100.0)
         data_formII["sal_fine_damage"]=templates.sum_columns_of_dataframe(data_formII,["Fine","Damage or Loss"])
@@ -185,7 +192,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         
         formII_data=templates.get_data(data_formII,columns)
         data_once_per_sheet={'A2':str(month)+" "+str(year),
-                            'A4':str(data_formII['Company Name'].unique()[0])}
+                            'A4':str(data_formII[company_name_column].unique()[0])}
         templates.create_basic_form(filename='Form II wages register.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
                                     start_row=7,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
@@ -196,15 +203,15 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
 
         columns=['S.no',employee_name_column,fathers_name_column,gender_column,"Designation_Dept","Date_overtime_worked",
                                         "Extent of over-time",'Total\r\nOT Hrs','Normal hrs ',
-                                        "FIXED MONTHLY GROSS","overtime rate","Total Earning-Overtime","Overtime",'Total Earning',"Date of payment"]
+                                        fix_monthly_gross_column,"overtime rate","Total Earning-Overtime","Overtime",'Total Earning',date_of_payment_column]
         
         data_formIV['S.no'] = list(range(1,len(data_formIV)+1))
         data_formIV["Overtime"]=data_formIV["Overtime"].fillna(value=0)
         data_formIV["Overtime"]=data_formIV["Overtime"].astype(float)
 
-        data_formIV.loc[data_formIV["Overtime"]==0,"Date of payment"]="---"
-        data_formIV["Date of payment"]=data_formIV["Date of payment"].replace(0,"---")
-        data_formIV['Designation_Dept']=data_formIV["Designation"]+"_"+data_formIV["Department"]
+        data_formIV.loc[data_formIV["Overtime"]==0,date_of_payment_column]="---"
+        data_formIV[date_of_payment_column]=data_formIV[date_of_payment_column].replace(0,"---")
+        data_formIV['Designation_Dept']=data_formIV["Designation"]+"_"+data_formIV[department_column]
         data_formIV["Total Earning-Overtime"]=data_formIV['Total Earning'].astype(float)-data_formIV["Overtime"].astype(float)
         data_formIV[["Date_overtime_worked","Extent of over-time"]]="NIL"
         formIV_data=templates.get_data(data_formIV,columns)
@@ -222,7 +229,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formIV=data_formIV.drop_duplicates(subset=employee_code_column, keep="last")
 
         data_formIV.fillna(value=0, inplace=True)
-        columns=['S.no',employee_name_column,fathers_name_column,"Department","Salary Advance","purpose_advance",
+        columns=['S.no',employee_name_column,fathers_name_column,department_column,"Salary Advance","purpose_advance",
                                         "num_installments_advance","Postponement_granted",
                                         "Date repaid","remarks"]
                                         
@@ -232,7 +239,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formIV[["purpose_advance","num_installments_advance","Postponement_granted","Date repaid","remarks"]]="NIL"
         formIV_data=templates.get_data(data_formIV,columns)
         
-        data_once_per_sheet={'A7':str(month)+" "+str(year),"A6":str(data_formIV['Company Name'].unique()[0])}
+        data_once_per_sheet={'A7':str(month)+" "+str(year),"A6":str(data_formIV[company_name_column].unique()[0])}
         templates.create_basic_form(filename='Form IV register of advance.xlsx',sheet_name='Sheet1',all_employee_data=formIV_data,
                                     start_row=13,start_column=1,data_once_per_sheet=data_once_per_sheet)
 
@@ -249,7 +256,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         data_formO=data_formO.drop_duplicates(subset=employee_code_column, keep="last")
 
         data_formO.fillna(value=0, inplace=True)
-        columns=["Employee Name & Code","Date Joined","Department","Registration_no"]
+        columns=["Employee Name & Code","Date Joined",department_column,"Registration_no"]
         data_formO["Employee Name & Code"]=data_formO[employee_name_column].astype(str)+"||"+data_formO[employee_code_column].astype(str)
 
         data_formO[["num_days","Earned_during_month","Availed","colsing_bal",'Cheque No - NEFT date']]=""
@@ -307,13 +314,13 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         
         #rows_copy = list(dataframe_to_rows(formO_data, index=False, header=False))
         def cell_write(sheet,r_idx,c_idx,value):
-                if not (str(value)=="nan" or str(value)=="NaN"):
-                    sheet.cell(row=r_idx, column=c_idx, value=value)
-                    sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =15)
-                    sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                    border_sides = Side(style='thin')
-                    sheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-                
+            if not (str(value)=="nan" or str(value)=="NaN"):
+                sheet.cell(row=r_idx, column=c_idx, value=value)
+                sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =15)
+                sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+                border_sides = Side(style='thin')
+                sheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
+            
         def PL_write(row_index,target,start,end,is_abs_num):
 
             cell_write(target,row_index,3,start+"--"+end)
@@ -374,7 +381,7 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
                             #initial offset
                             row_offset[code]=initial_offset
                         
-                        target['A4']="Name and address of the Establishment:- "" "+str(data_formO['Company Name'].unique()[0])#+","+str(data_formO['Address'].unique()[0])
+                        target['A4']="Name and address of the Establishment:- "" "+str(data_formO[company_name_column].unique()[0])#+","+str(data_formO[address_column].unique()[0])
                         #target['A5']="Name of Employer:- "" "+str(data_formO['Unit'].unique()[0])
                         target["H4"]="Name of the employee:- "+str(name)+"\n"+" Receipt of leave book - "
                         target['A7']="Name of worker : "+str(name)

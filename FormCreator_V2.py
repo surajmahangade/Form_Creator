@@ -10,6 +10,7 @@ import numpy as np
 import datetime
 import logging
 
+
 master = Tk()
 master.title("Form Creator")
 master.minsize(640,400)
@@ -95,7 +96,7 @@ State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Prade
                 'west bengal':West_Bengal,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'tamilnadu':Tamilnadu}
                 #'madhya pradesh':Madhya_Pradesh,'uttarakhand':Uttarakhand
 
-State_Process={'maharashtra':Maharashtra}
+State_Process={'Karnataka':Karnataka,'maharashtra':Maharashtra}
 State_Process =  {k.lower(): v for k, v in State_Process.items()}
 
 companylist = ['SVR LTD','PRY Wine Ltd','CDE Technology Ltd']
@@ -218,7 +219,8 @@ def Type1(inputfolder,month,year):
             employee_data.dropna(subset=['Employee Code','Location Code'], inplace=True)
             employee_data.dropna(how='all', inplace=True)
             employee_data.reset_index(drop=True, inplace=True)
-            employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master", "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
+            employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master",
+                             "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
                             "ESIC Number": "ESIC Number_master", "Bank A/c Number": "Bank A/c Number_master", "Account Code": "Account Code_master",
                             "E-Mail": "E-Mail_master", "Remarks": "Remarks_master"}, inplace=True)
             logging.info('employee data loaded')
@@ -231,7 +233,8 @@ def Type1(inputfolder,month,year):
             salary_data.dropna(subset=['Emp Code'], inplace=True)
             salary_data.dropna(how='all', inplace=True)
             salary_data.reset_index(drop=True, inplace=True)
-            salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary","DesigName": "Designation_salary", "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
+            salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary","DesigName": "Designation_salary", 
+                            "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
                             "ESIC Number": "ESIC Number_salary", "Bank A/c Number": "Bank A/c Number_salary", "Account Code": "Account Code_salary",
                             "E-Mail": "E-Mail_salary", "Remarks": "Remarks_salary"}, inplace=True)
             logging.info('salary data loaded')
