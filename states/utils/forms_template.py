@@ -27,6 +27,9 @@ class Helper_functions():
         sheet.cell(row=r_idx, column=c_idx, value=value)
         sheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =15)
         sheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
+        border_sides = Side(style='thin')
+        sheet.cell(row=r_idx, column=c_idx).border = Border(outline= True,left=border_sides,top=border_sides, 
+                                                        right=border_sides, bottom=border_sides)
         if self.if_num(value):
             sheet.cell(row=r_idx, column=c_idx).number_format= numbers.FORMAT_NUMBER
 
@@ -227,7 +230,7 @@ class Templates(Helper_functions):
         return rows_added
 
     
-    def get_from_to_dates_attendance(self,data,absent_label):
+    def get_from_to_dates_attendance(self,data,absent_label,sno_column=""):
         data=data.drop_duplicates(subset=employee_code_column, keep="last")
         columns=[employee_code_column]
         columns.extend(self.get_attendance_columns(data))
@@ -237,10 +240,13 @@ class Templates(Helper_functions):
         data[["from","to","numdays"]]=""
         temp_df=None
         is_abs_num=0
+        num={}
         for row in rows:
             for idx,value in enumerate(row):
                 if idx==0:
                     emp_code=value
+                    if emp_code not in num.keys():
+                        num[emp_code]=0
                     temp_df=data.loc[data[employee_code_column]==emp_code].iloc[0].copy(deep=True)
                 elif is_abs_num==0 and value==absent_label:
                     is_abs_num=1
@@ -255,14 +261,21 @@ class Templates(Helper_functions):
                     temp_df["from"]=start
                     temp_df["to"]=end
                     temp_df["numdays"]=is_abs_num
+                    if not (sno_column==""):
+                        num[emp_code]+=1
+                        temp_df[sno_column]=num[emp_code]
                     data=data.append([temp_df],ignore_index=True)
                     is_abs_num=0
+                    
             if is_abs_num:
                 start=start.split("\n")[1].replace("/","-")+"-"+str(self.year)
                 end=end.split("\n")[1].replace("/","-")+"-"+str(self.year)
                 temp_df["from"]=start
                 temp_df["to"]=end
                 temp_df["numdays"]=is_abs_num
+                if not (sno_column==""):
+                    num[emp_code]+=1
+                    temp_df[sno_column]=num[emp_code]
                 data=data.append([temp_df],ignore_index=True)
                 is_abs_num=0
             temp_df=None
@@ -271,9 +284,8 @@ class Templates(Helper_functions):
         return data
     
     def create_attendance_form_per_employee(self,filename,sheet_name,start_row,start_column,
-                                    data,columns,data_once_per_sheet,per_employee_diff_data):
+                                    data_with_attendance,columns,data_once_per_sheet,per_employee_diff_data):
         
-        data_with_attendance = self.get_from_to_dates_attendance(data,"PL")
         all_employee_data=data_with_attendance[columns]
         employee_codes=data_with_attendance[employee_code_column]
         
