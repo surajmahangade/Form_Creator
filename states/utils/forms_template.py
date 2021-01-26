@@ -107,6 +107,7 @@ class Helper_functions():
             raise Exception("Didnot find all attendance columns, please check format")
         return columnstotake
 
+    #Not used functions 
     def unmerge_cells(self,sheet,start_row):
         for item in sheet.merged_cell_ranges:
             if item.bounds[1]>=start_row:
@@ -210,19 +211,22 @@ class Templates(Helper_functions):
         
         return rows_added
 
-    def get_from_to_dates_attendance(data,absent_label):
+    
+    def get_from_to_dates_attendance(self,data,absent_label):
+        data=data.drop_duplicates(subset=employee_code_column, keep="last")
         columns=[employee_code_column]
         columns.extend(self.get_attendance_columns(data))
         attendance=data[columns]
         rows = dataframe_to_rows(attendance, index=False, header=False)
-        from_to_dates={}
+        
+        data[["from","to","numdays"]]=""
+        temp_df=None
+        is_abs_num=0
         for row in rows:
             for idx,value in enumerate(row):
                 if idx==0:
                     emp_code=value
-                    from_to_dates[emp_code]["from"]=[]
-                    from_to_dates[emp_code]["to"]=[]
-                    from_to_dates[emp_code]["numdays"]=[]
+                    temp_df=data.loc[data[employee_code_column]==emp_code].iloc[0].copy(deep=True)
                 elif is_abs_num==0 and value==absent_label:
                     is_abs_num=1
                     start=columns[idx]
@@ -231,12 +235,60 @@ class Templates(Helper_functions):
                     is_abs_num+=1
                     end=columns[idx]
                 elif is_abs_num:
+                    temp_df["from"]=start
+                    temp_df["to"]=end
+                    temp_df["numdays"]=is_abs_num
+                    data=data.append([temp_df],ignore_index=True)
                     is_abs_num=0
-                    from_to_dates[emp_code]["from"].append(start)
-                    from_to_dates[emp_code]["to"].append(end)
-                    from_to_dates[emp_code]["numdays"].append(is_abs_num)
-
-        return from_to_dates
+            if is_abs_num:
+                temp_df["from"]=start
+                temp_df["to"]=end
+                temp_df["numdays"]=is_abs_num
+                data=data.append([temp_df],ignore_index=True)
+                is_abs_num=0
+            temp_df=None
+                    
+        data=data.loc[data["numdays"]!="",:]
+        return data
+    
+    def create_attendance_form_per_employee(self,filename,sheet_name,start_row,start_column,
+                                    all_employee_data,data_once_per_sheet={}):
         
-
+        file_read=os.path.join(self.to_read,filename)
+        if not os.path.exists(file_read):
+            raise FileNotFoundError(file_read)
+        work_book=openpyxl.load_workbook(file_read)
+        if not sheet_name in work_book.sheetnames:
+            raise Exception("Sheet {} not found".format(sheet_name))
         
+        if not isinstance(data_once_per_sheet,dict):
+            raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
+
+        sheet = work_book[sheet_name]
+        
+        rows_added={}
+        r_idx=start_row
+        c_idx=0
+        employee_codes=all_employee_data[employee_code_column]
+        rows = dataframe_to_rows(all_employee_data, index=False, header=False)
+
+        for row,emp_code in zip(rows,employee_codes):
+            if not emp_code in work_book.sheetnames:
+                sheet=work_book.copy_worksheet(sheet_name)
+                sheet.title=emp_code
+                sheet.sheet_properties.pageSetUpPr.fitToPage = True
+                rows_added[emp_code]=0
+                self.write_data_once_per_sheet(data_once_per_sheet,sheet)
+            else:
+                sheet=work_book[emp_code]
+                rows_added[emp_code]+=1
+
+            for c_idx, value in enumerate(row, start_column):
+                self.cell_write(sheet,value,r_idx+rows_added[emp_code],c_idx)
+            self.create_border(sheet,last_row=r_idx+rows_added[emp_code],last_column=c_idx,start_row=start_row,start_column=start_column)
+    
+        work_book.remove(sheet_name)
+        file_write = os.path.join(self.to_write,filename)
+        work_book.save(filename=file_write)
+        
+        return rows_added
