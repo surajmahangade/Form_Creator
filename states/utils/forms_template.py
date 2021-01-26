@@ -3,6 +3,7 @@ import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side,numbers
 employee_code_column="Employee Code"
+import pandas as pd
 
 class Helper_functions():
     def __init__(self):
@@ -60,12 +61,15 @@ class Helper_functions():
     def combine_columns_of_dataframe(self,dataframe,columns,delimiter=","):
         dataframe.fillna(value="",inplace=True)
         dataframe["combined"]=""
-        for column in columns:
+        for index,column in enumerate(columns,1):
             if str(dataframe[column].dtype)[0:8] == 'datetime':
                 dataframe[column]=dataframe[column].apply(lambda x:x.strftime('%d-%m-%y'))
             elif str(dataframe[column].dtype)[0:3]!='str':
                 dataframe[column]=dataframe[column].astype(str)
-            dataframe["combined"]+=dataframe[column]+delimiter
+            if not index==len(columns):
+                dataframe["combined"]+=dataframe[column]+delimiter
+            else:
+                dataframe["combined"]+=dataframe[column]
         return dataframe["combined"]
 
     def sum_columns_of_dataframe(self,dataframe,columns):
@@ -111,7 +115,6 @@ class Helper_functions():
     def unmerge_cells(self,sheet,start_row):
         for item in sheet.merged_cell_ranges:
             if item.bounds[1]>=start_row:
-                print(item)
                 self.merged_cells_bounds.append(item.bounds)
                 sheet.unmerge_cells(str(item))
 
@@ -119,13 +122,25 @@ class Helper_functions():
         for cell in self.merged_cells_bounds:
             sheet.merge_cells(start_row=cell[1]+num_rows_added, start_column=cell[0], end_row=cell[3]+num_rows_added, end_column=cell[2])
         self.merged_cells_bounds=[]
-
+    
+    def get_diff_data_once_persheet_peremployee(self,data,mapping):
+        data_once_per_sheet={}
+        for index,row in data.iterrows():
+            emp_code=row[employee_code_column]
+            temp={}
+            for location,column in mapping.items():
+                temp[location]=row[column]
+            data_once_per_sheet[emp_code]=temp
+        return data_once_per_sheet
+        
 class Templates(Helper_functions):
-    def __init__(self,to_read,to_write,report,master):
+    def __init__(self,to_read,to_write,month,year,report,master):
         self.to_read=to_read
         self.to_write=to_write
         self.report=report
         self.master=master
+        self.month=month
+        self.year=year
         super().__init__()
         
     '''
@@ -135,7 +150,7 @@ class Templates(Helper_functions):
     contrator address etc
     '''
     def create_basic_form(self,filename,sheet_name,all_employee_data,
-                    start_row,start_column,data_once_per_sheet={}):
+                    start_row,start_column,data_once_per_sheet):
         #get path from which blank xl file to read
         file_read=os.path.join(self.to_read,filename)
         #Check if that file exsists
@@ -146,9 +161,6 @@ class Templates(Helper_functions):
         #Check if the specifies sheet is present or not in that file
         if not sheet_name in work_book.sheetnames:
             raise Exception("Sheet {} not found in file {}".format(sheet_name,file_read))
-        #Check if data to be populated once is a dictionary or not
-        if not isinstance(data_once_per_sheet,dict):
-            raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
         #Get the sheet
         sheet = work_book[sheet_name]
         sheet.sheet_properties.pageSetUpPr.fitToPage = True
@@ -173,7 +185,7 @@ class Templates(Helper_functions):
 
 
     def create_per_employee_basic_form(self,filename,sheet_name,start_row,start_column,
-                                    employee_codes,data_once_per_sheet={},all_employee_data=None):
+                                    employee_codes,data_once_per_sheet,per_employee_diff_data,all_employee_data=None):
         file_read=os.path.join(self.to_read,filename)
         if not os.path.exists(file_read):
             raise FileNotFoundError(file_read)
@@ -181,10 +193,7 @@ class Templates(Helper_functions):
         if not sheet_name in work_book.sheetnames:
             raise Exception("Sheet {} not found".format(sheet_name))
         
-        if not isinstance(data_once_per_sheet,dict):
-            raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
-
-        sheet = work_book[sheet_name]
+        original_sheet = work_book[sheet_name]
         
         rows_added=1
         r_idx=start_row
@@ -192,20 +201,26 @@ class Templates(Helper_functions):
         if not all_employee_data==None:
             rows = dataframe_to_rows(all_employee_data, index=False, header=False)
             for row,emp_code in zip(rows,employee_codes):
-                sheet=work_book.copy_worksheet(sheet_name)
+                sheet=work_book.copy_worksheet(original_sheet)
                 sheet.title=emp_code
                 sheet.sheet_properties.pageSetUpPr.fitToPage = True
-                self.write_data_once_per_sheet(data_once_per_sheet,sheet)    
+                if per_employee_diff_data:
+                    self.write_data_once_per_sheet(data_once_per_sheet[emp_code],sheet)    
+                else:
+                    self.write_data_once_per_sheet(data_once_per_sheet,sheet)
                 for c_idx, value in enumerate(row, start_column):
                     self.cell_write(sheet,value,r_idx,c_idx)
                 self.create_border(sheet,last_row=r_idx,last_column=c_idx,start_row=start_row,start_column=start_column)
         else:
             for emp_code in employee_codes:
-                sheet=work_book.copy_worksheet(sheet_name)
+                sheet=work_book.copy_worksheet(original_sheet)
                 sheet.title=emp_code
-                self.write_data_once_per_sheet(data_once_per_sheet,sheet)
-
-        work_book.remove(sheet_name)
+                if per_employee_diff_data:
+                    self.write_data_once_per_sheet(data_once_per_sheet[emp_code],sheet)    
+                else:
+                    self.write_data_once_per_sheet(data_once_per_sheet,sheet)
+                
+        work_book.remove(original_sheet)
         file_write = os.path.join(self.to_write,filename)
         work_book.save(filename=file_write)
         
@@ -235,12 +250,16 @@ class Templates(Helper_functions):
                     is_abs_num+=1
                     end=columns[idx]
                 elif is_abs_num:
+                    start=start.split("\n")[1].replace("/","-")+"-"+str(self.year)
+                    end=end.split("\n")[1].replace("/","-")+"-"+str(self.year)
                     temp_df["from"]=start
                     temp_df["to"]=end
                     temp_df["numdays"]=is_abs_num
                     data=data.append([temp_df],ignore_index=True)
                     is_abs_num=0
             if is_abs_num:
+                start=start.split("\n")[1].replace("/","-")+"-"+str(self.year)
+                end=end.split("\n")[1].replace("/","-")+"-"+str(self.year)
                 temp_df["from"]=start
                 temp_df["to"]=end
                 temp_df["numdays"]=is_abs_num
@@ -252,7 +271,11 @@ class Templates(Helper_functions):
         return data
     
     def create_attendance_form_per_employee(self,filename,sheet_name,start_row,start_column,
-                                    all_employee_data,data_once_per_sheet={}):
+                                    data,columns,data_once_per_sheet,per_employee_diff_data):
+        
+        data_with_attendance = self.get_from_to_dates_attendance(data,"PL")
+        all_employee_data=data_with_attendance[columns]
+        employee_codes=data_with_attendance[employee_code_column]
         
         file_read=os.path.join(self.to_read,filename)
         if not os.path.exists(file_read):
@@ -261,33 +284,36 @@ class Templates(Helper_functions):
         if not sheet_name in work_book.sheetnames:
             raise Exception("Sheet {} not found".format(sheet_name))
         
-        if not isinstance(data_once_per_sheet,dict):
-            raise Exception("data_once_per_sheet should be a dictionary such that key is position and value is column name")
-
-        sheet = work_book[sheet_name]
+        
+        original_sheet = work_book[sheet_name]
         
         rows_added={}
         r_idx=start_row
         c_idx=0
-        employee_codes=all_employee_data[employee_code_column]
+        
         rows = dataframe_to_rows(all_employee_data, index=False, header=False)
 
         for row,emp_code in zip(rows,employee_codes):
             if not emp_code in work_book.sheetnames:
-                sheet=work_book.copy_worksheet(sheet_name)
+                sheet=work_book.copy_worksheet(original_sheet)
                 sheet.title=emp_code
                 sheet.sheet_properties.pageSetUpPr.fitToPage = True
                 rows_added[emp_code]=0
-                self.write_data_once_per_sheet(data_once_per_sheet,sheet)
+                if per_employee_diff_data:
+                    self.write_data_once_per_sheet(data_once_per_sheet[emp_code],sheet)    
+                else:
+                    self.write_data_once_per_sheet(data_once_per_sheet,sheet)
             else:
                 sheet=work_book[emp_code]
                 rows_added[emp_code]+=1
 
             for c_idx, value in enumerate(row, start_column):
                 self.cell_write(sheet,value,r_idx+rows_added[emp_code],c_idx)
-            self.create_border(sheet,last_row=r_idx+rows_added[emp_code],last_column=c_idx,start_row=start_row,start_column=start_column)
+        for emp_code in employee_codes:
+            self.create_border(sheet=work_book[emp_code],last_row=r_idx+rows_added[emp_code],last_column=c_idx,
+                                                        start_row=start_row,start_column=start_column)
     
-        work_book.remove(sheet_name)
+        work_book.remove(original_sheet)
         file_write = os.path.join(self.to_write,filename)
         work_book.save(filename=file_write)
         
