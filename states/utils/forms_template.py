@@ -126,7 +126,7 @@ class Helper_functions():
             sheet.merge_cells(start_row=cell[1]+num_rows_added, start_column=cell[0], end_row=cell[3]+num_rows_added, end_column=cell[2])
         self.merged_cells_bounds=[]
     
-    def get_diff_data_once_persheet_peremployee(self,data,mapping):
+    def get_data_once_persheet_peremployee(self,data,mapping):
         data_once_per_sheet={}
         for index,row in data.iterrows():
             emp_code=row[employee_code_column]
