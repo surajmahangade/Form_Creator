@@ -107,8 +107,8 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         formII_data=templates.get_data(data_formII,columns)
         data_once_per_sheet={'A2':month+str(year)}
         if not data[PE_or_contract_column].unique()[0].upper()=="PE":
-            data_once_per_sheet['A3']=str(data_formII[contractor_name_column].unique()[0])+","+contractor_address
-            data_once_per_sheet['A4']=str(data_formII['Unit'].unique()[0])+","+str(data_formII[address_column].unique()[0])
+            data_once_per_sheet['A3']=templates.combine_columns_of_dataframe(data_formII,[contractor_name_column,'Contractor_Address']).unique()[0]
+            data_once_per_sheet['A4']=templates.combine_columns_of_dataframe(data_formII,['Unit',address_column]).unique()[0]
         
         templates.create_basic_form(filename='Form II muster roll.xlsx',sheet_name='Sheet1',all_employee_data=formII_data,
                                     start_row=9,start_column=1,data_once_per_sheet=data_once_per_sheet)

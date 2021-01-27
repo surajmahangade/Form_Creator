@@ -139,34 +139,51 @@ def Karnataka(data,contractor_name,contractor_address,filelocation,month,year,re
         data_formT = data.copy(deep=True)
         data_formT=data_formT.drop_duplicates(subset=employee_code_column, keep="last")
 
-        columns=['S.no',employee_code_column,employee_name_column,fathers_name_column,gender_column,"Designation"
+        columns=['S.no',employee_code_column,employee_name_column,fathers_name_column,gender_column,"Designation",
                                         department_column,address_column,"Date Joined","ESIC Number",'PF Number',"VDA","Days Paid",
                                         'Total\r\nOT Hrs','basic_da','Earned Basic','HRA','Bonus','Special Allowance','Overtime',
                                         'NFH','maternity','Telephone Reimb','Bonus','Fuel Reimb','Prof Dev Reimb', 'Corp Attire Reimb',
-                                        'CCA','Others','subsistence','Leave Encashment',
-
-
-
-                                        "name&date_of_offence","cause_against_fine",
-                                        fix_monthly_gross_column,date_of_payment_column,"Date of Fine","remarks"]
+                                        'CCA','Others','subsistence','Leave Encashment','Total Earning','ESIC Number','PF','P.Tax','TDS','Society', 'Insurance',
+                                        'FIXED MONTHLY GROSS','Fine','Damage or Loss','other_deductions','Total Deductions','Net Paid','BankName','Bank A/c Number',
+                                        'Account Code','fixed','sign']
 
         data_formT['S.no'] = list(range(1,len(data_formT)+1))
-        data_formT[["name&date_of_offence","cause_against_fine",fix_monthly_gross_column,date_of_payment_column,"Date of Fine","remarks"]]="NIL"
+        other_deductions=['Other Deduction','OtherDeduction1', 'OtherDeduction2', 'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
+        data_formT['other_deductions']=templates.sum_columns_of_dataframe(data_formT,other_deductions)
+        data_formT['basic_da']=templates.sum_columns_of_dataframe(data_formT,['Earned Basic','DA'])
+        data_formT[['Society','Others','subsistence','NFH','VDA','maternity','fixed','sign']]=""
         formI_data=data_formT[columns]
-        data_once_per_sheet={'A8':str(data_formT['Unit'].unique()[0])+","+str(data_formT[address_column].unique()[0]),
-                                'A9':str(data_formT['Unit'].unique()[0])+","+str(data_formT[address_column].unique()[0]),
+        data_once_per_sheet={'A8':templates.combine_columns_of_dataframe(data_formT,['Unit',address_column],', ').unique()[0],
+                                'A9':templates.combine_columns_of_dataframe(data_formT,['Unit',address_column],', ').unique()[0],
                                 'A10':contractor_name,
-                                'A11':data_formT['Nature of work'].unique()[0]+', '+data_formT['Location'].unique()[0]}
+                                'A11':templates.combine_columns_of_dataframe(data_formT,['Nature of work','Location'],', ').unique()[0]}
         templates.create_basic_form(filename='Form T Combine Muster roll cum register of wages.xlsx',
-                                    sheet_name='Sheet1',all_employee_data=formI_data,start_row=8,start_column=1,
+                                    sheet_name='Sheet1',all_employee_data=formI_data,start_row=16,start_column=1,
                                     data_once_per_sheet=data_once_per_sheet)
 
+    def Form_T_muster():
+        data_formT = data.copy(deep=True)
+        data_formT=data_formT.drop_duplicates(subset=employee_code_column, keep="last")
+
+        columns=['S.no',employee_code_column,employee_name_column]
+        columns.extend(templates.get_attendance_columns(data_formT))
+        columns.extend(['date of suspension','Days Paid','Total\r\nOT Hrs'])
+        data_formT['S.no'] = list(range(1,len(data_formT)+1))
+        data_formT['date of suspension']=""
+        formI_data=data_formT[columns]
+        data_once_per_sheet={'A8':templates.combine_columns_of_dataframe(data_formT,['Unit',address_column],', ').unique()[0],
+                                'A9':templates.combine_columns_of_dataframe(data_formT,['Unit',address_column],', ').unique()[0],
+                                'A10':contractor_name,
+                                'AI4':month+" "+str(year)}
+        templates.create_basic_form(filename='Form T muster roll.xlsx',
+                                    sheet_name='Sheet1',all_employee_data=formI_data,start_row=14,start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
             
     try:
         Form_F()
         Form_H()
-
-        return
+        Form_T()
+        Form_T_muster()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

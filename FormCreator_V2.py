@@ -418,7 +418,6 @@ def Type1(inputfolder,month,year):
                 inputdata = statedata[(statedata['State']==state) & (statedata['Unit']==UL.split(';')[0]) & (statedata['Location']==UL.split(';')[1])].copy(deep=True)
                 inputdata['Contractor_name'] = inputdata['Contractor_name'].fillna(value='')
                 inputdata['Contractor_Address'] = inputdata['Contractor_Address'].fillna(value='')
-                inputdata.fillna(value=0, inplace=True)
                 if UL.strip()[-1] == '.':
                     ULis = UL.strip()[0:-1]
                 else:
@@ -453,7 +452,6 @@ def Type1(inputfolder,month,year):
             inputdata = contractdata.loc[(contractdata['Unit']==UL.split(';')[0]) & (contractdata['Location']==UL.split(';')[1])].copy(deep=True)
             contractor_name= inputdata['Contractor_name'].unique()[0]
             contractor_address= inputdata['Contractor_Address'].unique()[0]
-            inputdata.fillna(value=0, inplace=True)
                     
             if UL.strip()[-1] == '.':
                 ULis = UL.strip()[0:-1]
@@ -484,7 +482,6 @@ def Type1(inputfolder,month,year):
             inputdata = centraldata.loc[(centraldata['Unit']==UL.split(',')[0]) & (centraldata['Location']==UL.split(',')[1])].copy(deep=True)
             contractor_name= inputdata['Contractor_name'].unique()[0]
             contractor_address= inputdata['Contractor_Address'].unique()[0]
-            inputdata.fillna(value=0, inplace=True)
                     
             inpath = os.path.join(inputfolder,Register_folder,'Central',UL)
             if os.path.exists(inpath):
