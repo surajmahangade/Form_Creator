@@ -4,6 +4,7 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side,numbers
 employee_code_column="Employee Code"
 import pandas as pd
+from states import Testing
 
 class Helper_functions():
     def __init__(self):
@@ -20,7 +21,8 @@ class Helper_functions():
                 data[column]=""
                 if column not in self.columns_not_found:
                     self.columns_not_found.append(column)
-                raise Exception("{} not found in excel file,please add this header in one of the files".format(column))
+                if Testing:
+                    raise Exception("{} not found in excel file,please add this header in one of the files".format(column))
         return data[columns]
 
     #Write value to required cell
@@ -62,6 +64,9 @@ class Helper_functions():
             elif not str(data_once_per_sheet[location]).lower() in ["nan","na"]:
                 sheet[location]=sheet[location].value+"  "+str(data_once_per_sheet[location])
 
+    '''
+    Use if data of columns is to be combined, usefull since it will take care of datatypes of the columns.
+    '''
     def combine_columns_of_dataframe(self,dataframe,columns,delimiter=","):
         columns_data=self.get_data(dataframe,columns).copy()
         columns_data.fillna(value="",inplace=True)
@@ -77,6 +82,9 @@ class Helper_functions():
                 columns_data["combined"]+=columns_data[column]
         return columns_data["combined"]
 
+    '''
+    Use if data of columns is to be summed, usefull since it will take care of datatypes of the columns.
+    '''
     def sum_columns_of_dataframe(self,dataframe,columns):
         columns_data=self.get_data(dataframe,columns).copy()
         columns_data.fillna(value=0,inplace=True)
@@ -86,6 +94,9 @@ class Helper_functions():
             columns_data["sum"]+=columns_data[column]
         return columns_data["sum"]
 
+    '''
+    Used to get attendance columns()
+    '''
     def get_attendance_columns(self,data):
         columnstotake =[]
         days = ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18',
@@ -117,6 +128,21 @@ class Helper_functions():
             raise Exception("Didnot find all attendance columns, please check format")
         return columnstotake
 
+    '''
+    This function is used to get data if for every sheet(new sheet per employee) data to be published once per sheet depends on the employee.
+    So this will return a dictionary where key is the employee code and value is the dictionary containing location and the value to be published.
+    It takes input the dataframe and a mapping dictionary which should have key as location on the sheet and value as the column name from the datatframe
+    '''
+    def get_data_once_persheet_peremployee(self,data,mapping):
+        data_once_per_sheet={}
+        for index,row in data.iterrows():
+            emp_code=row[employee_code_column]
+            temp={}
+            for location,column in mapping.items():
+                temp[location]=row[column]
+            data_once_per_sheet[emp_code]=temp
+        return data_once_per_sheet
+
     #Not used functions 
     def unmerge_cells(self,sheet,start_row):
         for item in sheet.merged_cell_ranges:
@@ -128,17 +154,7 @@ class Helper_functions():
         for cell in self.merged_cells_bounds:
             sheet.merge_cells(start_row=cell[1]+num_rows_added, start_column=cell[0], end_row=cell[3]+num_rows_added, end_column=cell[2])
         self.merged_cells_bounds=[]
-    
-    def get_data_once_persheet_peremployee(self,data,mapping):
-        data_once_per_sheet={}
-        for index,row in data.iterrows():
-            emp_code=row[employee_code_column]
-            temp={}
-            for location,column in mapping.items():
-                temp[location]=row[column]
-            data_once_per_sheet[emp_code]=temp
-        return data_once_per_sheet
-        
+
 class Templates(Helper_functions):
     def __init__(self,to_read,to_write,month,year,report,master):
         self.to_read=to_read
@@ -189,7 +205,14 @@ class Templates(Helper_functions):
         #Return how many lines were written in the file
         return r_idx
 
-
+    '''
+    This function can be used to create forms which require to create new sheet for each employee,
+    Here all employee data can be none and one can only send data_once_persheet which will create new sheet per employee and populate the data_once_persheetdata
+    If per_employee_diff is True then data_once_persheet should be dictionary(This one can get using the get_data_once_persheet_peremployee fucntion) 
+    such that key is employee code and for each key there will be a dictionary which will 
+    be used to populate the sheet, hence is usefull to populate employee specific data for each new sheet of the employee
+    If all_amployee data is given then one can populate information same as basic form for each sheet per employee
+    '''
     def create_per_employee_basic_form(self,filename,sheet_name,start_row,start_column,
                                     employee_codes,data_once_per_sheet,per_employee_diff_data,all_employee_data=None):
         file_read=os.path.join(self.to_read,filename)
@@ -234,7 +257,11 @@ class Templates(Helper_functions):
         
         return rows_added
 
-    
+    '''
+    This function is used to get the from and to dates from the attendacne file for which the person was absent
+    if sno_column is not empty strig then it should be a column which is the sr. number to be populated in the form,will be used ful if one wants sr number in proper order.
+    If it is empty string then sr number column (if to be published) will be very messy
+    '''
     def get_from_to_dates_attendance(self,data,absent_label,sno_column=""):
         data=data.drop_duplicates(subset=employee_code_column, keep="last")
         columns=[employee_code_column]
@@ -288,6 +315,12 @@ class Templates(Helper_functions):
         data=data.loc[data["numdays"]!="",:]
         return data
     
+    '''
+    This is used topopulate a attendance file such that new sheet is created per employee.
+    This function is useful as it will take care of the data which eventually comes from get_from_to_dates_attendance which will create duplicate
+    rows for each employee for each from and to date found
+    So this fucntion will populate the from and to date properly in each sheet
+    '''
     def create_attendance_form_per_employee(self,filename,sheet_name,start_row,start_column,
                                     data_with_attendance,columns,data_once_per_sheet,per_employee_diff_data):
         
