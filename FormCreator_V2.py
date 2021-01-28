@@ -14,11 +14,10 @@ from states import (Central, Chandigarh, Contractor, Delhi, Goa, Gujarat,
                     Haryana, Hyderabad, Karnataka, Kerala, Madhya_Pradesh,
                     Maharashtra, Register_folder, State_forms, Statefolder,
                     Tamilnadu, dbfolder, logfolder, monthdict, systemdrive)
-
+from states import Testing
 master = Tk()
 master.title("Form Creator")
 master.minsize(640, 400)
-Testing = True
 Tamilnadu = Tamilnadu.Tamilnadu
 Madhya_Pradesh = Madhya_Pradesh.Madhya_Pradesh
 Goa = Goa.Goa
