@@ -139,7 +139,8 @@ def Maharashtra(data, contractor_name, contractor_address, filelocation, month, 
         data_formII[["Damage or Loss", "whether_work_showed_cause", "Date of payment & amount of deduction",
                      "num_instalments", date_of_payment_column, "remarks"]] = "NIL"
         formII_data = templates.get_data(data_formII, columns)
-        data_once_per_sheet = {'A5': str(data_formII[company_name_column].unique()[0])+","+str(data_formII[address_column].unique()[0]),
+        A5_data=templates.combine_columns_of_dataframe(data_formII,[company_name_column,address_column]).unique()[0]
+        data_once_per_sheet = {'A5': A5_data,
                                'A6': str(month)+" "+str(year)}
         templates.create_basic_form(filename='Form II register of damage or losses.xlsx', sheet_name='Sheet1', all_employee_data=formII_data,
                                     start_row=9, start_column=1, data_once_per_sheet=data_once_per_sheet)
