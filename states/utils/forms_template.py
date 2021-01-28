@@ -20,6 +20,7 @@ class Helper_functions():
                 data[column]=""
                 if column not in self.columns_not_found:
                     self.columns_not_found.append(column)
+                raise Exception("{} not found in excel file,please add this header in one of the files".format(column))
         return data[columns]
 
     #Write value to required cell
@@ -43,11 +44,11 @@ class Helper_functions():
             sheet.cell(row=r_idx, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin)    
         sheet.cell(row=last_row, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
         
-    def write_to_column(sheet,values,c_idx,start_row):
+    def write_to_column(self,sheet,values,c_idx,start_row):
         for r_idx,value in enumerate(values,start_row):
             self.cell_write(sheet,value,r_idx,c_idx)
 
-    def write_to_row(sheet,values,r_idx,start_column):
+    def write_to_row(self,sheet,values,r_idx,start_column):
         for c_idx,value in enumerate(values,start_column):
             self.cell_write(sheet,value,r_idx,c_idx)
 
@@ -62,26 +63,28 @@ class Helper_functions():
                 sheet[location]=sheet[location].value+"  "+str(data_once_per_sheet[location])
 
     def combine_columns_of_dataframe(self,dataframe,columns,delimiter=","):
-        dataframe.fillna(value="",inplace=True)
-        dataframe["combined"]=""
+        columns_data=self.get_data(dataframe,columns).copy()
+        columns_data.fillna(value="",inplace=True)
+        columns_data["combined"]=""
         for index,column in enumerate(columns,1):
-            if str(dataframe[column].dtype)[0:8] == 'datetime':
-                dataframe[column]=dataframe[column].apply(lambda x:x.strftime('%d-%m-%y'))
-            elif str(dataframe[column].dtype)[0:3]!='str':
-                dataframe[column]=dataframe[column].astype(str)
+            if str(columns_data[column].dtype)[0:8] == 'datetime':
+                columns_data[column]=columns_data[column].apply(lambda x:x.strftime('%d-%m-%y'))
+            elif str(columns_data[column].dtype)[0:3]!='str':
+                columns_data[column]=columns_data[column].astype(str)
             if not index==len(columns):
-                dataframe["combined"]+=dataframe[column]+delimiter
+                columns_data["combined"]+=columns_data[column]+delimiter
             else:
-                dataframe["combined"]+=dataframe[column]
-        return dataframe["combined"]
+                columns_data["combined"]+=columns_data[column]
+        return columns_data["combined"]
 
     def sum_columns_of_dataframe(self,dataframe,columns):
-        dataframe.fillna(value=0,inplace=True)
-        dataframe["sum"]=0
+        columns_data=self.get_data(dataframe,columns).copy()
+        columns_data.fillna(value=0,inplace=True)
+        columns_data["sum"]=0
         for column in columns:
-            dataframe[column]=dataframe[column].astype(float)
-            dataframe["sum"]+=dataframe[column]
-        return dataframe["sum"]
+            columns_data[column]=columns_data[column].astype(float)
+            columns_data["sum"]+=columns_data[column]
+        return columns_data["sum"]
 
     def get_attendance_columns(self,data):
         columnstotake =[]
@@ -196,6 +199,8 @@ class Templates(Helper_functions):
         if not sheet_name in work_book.sheetnames:
             raise Exception("Sheet {} not found".format(sheet_name))
         
+        if not sheet_name in work_book.sheetnames:
+            raise Exception("Sheet {} not found in file {}".format(sheet_name,file_read))
         original_sheet = work_book[sheet_name]
         
         rows_added=1
