@@ -234,7 +234,7 @@ class Templates(Helper_functions):
         data=data.drop_duplicates(subset=employee_code_column, keep="last")
         columns=[employee_code_column]
         columns.extend(self.get_attendance_columns(data))
-        attendance=data[columns]
+        attendance=self.get_data(data,columns)
         rows = dataframe_to_rows(attendance, index=False, header=False)
         
         data[["from","to","numdays"]]=""
@@ -286,7 +286,7 @@ class Templates(Helper_functions):
     def create_attendance_form_per_employee(self,filename,sheet_name,start_row,start_column,
                                     data_with_attendance,columns,data_once_per_sheet,per_employee_diff_data):
         
-        all_employee_data=data_with_attendance[columns]
+        all_employee_data=self.get_data(data_with_attendance,columns)
         employee_codes=data_with_attendance[employee_code_column]
         
         file_read=os.path.join(self.to_read,filename)
