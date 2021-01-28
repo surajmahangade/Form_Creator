@@ -397,6 +397,7 @@ def Type1(inputfolder, month, year):
         logging.info('columns renamed correctly')
 
         CDE_Data.drop(columns=drop_list, inplace=True)
+        CDE_Data.dropna(subset=['Location', 'Unit'], inplace=True)
 
         logging.info('dropped duplicate columns')
 
@@ -486,10 +487,14 @@ def Type1(inputfolder, month, year):
                 progress.update()
                 master.update()
         # for contractors form
+        if Testing:
+            CDE_Data['State_or_Central'] = 'State'
         contractdata = CDE_Data.loc[(CDE_Data['State_or_Central'] == 'State') & (
             CDE_Data['PE_or_contract'] == 'Contract')].copy(deep=True)
         contractor_units = list(
             (contractdata['Unit']+';'+contractdata['Location']).unique())
+        print(contractdata['Unit'],contractdata['Location'])
+        
         report.configure(text="Creating contractor Forms")
         master.update()
 
@@ -522,10 +527,15 @@ def Type1(inputfolder, month, year):
             master.update()
 
         # for central form
+        if Testing:
+            CDE_Data['State_or_Central'] = 'Central'
+        
         centraldata = CDE_Data.loc[CDE_Data['State_or_Central'] == 'Central'].copy(
             deep=True)
         central_units = list(
             (centraldata['Unit']+','+centraldata['Location']).unique())
+        print(central_units)
+        print(centraldata['Unit'],centraldata['Location'])
         report.configure(text="Creating central Forms")
         master.update()
 
