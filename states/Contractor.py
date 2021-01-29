@@ -69,13 +69,8 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
         # formAsheet['A10'] = A10_data
 
     def create_form_B():
-        formBfilepath = os.path.join(
-            Contractorfilespath, 'Form B wage register equal remuniration.xlsx')
-        formBfile = load_workbook(filename=formBfilepath)
-        logging.info('Form B file has sheet: '+str(formBfile.sheetnames))
-
-        logging.info('create columns which are now available')
         data_formB = data.copy(deep=True)
+        data_formB = data.drop_duplicates(subset=['Employee Code']).copy()
         
         data_formB['basic_and_allo'] = templates.sum_columns_of_dataframe(data_formB,['Earned Basic','DA'])
         #data_formB['Other EAR'] = data_formB['Other Reimb']+data_formB['Arrears']+data_formB['Other Earning']+data_formB['Variable Pay']+data_formB['Stipend'] +data_formB['Consultancy Fees']
@@ -115,144 +110,58 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
         else:
             A10_data = templates.combine_columns_of_dataframe(data_formB,['Unit','Address']).unique()[0]
 
-        data_once_per_sheet = {'A8': contractor_name+', '+contractor_address,
-                               'A9': templates.combine_columns_of_dataframe(data_formB, ['Nature of work', 'Location'], ', ').unique()[0],
-                               'A10': A10_data,
-                               'AI4': month+" "+str(year)}
-        
-        templates.create_basic_form(filename='Form T muster roll.xlsx',
-                                    sheet_name='Sheet1', all_employee_data=formB_data, start_row=17, start_column=1,
-                                    data_once_per_sheet=data_once_per_sheet)
-
-        A11_data = peline+' ' + \
-            data_formB['Unit'].unique()[0]+', ' + \
-            data_formB['Address'].unique()[0]
-        formBsheet['A11'] = A11_data
-
+        A11_data = templates.combine_columns_of_dataframe(data_formB,['Unit','Address']).unique()[0]
+            
         monthstart = datetime.date(year, month_num, 1)
         monthend = datetime.date(
             year, month_num, calendar.monthrange(year, month_num)[1])
-        formBsheet['A12'] = 'Wage period From: ' + \
-            str(monthstart)+' to '+str(monthend)
 
-        formBfinalfile = os.path.join(
-            filelocation, 'Form B wage register equal remuniration.xlsx')
-        formBfile.save(filename=formBfinalfile)
+        data_once_per_sheet = {'A8': contractor_name+', '+contractor_address,
+                               'A9': templates.combine_columns_of_dataframe(data_formB, ['Nature of work', 'Location'], ', ').unique()[0],
+                               'A10': A10_data,'A11':A11_data,
+                               'A12': str(monthstart)+" "+str(monthend)}
+        
+        templates.create_basic_form(filename='Form B wage register equal remuniration.xlsx',
+                                    sheet_name='Sheet1', all_employee_data=formB_data, start_row=17, start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
 
     def Form_C():
-        formCfilepath = os.path.join(
-            Contractorfilespath, 'Form C register of loan or recoveries.xlsx')
-        formCfile = load_workbook(filename=formCfilepath)
-        logging.info('Form C file has sheet: '+str(formCfile.sheetnames))
-        logging.info('create columns which are now available')
-
         data_formC = data.copy(deep=True)
+        data_formC = data.drop_duplicates(subset=['Employee Code']).copy()
 
-        columns = ['Employee Code', "Employee Name", "Recovery_Type", "Particulars", "Date of payment and damage loss", 'Damage or Loss', "whether_show_cause_issue", "explaination_heard_in_presence_of",
+        columns = ['Employee Code', "Employee Name", "Recovery_Type", "Particulars", "Date of payment and damage loss", 
+                                    'Damage or Loss', "whether_show_cause_issue", "explaination_heard_in_presence_of",
                                     "num_installments", "first_month_year", "last_month_year", "Date_of_complete_recovery", "remarks"]
 
         Recovery_Type_columns_name = ['Other Deduction', 'OtherDeduction1', 'OtherDeduction2',
                                       'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5', 'Damage or Loss', 'Fine', 'Salary Advance']
 
-        data_formC["Recovery_Type"] = data_formC.loc[:,
-                                                     Recovery_Type_columns_name].sum(axis=1)
+        data_formC["Recovery_Type"] = templates.sum_columns_of_dataframe(data_formC,Recovery_Type_columns_name)
+
         data_formC["amount"] = data_formC["Recovery_Type"]
         data_formC[["Particulars", "whether_show_cause_issue", "explaination_heard_in_presence_of",
                     "num_installments", "first_month_year", "last_month_year", "Date_of_complete_recovery"]] = "---"
 
         data_formC["remarks"] = ""
-        data_formC['Damage or Loss'] = data_formC['Damage or Loss'].astype(
-            float)
-        data_formC['Damage or Loss'] = data_formC['Damage or Loss'].fillna(0)
 
-        data_formC["Date of payment and damage loss"] = data_formC["Date of payment"].astype(
-            str)+"/"+data_formC['Damage or Loss'].astype(str)
+        data_formC["Date of payment and damage loss"] = templates.combine_columns_of_dataframe(
+                                            data_formC,["Date of payment",'Damage or Loss']," ")
 
-        formC_data = data_formC[columns]
-        formCsheet = formCfile['Sheet1']
-        formCsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form I is ready')
-
-        rows = dataframe_to_rows(formC_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-        row_num = 0
-        for r_idx, row in enumerate(rows, 9):
-            row_num += 1
-            for c_idx, value in enumerate(row, 1):
-                formCsheet.cell(row=r_idx, column=c_idx, value=value)
-                formCsheet.cell(row=r_idx, column=c_idx).font = Font(
-                    name='Bell MT', size=10)
-                formCsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(
-                    horizontal='center', vertical='center', wrap_text=True)
-                border_sides = Side(style='thin')
-                formCsheet.cell(row=r_idx, column=c_idx).border = Border(
-                    outline=True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')
-                border_sides_thin = Side(style='thin')
-                if len(row) == c_idx and row_num == len(data_formC):
-                    formCsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thick)
-                    formCsheet.row_dimensions[r_idx].height = 20
-                elif len(row) == c_idx:
-                    formCsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thin)
-                    formCsheet.row_dimensions[r_idx].height = 20
-                elif row_num == len(data_formC):
-                    formCsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thick)
-                    formCsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formCsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thin)
-                    formCsheet.row_dimensions[r_idx].height = 20
-
-        formCsheet['A4'] = formCsheet['A4'].value + \
-            " : "+str(data_formC['UnitName'].unique()[0])
-        formCfinalfile = os.path.join(
-            filelocation, 'Form C register of loan or recoveries.xlsx')
-        formCfile.save(filename=formCfinalfile)
+        formC_data = templates.get_data(data_formC,columns)
+        data_once_per_sheet = {'A4': str(data_formC['UnitName'].unique()[0])
+                               }
+        
+        templates.create_basic_form(filename='Form C register of loan or recoveries.xlsx',
+                                    sheet_name='Sheet1', all_employee_data=formC_data, start_row=9, start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
 
     def Form_D():
-        formDfilepath = os.path.join(
-            Contractorfilespath, 'Form D Register of attendance.xlsx')
-        formDfile = load_workbook(filename=formDfilepath)
-        logging.info('Form D file has sheet: '+str(formDfile.sheetnames))
-        logging.info('create columns which are now available')
-
         data_formD = data.copy(deep=True)
+        data_formD = data.drop_duplicates(subset=['Employee Code']).copy()
 
         columns = ['S.no', "Employee Name", "Relay_or_set_work", 'Branch']
 
-        # data_formD_columns=list(data_formD.columns)
-        # start=data_formD_columns.index('Emp Code')
-        # end=data_formD_columns.index('Total\r\nDP')
-        columnstotake = []
-        days = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15',
-                '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31']
-        for day in days:
-            for col in data_formD.columns:
-                if col[5:7] == day:
-                    columnstotake.append(col)
-        if len(columnstotake) == 28:
-            columnstotake.append('29')
-            columnstotake.append('30')
-            columnstotake.append('31')
-            data_formD['29'] = ''
-            data_formD['30'] = ''
-            data_formD['31'] = ''
-
-        elif len(columnstotake) == 29:
-            columnstotake.append('30')
-            columnstotake.append('31')
-            data_formD['30'] = ''
-            data_formD['31'] = ''
-
-        elif len(columnstotake) == 30:
-            columnstotake.append('31')
-            data_formD['31'] = ''
-
-        columns.extend(columnstotake)
+        columns.extend(templates.get_attendance_columns(data_formD))
 
         columns.extend(['in', 'out', 'Total\r\nDP', 'num_hours', 'sign'])
 
@@ -261,66 +170,22 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
 
         data_formD['S.no'] = list(range(1, len(data_formD)+1))
 
-        formD_data = data_formD[columns]
-        formDsheet = formDfile['Sheet1']
-        formDsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form V is ready')
+        formD_data = templates.get_data(data_formD,columns)
+        
 
-        rows = dataframe_to_rows(formD_data, index=False, header=False)
+        data_once_per_sheet = {'A4': str(data_formD['UnitName'].unique()[0]),
+                                'A5': str(data_formD['UnitName'].unique()[0])
+                               }
+        
+        templates.create_basic_form(filename='Form D Register of attendance.xlsx',
+                                    sheet_name='Sheet1', all_employee_data=formD_data, start_row=12, start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
 
-        logging.info('rows taken out from data')
-        row_num = 0
-        for r_idx, row in enumerate(rows, 12):
-            row_num += 1
-            for c_idx, value in enumerate(row, 1):
-                formDsheet.cell(row=r_idx, column=c_idx, value=value)
-                formDsheet.cell(row=r_idx, column=c_idx).font = Font(
-                    name='Verdana', size=8)
-                formDsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(
-                    horizontal='center', vertical='center', wrap_text=True)
-                border_sides = Side(style='thin')
-                formDsheet.cell(row=r_idx, column=c_idx).border = Border(
-                    outline=True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')
-                border_sides_thin = Side(style='thin')
-                if len(row) == c_idx and row_num == len(data_formD):
-                    formDsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thick)
-                    formDsheet.row_dimensions[r_idx].height = 20
-                elif len(row) == c_idx:
-                    formDsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thin)
-                    formDsheet.row_dimensions[r_idx].height = 20
-                elif row_num == len(data_formD):
-                    formDsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thick)
-                    formDsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formDsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thin)
-                    formDsheet.row_dimensions[r_idx].height = 20
-
-        #formPsheet['AE4']=formPsheet['AE4'].value+"   "+str(data_formP['Registration_no'].unique()[0])
-
-        formDsheet['A4'] = "Name of establishment :-  " + \
-            str(data_formD['UnitName'].unique()[0])
-
-        # formDsheet['A6']="From:  01"+"-"+str(month)+"-"+str(year)+"       "+"From:  01"+"-"+str(month)+"-"+str(year)
-        formDsheet['A5'] = "Name of Owner:- " + \
-            str(data_formD['UnitName'].unique()[0])
-
-        formDfinalfile = os.path.join(
-            filelocation, 'Form D Register of attendance.xlsx')
-        formDfile.save(filename=formDfinalfile)
 
     def Form_E():
-        formEfilepath = os.path.join(
-            Contractorfilespath, 'Form E Register of Rest,Leave,leave wages.xlsx')
-        formEfile = load_workbook(filename=formEfilepath)
-        logging.info('Form E file has sheet: '+str(formEfile.sheetnames))
-        logging.info('create columns which are now available')
-
+        
         data_formE = data.copy(deep=True)
+        data_formE = data_formE.drop_duplicates(subset=['Employee Code']).copy()
 
         columns = ['Employee Code', "Employee Name", "Days Paid", "opening_bal", "added", "rest_allowed", "rest_availed",
                    "closing_bal", "Opening", "Monthly Increment", "Leave Accrued", "Closing",
@@ -330,178 +195,83 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
         data_formE[["opening_bal", "added", "rest_allowed", "rest_availed",
                     "closing_bal", "openeing_bal", "added", "leave_availed", "closing_bal"]] = "---"
         data_formE["remarks"] = ""
-        formE_data = data_formE[columns]
-        formEsheet = formEfile['Sheet1']
-        formEsheet.sheet_properties.pageSetUpPr.fitToPage = True
-        logging.info('data for form E is ready')
+        
+        formE_data = templates.get_data(data_formE,columns)
+        
 
-        rows = dataframe_to_rows(formE_data, index=False, header=False)
+        data_once_per_sheet = {'A5': str(formE_data['UnitName'].unique()[0]),
+                                'A6': str(formE_data['UnitName'].unique()[0]),
+                                'A8':str(month)+" "+str(year)
+                               }
+        
+        templates.create_basic_form(filename='Form E Register of Rest,Leave,leave wages.xlsx',
+                                    sheet_name='Sheet1', all_employee_data=formE_data, start_row=13, start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
 
-        logging.info('rows taken out from data')
-        row_num = 0
-        for r_idx, row in enumerate(rows, 13):
-            row_num += 1
-            for c_idx, value in enumerate(row, 1):
-                formEsheet.cell(row=r_idx, column=c_idx, value=value)
-                formEsheet.cell(row=r_idx, column=c_idx).font = Font(
-                    name='Bell MT', size=10)
-                formEsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(
-                    horizontal='center', vertical='center', wrap_text=True)
-                border_sides = Side(style='thin')
-                formEsheet.cell(row=r_idx, column=c_idx).border = Border(
-                    outline=True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')
-                border_sides_thin = Side(style='thin')
-                if len(row) == c_idx and row_num == len(data_formE):
-                    formEsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thick)
-                    formEsheet.row_dimensions[r_idx].height = 20
-                elif len(row) == c_idx:
-                    formEsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thick, bottom=border_sides_thin)
-                    formEsheet.row_dimensions[r_idx].height = 20
-                elif row_num == len(data_formE):
-                    formEsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thick)
-                    formEsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formEsheet.cell(row=r_idx, column=c_idx).border = Border(
-                        outline=True, right=border_sides_thin, bottom=border_sides_thin)
-                    formEsheet.row_dimensions[r_idx].height = 20
-
-        formEsheet['A5'] = formEsheet['A5'].value + \
-            " : "+str(data_formE['UnitName'].unique()[0])
-        formEsheet['A6'] = formEsheet['A6'].value + \
-            " : "+str(data_formE['UnitName'].unique()[0])
-        formEsheet['A8'] = formEsheet['A8'].value + \
-            " : "+str(month)+" "+str(year)
-
-        formEfinalfile = os.path.join(
-            filelocation, 'Form E Register of Rest,Leave,leave wages.xlsx')
-        formEfile.save(filename=formEfinalfile)
 
     def create_formXIX():
-        formXIXfilepath = os.path.join(
-            Contractorfilespath, 'Form XIX Wages slip.xlsx')
-        formXIXfile = load_workbook(filename=formXIXfilepath)
-        logging.info('Form XIX file has sheet: '+str(formXIXfile.sheetnames))
-        sheetformXIX = formXIXfile['Sheet1']
-
-        logging.info('create columns which are now available')
-
         data_formXIX = data.copy(deep=True)
-        data_formXIX.fillna(value=0, inplace=True)
+        data_formXIX = data_formXIX.drop_duplicates(subset=['Employee Code']).copy()
 
-        emp_count = len(data_formXIX.index)
+        data_formXIX['contractor_name_and_address'] = templates.combine_columns_of_dataframe(data,['Contractor_name','Contractor_Address'],", ")
+        data_formXIX['nature_location'] = templates.combine_columns_of_dataframe(data,['Nature of work','Location'],", ")
+        if data_formXIX['PE_or_contract'].unique()[0] == 'PE':
+            data_formXIX['unit_or_company'] = templates.combine_columns_of_dataframe(data,['Nature of work','Location'],", ")
+        else:
+            data_formXIX['unit_or_company'] = templates.combine_columns_of_dataframe(data,['Unit','Address'],", ")
 
-        for i in range(0, emp_count):
-            key = (data_formXIX).iloc[i]['Employee Code']
-            sheet_key = 'FORM XIX_'+str(key)
+        data_formXIX[['num_units_worked','rate_daily_wages']]=""
+        mapping={'B4':'contractor_name_and_address',
+                        'B5':'nature_location',
+                        'B6':"unit_or_company",
+                        'B7':'unit_or_company',
+                        'B8':'month_year',
+                        'B9':'Employee Code','B10':'Employee Name','B11':'Days Paid',
+                        'B12':'num_units_worked','B13':'rate_daily_wages',
+                        'B14':'Earned Basic','B15':'HRA','B16':'Tel and Int Reimb',
+                        'B17':'Bonus','B18':'Fuel Reimb','B19':'Corp Attire Reimb','B20':'CCA',
+                        'B21':'Total Earning',
+                        'B22':'Insurance','B23':'PF','B24':'P.Tax','B25':'Total Deductions','B26':'Net Paid'
+                        }
 
-            emp_data = (data_formXIX).iloc[i]
-
-            sheet1 = formXIXfile.copy_worksheet(sheetformXIX)
-            sheet1.title = sheet_key
-            sheet1['B4'] = contractor_name+', '+contractor_address
-            sheet1['B5'] = str(emp_data['Nature of work']) + \
-                ', '+str(emp_data['Location'])
-            if emp_data['PE_or_contract'][0] == 'PE':
-                sheet1['B6'] = emp_data['Company Name'] + \
-                    ', '+emp_data['Company Address']
-                sheet1['B6'] = emp_data['Company Name'] + \
-                    ', '+emp_data['Company Address']
-            else:
-                sheet1['B6'] = emp_data['Unit']+', '+emp_data['Address']
-                sheet1['B7'] = emp_data['Unit']+', '+emp_data['Address']
-
-            sheet1['B8'] = month+'-'+str(year)
-            sheet1['B9'] = key
-
-            sheet1['B10'] = emp_data['Employee Name']
-            sheet1['B11'] = emp_data['Days Paid']
-            sheet1['B12'] = ""
-            sheet1['B13'] = ""
-            sheet1['B14'] = emp_data['Earned Basic']
-            sheet1['B15'] = emp_data['HRA']
-            sheet1['B16'] = emp_data['Tel and Int Reimb']
-            sheet1['B17'] = emp_data['Bonus']
-            sheet1['B18'] = emp_data['Fuel Reimb']
-            sheet1['B19'] = emp_data['Corp Attire Reimb']
-            sheet1['B20'] = emp_data['CCA']
-            sheet1['B21'] = emp_data['Total Earning']
-            sheet1['B22'] = emp_data['Insurance']
-            sheet1['B23'] = emp_data['PF']
-            sheet1['B24'] = emp_data['P.Tax']
-            sheet1['B25'] = emp_data['Total Deductions']
-            sheet1['B26'] = emp_data['Net Paid']
-
-        formXIXfinalfile = os.path.join(
-            filelocation, 'Form XIX Wages slip.xlsx')
-        formXIXfile.remove(sheetformXIX)
-        formXIXfile.save(filename=formXIXfinalfile)
-
+        data_once_per_sheet=templates.get_data_once_persheet_peremployee(data_formXIX,mapping)
+        templates.create_per_employee_basic_form(filename='Form XIX Wages slip.xlsx',sheet_name='Sheet1',start_row=0,start_column=0,
+                            employee_codes=data_formXIX['Employee Code'],data_once_per_sheet=data_once_per_sheet,
+                            per_employee_diff_data=True
+                                    )
+        
     def create_formXV():
-        formXIXfilepath = os.path.join(
-            Contractorfilespath, 'Form XV Service certificate.xlsx')
-        formXIXfile = load_workbook(filename=formXIXfilepath)
-        logging.info('Form XV file has sheet: '+str(formXIXfile.sheetnames))
-        sheetformXIX = formXIXfile['Sheet1']
+        data_formXV = data.copy(deep=True)
+        data_formXV = data_formXV.drop_duplicates(subset=['Employee Code']).copy()
 
-        logging.info('create columns which are now available')
+        data_formXV['contractor_name_and_address'] = templates.combine_columns_of_dataframe(data,['Contractor_name','Contractor_Address'],", ")
+        data_formXV['nature_location'] = templates.combine_columns_of_dataframe(data,['Nature of work','Location'],", ")
+        data_formXV['unit_address'] = templates.combine_columns_of_dataframe(data,['Unit','Address'],", ")
 
-        data_formXIX = data.copy(deep=True)
-
-        data_formXIX.fillna(value=0, inplace=True)
-
-        emp_count = len(data_formXIX.index)
-
-        for i in range(0, emp_count):
-            key = (data_formXIX).iloc[i]['Employee Code']
-            sheet_key = 'FORM XV_'+str(key)
-
-            emp_data = (data_formXIX).iloc[i]
-
-            sheet1 = formXIXfile.copy_worksheet(sheetformXIX)
-            sheet1.title = sheet_key
-            sheet1['A5'] = sheet1['A5'].value+" " + \
-                contractor_name+', '+contractor_address
-            sheet1['A6'] = sheet1['A6'].value+" " + \
-                emp_data['Unit']+', '+emp_data['Address']
-            sheet1['A7'] = sheet1['A7'].value+" " + \
-                str(emp_data['Nature of work'])+', '+str(emp_data['Location'])
-            sheet1['A8'] = sheet1['A8'].value+" " + \
-                emp_data['Unit']+', '+emp_data['Address']
-            sheet1['A9'] = sheet1['A9'].value+" " + \
-                emp_data['Unit']+', '+emp_data['Address']
-            sheet1['A10'] = sheet1['A10'].value+" " + str(emp_data["Age"])
-            sheet1['A11'] = sheet1['A11'].value+" " + \
-                str(emp_data["Identification mark"])
-            sheet1['A12'] = sheet1['A12'].value + \
-                " " + str(emp_data["Father's Name"])
-            sheet1['A18'] = "1"
-            monthstart = datetime.date(year, month_num, 1)
-            monthend = datetime.date(
+        data_formXV[['num_units_worked','rate_daily_wages']]=""
+        data_formXV["one"]="1"
+        monthstart = datetime.date(year, month_num, 1)
+        monthend = datetime.date(
                 year, month_num, calendar.monthrange(year, month_num)[1])
-            sheet1['B18'] = monthstart
-            sheet1['C18'] = monthend
-            sheet1['D18'] = emp_data['Designation']
+        data_formXV["monthstart"]=monthstart
+        data_formXV["monthend"]=monthend
 
-        formXIXfinalfile = os.path.join(
-            filelocation, 'Form XV Service certificate.xlsx')
-        formXIXfile.remove(sheetformXIX)
-        formXIXfile.save(filename=formXIXfinalfile)
+        mapping={'A5':'contractor_name_and_address',
+                'A6':'unit_address','A7':'Location','A8':'unit_address','A9':'unit_address',
+                'A10':'Age','A11':'Identification mark','A12':"Father's Name",'A18':"one",'B18':"monthstart",'C18':"monthend",
+                'D18':'Designation'}
+
+        data_once_per_sheet=templates.get_data_once_persheet_peremployee(data_formXV,mapping)
+        templates.create_per_employee_basic_form(filename='Form XV Service certificate.xlsx',sheet_name='Sheet1',start_row=0,start_column=0,
+                            employee_codes=data_formXV['Employee Code'],data_once_per_sheet=data_once_per_sheet,
+                            per_employee_diff_data=True
+                                    )
+
 
     def create_form_XX():
-        formXXfilepath = os.path.join(
-            Contractorfilespath, 'Form XX Register of Deduction for damage or loss.xlsx')
-        formXXfile = load_workbook(filename=formXXfilepath)
-        logging.info('Form XX file has sheet: '+str(formXXfile.sheetnames))
-
-        logging.info('create columns which are now available')
-
+        
         data_formXX = data.copy(deep=True)
-
-        data_formXX.fillna(value=0, inplace=True)
+        data_formXX = data_formXX.drop_duplicates(subset=['Employee Code']).copy()
 
         data_formXX['S.no'] = list(range(1, len(data_formXX)+1))
 
@@ -518,33 +288,22 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
         other_deductions_columns_name = ['Other Deduction', 'OtherDeduction1', 'OtherDeduction2',
                                          'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
 
-        data_formXX[other_deductions_columns_name] = data_formXX[other_deductions_columns_name].astype(
-            float)
-        data_formXX["all_Other_Deduction_sum"] = data_formXX.loc[:,
-                                                                 other_deductions_columns_name].sum(axis=1)
 
-        formXX_data = data_formXX[formXX_columns]
+        data_formXX["all_Other_Deduction_sum"] = templates.sum_columns_of_dataframe(data_formXX,
+                                                                other_deductions_columns_name)
 
-        formXXsheet = formXXfile['Sheet1']
+        
+        formXX_data = templates.get_data(data_formXX,formXX_columns)
+        
 
-        formXXsheet.sheet_properties.pageSetUpPr.fitToPage = True
-
-        logging.info('data for form XX is ready')
-
-        rows = dataframe_to_rows(formXX_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
-
-        for r_idx, row in enumerate(rows, 13):
-            for c_idx, value in enumerate(row, 1):
-                formXXsheet.cell(row=r_idx, column=c_idx, value=value)
-                formXXsheet.cell(row=r_idx, column=c_idx).font = Font(
-                    name='Verdana', size=8)
-                formXXsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(
-                    horizontal='center', vertical='center', wrap_text=True)
-                border_sides = Side(style='thin')
-                formXXsheet.cell(row=r_idx, column=c_idx).border = Border(
-                    outline=True, right=border_sides, bottom=border_sides)
+        data_once_per_sheet = {'A5': str(data_formXX['UnitName'].unique()[0]),
+                                'A6': str(data_formXX['UnitName'].unique()[0]),
+                                'A8':str(month)+" "+str(year)
+                               }
+        
+        templates.create_basic_form(filename='Form XX Register of Deduction for damage or loss.xlsx',
+                                    sheet_name='Sheet1', all_employee_data=formXX_data, start_row=13, start_column=1,
+                                    data_once_per_sheet=data_once_per_sheet)
 
         contractline = formXXsheet['A5'].value
         A5_data = contractline+' '+contractor_name+', '+contractor_address
@@ -588,16 +347,6 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
             data_formXX['Unit'].unique()[0]+', ' + \
             data_formXX['Address'].unique()[0]
         formXXsheet['A8'] = A8_data
-
-        # border the region
-        count1 = len(data_formXX)
-        border_1 = Side(style='thick')
-        # for i in range(1,17):
-        #     formXXsheet.cell(row=2, column=i).border = Border(outline= True, top=border_1)
-        #     formXXsheet.cell(row=count1+16, column=i).border = Border(outline= True, bottom=border_1)
-        # for i in range(1,count1+17):
-        #     formXXsheet.cell(row=i, column=2).border = Border(outline= True, left=border_1)
-        #     formXXsheet.cell(row=i, column=16).border = Border(outline= True, right=border_1)
 
         formXXfinalfile = os.path.join(
             filelocation, 'Form XX Register of Deduction for damage or loss.xlsx')
