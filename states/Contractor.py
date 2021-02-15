@@ -339,17 +339,9 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
                                     data_once_per_sheet=data_once_per_sheet)
 
     def create_form_XXII():
-
-        formXXIIfilepath = os.path.join(
-            Contractorfilespath, 'Form XXII Register of Advances.xlsx')
-        formXXIIfile = load_workbook(filename=formXXIIfilepath)
-        logging.info('Form XXII file has sheet: '+str(formXXIIfile.sheetnames))
-
-        logging.info('create columns which are now available')
-
+        'Form XXII Register of Advances.xlsx'
+        
         data_formXXII = data.copy(deep=True)
-
-        data_formXXII.fillna(value=0, inplace=True)
 
         data_formXXII['S.no'] = list(range(1, len(data_formXXII)+1))
 
@@ -362,17 +354,7 @@ def Contractor_Process(data, contractor_name, contractor_address, filelocation, 
         formXXII_columns = ['S.no', 'Employee Name', "Father's Name", 'Designation',
                             'FIXED MONTHLY GROSS', 'Date of payment', 'c', 'd', 'e', 'f', 'g']
 
-        formXXII_data = data_formXXII[formXXII_columns]
-
-        formXXIIsheet = formXXIIfile['Sheet1']
-
-        formXXIIsheet.sheet_properties.pageSetUpPr.fitToPage = True
-
-        logging.info('data for form XXII is ready')
-
-        rows = dataframe_to_rows(formXXII_data, index=False, header=False)
-
-        logging.info('rows taken out from data')
+        formXXII_data = templates.get_data(data_formXXII,formXXII_columns)
 
         for r_idx, row in enumerate(rows, 12):
             for c_idx, value in enumerate(row, 1):
