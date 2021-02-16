@@ -625,7 +625,11 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         data_formII["Damage or Loss"]=data_formII["Damage or Loss"].fillna(0)
         
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
-        data_formII['Date of payment']=data_formII['Date of payment'].apply(lambda x: x.strftime('%d-%m-%Y'))
+        if str(data_formII['Date of payment'].dtype)[0:8] == 'datetime':
+            data_formII['Date of payment']=data_formII['Date of payment'].apply(lambda x: x.strftime('%d-%m-%Y'))
+        else:
+            data_formII['Date of payment']=data_formII['Date of payment'].astype(str)
+
         data_formII["Damage_loss_with_date"]=data_formII['Date of payment']+" & "+data_formII["Damage or Loss"].astype(str)
         data_formII.loc[data_formII["Damage or Loss"]==0,"Damage_loss_with_date"]="---"
 
@@ -750,11 +754,17 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         formIVfile.save(filename=formIVfinalfile)
     try:   
         Form_H()
+        master.update()
         Form_I_reg()
+        master.update()
         Form_I()
+        master.update()
         Form_II()
+        master.update()
         Form_IV()
+        master.update()
         Form_G()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

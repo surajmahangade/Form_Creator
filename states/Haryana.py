@@ -191,7 +191,7 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
                         target["A6"] =target["A6"].value+"  "+value
                         target["A5"] =target["A5"].value+" "+month
                 elif c_idx==2:
-                    target["A5"]="Name of employee  "+employee_name+"  father’s name or husband’s name :-"+value
+                    target["A5"]="Name of employee  "+str(employee_name)+"  father’s name or husband’s name :-"+str(value)
                 elif c_idx==3:
                     target["A6"]="Year     "+str(year)+" month    "+month+"   Wages Fixed :- "+str(value)
                 elif c_idx==4:
@@ -252,9 +252,12 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
 
 
     try:
-        Form_C()    
+        Form_C()
+        master.update()    
         Form_D()
+        master.update()
         Form_E()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

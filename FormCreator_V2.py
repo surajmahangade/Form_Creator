@@ -13,14 +13,14 @@ import logging
 master = Tk()
 master.title("Form Creator")
 master.minsize(640,400)
-Testing=True
-from states import Register_folder,logfolder,Statefolder,State_forms,dbfolder,systemdrive,monthdict
-from states import Goa,Karnataka,Delhi,Maharashtra,Kerala,Gujarat,Madhya_Pradesh,Haryana,Chandigarh,Central,Contractor,Hyderabad,Tamilnadu
-Tamilnadu=Tamilnadu.Tamilnadu
-Madhya_Pradesh=Madhya_Pradesh.Madhya_Pradesh
+from states import Testing
+from states import Register_folder,logfolder,State_forms
+from states import Goa,Karnataka,Delhi,Maharashtra,Kerala,Gujarat,Haryana,Central,Contractor,Hyderabad
+# Tamilnadu=Tamilnadu.Tamilnadu
+# Madhya_Pradesh=Madhya_Pradesh.Madhya_Pradesh
 Goa=Goa.Goa
 Karnataka=Karnataka.Karnataka
-Chandigarh=Chandigarh.Chandigarh
+# Chandigarh=Chandigarh.Chandigarh
 Delhi=Delhi.Delhi
 Maharashtra=Maharashtra.Maharashtra
 Kerala=Kerala.Kerala
@@ -73,26 +73,10 @@ def create_pdf(folderlocation,file_name):
         wb.Close()
         excel.Quit()
 
-def Rajasthan(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info("Rajasthan form creation")
 
-
-def Telangana(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info('Telangana forms')
-
-def Uttar_Pradesh(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info('Uttar Pradesh forms')
-
-
-def West_Bengal(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info("West_Bengal form creation")
-
-def Uttarakhand(data,contractor_name,contractor_address,filelocation,month,year,report,master):
-    logging.info("Uttarakhand form creation")
-
-State_Process = {'delhi':Delhi,'telangana':Telangana,'uttar pradesh':Uttar_Pradesh,'goa':Goa,
-                'gujarat':Gujarat,'kerala':Kerala,'rajasthan':Rajasthan,'haryana':Haryana,
-                'west bengal':West_Bengal,'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'tamilnadu':Tamilnadu}
+State_Process = {'haryana':Haryana,
+                'hyderabad':Hyderabad,'karnataka':Karnataka,'maharashtra':Maharashtra,'delhi':Delhi,'goa':Goa,
+                'gujarat':Gujarat,'kerala':Kerala}
                 #'madhya pradesh':Madhya_Pradesh,'uttarakhand':Uttarakhand
 
 # State_Process={'tamilnadu':Tamilnadu}

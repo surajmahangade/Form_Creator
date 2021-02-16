@@ -347,11 +347,17 @@ def Kerala(data,contractor_name,contractor_address,filelocation,month,year,repor
 
     try:
         Form_A()
+        master.update()
         Form_C()
+        master.update()
         Form_I()
+        master.update()
         Form_II()
+        master.update()
         Form_III()
+        master.update()
         Form_XIV()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

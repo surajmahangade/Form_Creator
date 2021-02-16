@@ -561,10 +561,15 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
 
     try:
         Form_F()
+        master.update()
         Form_IV()
+        master.update()
         Form_M()
+        master.update()
         Form_P()
+        master.update()
         Form_Notice_holiday()
+        master.update()
         #No need
         # Form_I()
     except KeyError as e:

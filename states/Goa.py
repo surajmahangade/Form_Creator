@@ -26,7 +26,6 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
     #wages reg
     input_filelocation=filelocation.split("Registers")[0]
     min_wages_goa=read_min_wages_file("GOA","SEMI-SKILLED",input_filelocation)
-    
     def Form_I():
 
         formIfilepath = os.path.join(Goafilespath,'Form I register of Fine.xlsx')
@@ -101,7 +100,11 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         data_formII[["whether_work_showed_cause","num_instalments"]]="-----"
         data_formII["remarks"]=""
         ######################################
-        data_formII['Date of payment']=data_formII['Date of payment'].apply(lambda x: x.strftime('%d-%m-%Y'))
+        if str(data_formII['Date of payment'].dtype)[0:8] == 'datetime':
+            data_formII['Date of payment']=data_formII['Date of payment'].apply(lambda x: x.strftime('%d-%m-%Y'))
+        else:
+            data_formII['Date of payment']=data_formII['Date of payment'].astype(str)
+
         data_formII['Damage or Loss']=data_formII['Damage or Loss'].astype(float)
         data_formII['Damage or Loss']=data_formII['Damage or Loss'].fillna(0)
         data_formII["Damage_loss_with_date"]=data_formII['Date of payment']+" & "+data_formII['Damage or Loss'].astype(str)
@@ -726,11 +729,17 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         formXXIIIfile.save(filename=formXXIIIfinalfile)
     try:  
         Form_I()
+        master.update()
         Form_II()
+        master.update()
         Form_VIII()
+        master.update()
         From_XII()
+        master.update()
         Form_XXI()
+        master.update()
         Form_XXIII()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

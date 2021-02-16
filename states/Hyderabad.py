@@ -525,11 +525,17 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         formXXVfile.save(filename=formXXVfinalfile)
     try:
         Form_X()
+        master.update()
         Form_XI()
+        master.update()
         Form_XII_reg_advance()
+        master.update()
         Form_XXII_reg_employee()
+        master.update()
         Form_XXIII()
+        master.update()
         From_XXV()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

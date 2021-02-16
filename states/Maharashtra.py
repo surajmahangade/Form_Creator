@@ -260,7 +260,11 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         def date_format_change(val):
             return val.strftime('%d-%m-%y')
 
-        data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
+        if str(data_formII['Date of payment'].dtype)[0:8] == 'datetime':
+            data_formII["Date of payment"]=data_formII["Date of payment"].apply(date_format_change)
+        else:
+            data_formII['Date of payment']=data_formII['Date of payment'].astype(str)
+            
         for employee_name_leave_file in data_formII["Employee Name"]:
             #opening
             emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
@@ -838,12 +842,19 @@ def Maharashtra(data,contractor_name,contractor_address,filelocation,month,year,
         formOfile.save(filename=formOfinalfile)
     try:
         Form_I()
+        master.update()
         Form_II_Muster_Roll()
+        master.update()
         Form_II_reg_damage_loss()
+        master.update()
         Form_II_wages_reg()
+        master.update()
         Form_VI_Overtime()
+        master.update()
         Form_VI_reg_advance()
+        master.update()
         From_O()
+        master.update()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
         print("Key error {}".format(e))

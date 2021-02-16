@@ -8,6 +8,7 @@ from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 from pathlib import Path
 import sys
+Testing=True
 path = Path(sys.executable)
 systemdrive = path.drive + path.root
 if systemdrive=="/":
