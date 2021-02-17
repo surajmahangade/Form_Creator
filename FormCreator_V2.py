@@ -40,16 +40,25 @@ def create_pdf(folderlocation,file_name):
     excel_filename = file_name
     pdf_filename = file_name.split('.')[0]+'.pdf'
     # Path to original excel file
+    
     WB_PATH=os.path.join(folderlocation,excel_filename)
     # PDF path when saving
-    PATH_TO_PDF =os.path.join(folderlocation,pdf_filename)
-
+    folderlocation_pdf=folderlocation.replace("Registers","Registers_pdf")
+    PATH_TO_PDF = os.path.join(folderlocation_pdf,pdf_filename)
+    
+    if not os.path.exists(folderlocation_pdf):
+        os.makedirs(folderlocation_pdf)
+    
     logging.info(WB_PATH)
     logging.info(PATH_TO_PDF)
 
     excel = win32com.client.Dispatch("Excel.Application")
 
     excel.Visible = False
+    excel.Interactive = False
+    excel.ScreenUpdating = False
+    excel.DisplayAlerts = False
+    excel.EnableEvents = False
 
     try:
         logging.info('Start conversion to PDF')
@@ -72,6 +81,8 @@ def create_pdf(folderlocation,file_name):
     finally:
         wb.Close()
         excel.Quit()
+        import time
+        time.sleep(0.1)
 
 
 State_Process = {'haryana':Haryana,
@@ -627,9 +638,23 @@ def generateforms(comptype,mn,yr):
                 report.configure(text=output_text)
         finally:
             logging.info('done')
-        
-def convert_forms_to_pdf():
 
+def get_count():
+    getfolder = foldernamelabel.cget("text")
+    count=0
+    if getfolder=="":
+        report.configure(text="Please select company folder")
+    else:
+        registerfolder = os.path.join(Path(getfolder),Register_folder)
+        if os.path.exists(registerfolder):
+            for root, dirs, files in os.walk(registerfolder):
+                for fileis in files:
+                    if fileis.endswith(".xlsx"):
+                        count+=1
+    return count
+def convert_forms_to_pdf():
+    progress["maximum"]=get_count()
+    
     getfolder = foldernamelabel.cget("text")
 
     if getfolder=="":
@@ -642,12 +667,17 @@ def convert_forms_to_pdf():
                     if fileis.endswith(".xlsx"):
                         try:
                             create_pdf(root,fileis)
+                            progress["value"]+=1
+                            percent.configure(text=str(progress["value"]*100//progress["maximum"])+"%")
+                            master.update()
+                            # print("update")
                         except Exception as e:
                             logging.info('Failed pdf Conversion')
                             report.configure(text="Failed")
+                            print(e)
                         else:
                             logging.info('Completed pdf Conversion')
-                            report.configure(text="Completed")
+                            # report.configure(text="Completed")
                         finally:
                             logging.info('done')
         else:

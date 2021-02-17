@@ -25,7 +25,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
 
     #print(sorted(list(data.columns)))
     def Form_G():
-        formGfilepath = os.path.join(Delhifilespath,'Form G.xlsx')
+        formGfilepath = os.path.join(Delhifilespath, 'Form G.xlsx')
         formGfile = load_workbook(filename=formGfilepath)
         logging.info('Form G file has sheet: '+str(formGfile.sheetnames))
         logging.info('create columns which are now available')
@@ -50,7 +50,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         data_formG["sign"]=""
         for employee_name_leave_file in data_formG["Employee Name"]:
             #opening+monthly increment
-            emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
+            emp_details = leave_file_data.loc[leave_file_data["Employee Name"] == employee_name_leave_file ,:]
             opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].astype(float)
             leave_due=mon_inr_pl.add(opening_pl,fill_value=0).sum()
