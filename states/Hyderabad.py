@@ -125,7 +125,7 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
 
         logging.info('rows taken out from data')
         row_num=0
-        for r_idx, row in enumerate(rows, 10):
+        for r_idx, row in enumerate(rows, 9):
             row_num+=1
             for c_idx, value in enumerate(row, 1):
                 formXIsheet.cell(row=r_idx, column=c_idx, value=value)
@@ -319,12 +319,14 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
                 "CSR",'PF','ESIC','P.Tax',"LWF EE",'Salary Advance',"Loan Deduction","Loan Interest",
                 "Fine","Damage or Loss","all_Other_deductions", 'TDS',"all_Other_deductions",'Total Deductions',
                 'Net Paid','Date of payment',"sign"]
-
+        
+        data_formXXIII['DA']= data_formXXIII['DA'].replace("",0).astype(float)
+        data_formXXIII['Earned Basic']=data_formXXIII['Earned Basic'].replace("",0).astype(float)
         data_formXXIII['basic_and_allo'] = data_formXXIII['Earned Basic']+ data_formXXIII['DA']
         all_Other_deductions_columns=['Other Deduction','OtherDeduction1', 'OtherDeduction2','OtherDeduction3', 
                                         'OtherDeduction4', 'OtherDeduction5']
         
-        data_formXXIII[all_Other_deductions_columns]=data_formXXIII[all_Other_deductions_columns].astype(float)
+        data_formXXIII[all_Other_deductions_columns]=data_formXXIII[all_Other_deductions_columns].replace("",0).astype(float)
         data_formXXIII[all_Other_deductions_columns]=data_formXXIII[all_Other_deductions_columns].fillna(0)
 
         data_formXXIII["all_Other_deductions"]=data_formXXIII.loc[:,all_Other_deductions_columns].sum(axis=1)

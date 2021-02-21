@@ -176,9 +176,9 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         if "Retention Pay" not in data_formIV.columns:
             data_formIV["Retention Pay"]=0
         # data_formIV["deductions-advance"]=data
-        data_formIV[others_columns]=data_formIV[others_columns].astype(float)
+        data_formIV[others_columns]=data_formIV[others_columns].replace("",0).astype(float)
         data_formIV[others_columns]=data_formIV[others_columns].fillna(0)
-        data_formIV['Salary Advance']=data_formIV['Salary Advance'].astype(float)
+        data_formIV['Salary Advance']=data_formIV['Salary Advance'].replace("",0).astype(float)
         data_formIV['Salary Advance']=data_formIV['Salary Advance'].fillna(0)
         
         data_formIV["deductions-advance"]= data_formIV.loc[:,others_columns].sum(axis=1)-data_formIV['Salary Advance']
@@ -186,7 +186,7 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
 
         all_Other_deductions_columns=['Other Deduction','OtherDeduction1', 'OtherDeduction2','OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
         
-        data_formIV[all_Other_deductions_columns]=data_formIV[all_Other_deductions_columns].astype(float)
+        data_formIV[all_Other_deductions_columns]=data_formIV[all_Other_deductions_columns].replace("",0).astype(float)
         data_formIV[all_Other_deductions_columns]=data_formIV[all_Other_deductions_columns].fillna(0)
 
         data_formIV["all_Other_deductions"]=data_formIV.loc[:,all_Other_deductions_columns].sum(axis=1)
@@ -257,9 +257,9 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
         for employee_name_leave_file in data_formM["Employee Name"]:
             #opening
             emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
-            opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].astype(float)
-            opening_cl=emp_details["Opening"].loc[emp_details["Leave Type"]=="CL"].astype(float)
-            opening_sl=emp_details["Opening"].loc[emp_details["Leave Type"]=="SL"].astype(float)
+            opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
+            opening_cl=emp_details["Opening"].loc[emp_details["Leave Type"]=="CL"].replace("",0).astype(float)
+            opening_sl=emp_details["Opening"].loc[emp_details["Leave Type"]=="SL"].replace("",0).astype(float)
             prev_bal=opening_pl.add(opening_cl.add(opening_sl,fill_value=0), fill_value=0).sum()
             
             data_formM.loc[data_formM["Employee Name"]==employee_name_leave_file,'num_days']=prev_bal
@@ -267,15 +267,15 @@ def Gujarat(data,contractor_name,contractor_address,filelocation,month,year,repo
 
             #####
             #monthly_inr
-            mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].astype(float)
-            mon_inr_cl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="CL"].astype(float)
-            mon_inr_sl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="SL"].astype(float)
+            mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
+            mon_inr_cl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="CL"].replace("",0).astype(float)
+            mon_inr_sl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="SL"].replace("",0).astype(float)
             earned=mon_inr_cl.add(mon_inr_pl.add(mon_inr_sl,fill_value=0), fill_value=0).sum()
 
             #availed during month
-            Used_pl=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"].astype(float)
-            Used_cl=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"].astype(float)
-            Used_sl=emp_details["Used"].loc[emp_details["Leave Type"]=="SL"].astype(float)
+            Used_pl=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
+            Used_cl=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"].replace("",0).astype(float)
+            Used_sl=emp_details["Used"].loc[emp_details["Leave Type"]=="SL"].replace("",0).astype(float)
             availed=Used_cl.add(Used_pl.add(Used_sl,fill_value=0), fill_value=0).sum()
 
             data_formM.loc[data_formM["Employee Name"]==employee_name_leave_file,"balance_days"]=prev_bal+earned-availed

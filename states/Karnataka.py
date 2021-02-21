@@ -1,4 +1,3 @@
-from states import Statefolder, logging, monthdict
 import calendar
 import datetime
 import logging
@@ -12,6 +11,7 @@ from tkinter import filedialog, ttk
 import numpy as np
 import pandas as pd
 
+from states import Statefolder, logging, monthdict
 from states.utils import forms_template
 
 employee_name_column = "Employee Name"
@@ -50,11 +50,11 @@ def Karnataka(data, contractor_name, contractor_address, filelocation, month, ye
             # opening
             emp_details = leave_file_data.loc[leave_file_data[employee_name_column]
                                               == employee_name_leave_file, :]
-            opening_pl = emp_details["Opening"].loc[emp_details["Leave Type"] == "PL"].astype(
+            opening_pl = emp_details["Opening"].loc[emp_details["Leave Type"] == "PL"].replace("",0).astype(
                 float)
-            opening_cl = emp_details["Opening"].loc[emp_details["Leave Type"] == "CL"].astype(
+            opening_cl = emp_details["Opening"].loc[emp_details["Leave Type"] == "CL"].replace("",0).astype(
                 float)
-            opening_sl = emp_details["Opening"].loc[emp_details["Leave Type"] == "SL"].astype(
+            opening_sl = emp_details["Opening"].loc[emp_details["Leave Type"] == "SL"].replace("",0).astype(
                 float)
             prev_bal = opening_pl.add(opening_cl.add(
                 opening_sl, fill_value=0), fill_value=0).sum()
@@ -63,11 +63,11 @@ def Karnataka(data, contractor_name, contractor_address, filelocation, month, ye
                            employee_name_leave_file, "open_balance"] = prev_bal
 
             # closing
-            Closing_pl = emp_details["Closing"].loc[emp_details["Leave Type"] == "PL"].astype(
+            Closing_pl = emp_details["Closing"].loc[emp_details["Leave Type"] == "PL"].replace("",0).astype(
                 float)
-            Closing_cl = emp_details["Closing"].loc[emp_details["Leave Type"] == "CL"].astype(
+            Closing_cl = emp_details["Closing"].loc[emp_details["Leave Type"] == "CL"].replace("",0).astype(
                 float)
-            Closing_sl = emp_details["Closing"].loc[emp_details["Leave Type"] == "SL"].astype(
+            Closing_sl = emp_details["Closing"].loc[emp_details["Leave Type"] == "SL"].replace("",0).astype(
                 float)
             closing = Closing_cl.add(Closing_pl.add(
                 Closing_sl, fill_value=0), fill_value=0).sum()
@@ -110,11 +110,11 @@ def Karnataka(data, contractor_name, contractor_address, filelocation, month, ye
             # opening
             emp_details = leave_file_data.loc[leave_file_data[employee_name_column]
                                               == employee_name_leave_file, :]
-            opening_pl = emp_details["Opening"].loc[emp_details["Leave Type"] == "PL"].astype(
+            opening_pl = emp_details["Opening"].loc[emp_details["Leave Type"] == "PL"].replace("",0).astype(
                 float)
-            opening_cl = emp_details["Opening"].loc[emp_details["Leave Type"] == "CL"].astype(
+            opening_cl = emp_details["Opening"].loc[emp_details["Leave Type"] == "CL"].replace("",0).astype(
                 float)
-            opening_sl = emp_details["Opening"].loc[emp_details["Leave Type"] == "SL"].astype(
+            opening_sl = emp_details["Opening"].loc[emp_details["Leave Type"] == "SL"].replace("",0).astype(
                 float)
             prev_bal = opening_pl.add(opening_cl.add(
                 opening_sl, fill_value=0), fill_value=0).sum()
@@ -123,11 +123,11 @@ def Karnataka(data, contractor_name, contractor_address, filelocation, month, ye
                            employee_name_leave_file, "open_balance"] = prev_bal
 
             # closing
-            Closing_pl = emp_details["Closing"].loc[emp_details["Leave Type"] == "PL"].astype(
+            Closing_pl = emp_details["Closing"].loc[emp_details["Leave Type"] == "PL"].replace("",0).astype(
                 float)
-            Closing_cl = emp_details["Closing"].loc[emp_details["Leave Type"] == "CL"].astype(
+            Closing_cl = emp_details["Closing"].loc[emp_details["Leave Type"] == "CL"].replace("",0).astype(
                 float)
-            Closing_sl = emp_details["Closing"].loc[emp_details["Leave Type"] == "SL"].astype(
+            Closing_sl = emp_details["Closing"].loc[emp_details["Leave Type"] == "SL"].replace("",0).astype(
                 float)
             closing = Closing_cl.add(Closing_pl.add(
                 Closing_sl, fill_value=0), fill_value=0).sum()

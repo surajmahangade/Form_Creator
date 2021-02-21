@@ -48,7 +48,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         remove_point=lambda input_str: input_str.split(".")[0]
         data_formA["Bank A/c Number"]=data_formA["Bank A/c Number"].apply(str).apply(remove_point)
         data_formA["Aadhar Number"]=data_formA["Aadhar Number"].apply(str).apply(remove_point)
-
+        data_formA['Category Address']=""
         data_formA[['Local Address 1', 'Local Address 2','Local Address 3', 'Local Address 4']]=data_formA[['Local Address 1', 'Local Address 2','Local Address 3', 'Local Address 4']].astype(str)
         data_formA[['Permanent Address 1', 'Permanent Address 2','Permanent Address 3', 'Permanent Address 4']]=data_formA[['Permanent Address 1', 'Permanent Address 2','Permanent Address 3', 'Permanent Address 4']].astype(str)
         data_formA["Present_Address"]=data_formA['Local Address 1']+data_formA['Local Address 2']+data_formA['Local Address 3']+ data_formA['Local Address 4']
@@ -124,19 +124,18 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         #data_formB['OT hours'] = 0
         #data_formB['Pay OT'] = 0
-        if str(data_formB['Earned Basic'].dtype)[0:3] != 'int':
-            data_formB['Earned Basic']= data_formB['Earned Basic'].astype(int)
-        if str(data_formB['DA'].dtype)[0:3] != 'int':
-            data_formB['DA']= data_formB['DA'].astype(int)
+        data_formB['DA']= data_formB['DA'].replace("",0).astype(float)
+        data_formB['Earned Basic']=data_formB['Earned Basic'].replace("",0).astype(float)
+        
         data_formB['basic_and_allo'] = data_formB['Earned Basic']+ data_formB['DA']
         #data_formB['Other EAR'] = data_formB['Other Reimb']+data_formB['Arrears']+data_formB['Other Earning']+data_formB['Variable Pay']+data_formB['Stipend'] +data_formB['Consultancy Fees']
         #data_formB['VPF']=0
         data_formB['Society']="---"
         data_formB['Income Tax']="---"
-        if str(data_formB['Other Deduction'].dtype)[0:3] != 'int':
-            data_formB['Other Deduction']= data_formB['Other Deduction'].astype(int)
-        if str(data_formB['Other Deduction'].dtype)[0:3] != 'int':
-            data_formB['Other Deduction']= data_formB['Other Deduction'].astype(int)
+        
+        data_formB['Other Deduction']= data_formB['Other Deduction'].replace("",0).astype(float)
+        data_formB['Salary Advance']=data_formB['Salary Advance'].replace("",0).astype(float)
+
         data_formB['Other Deduc']= data_formB['Other Deduction']+ data_formB['Salary Advance']
         data_formB['EMP PF'] = data_formB['PF']
         #data_formB['BankID'] = ''
@@ -154,15 +153,15 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
 
         all_other_allowance_columns=['Other Allowance','OtherAllowance1','OtherAllowance2', 'OtherAllowance3', 'OtherAllowance4', 'OtherAllowance5']
         
-        data_formB[all_other_allowance_columns]=data_formB[all_other_allowance_columns].astype(float)
+        data_formB[all_other_allowance_columns]=data_formB[all_other_allowance_columns].replace("",0).astype(float)
         data_formB['all_Other_Allowance']= data_formB.loc[:,all_other_allowance_columns].sum(axis=1)
 
         all_Other_deductions_columns=['Other Deduction','OtherDeduction1', 'OtherDeduction2','OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
         
-        data_formB[all_Other_deductions_columns]=data_formB[all_Other_deductions_columns].astype(float)
+        data_formB[all_Other_deductions_columns]=data_formB[all_Other_deductions_columns].replace("",0).astype(float)
         data_formB[all_Other_deductions_columns]=data_formB[all_Other_deductions_columns].fillna(0)
 
-        data_formB['Salary Advance']=data_formB['Salary Advance'].astype(float)
+        data_formB['Salary Advance']=data_formB['Salary Advance'].replace("",0).astype(float)
         data_formB['Salary Advance']=data_formB['Salary Advance'].fillna(0)
         data_formB['advance+deductions']=data_formB.loc[:,all_Other_deductions_columns].sum(axis=1)+data_formB['Salary Advance']
         
@@ -259,7 +258,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
                     "num_installments","first_month_year","last_month_year","Date_of_complete_recovery"]]="---"
         
         data_formC["remarks"]=""
-        data_formC['Damage or Loss']=data_formC['Damage or Loss'].astype(float)
+        data_formC['Damage or Loss']=data_formC['Damage or Loss'].replace("",0).astype(float)
         data_formC['Damage or Loss']=data_formC['Damage or Loss'].fillna(0)
 
         data_formC["Date of payment and damage loss"]=data_formC["Date of payment"].astype(str)+"/"+data_formC['Damage or Loss'].astype(str)
@@ -570,7 +569,7 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         other_deductions_columns_name=['Other Deduction','OtherDeduction1', 'OtherDeduction2',
                                                         'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
 
-        data_formXX[other_deductions_columns_name]=data_formXX[other_deductions_columns_name].astype(float)
+        data_formXX[other_deductions_columns_name]=data_formXX[other_deductions_columns_name].replace("",0).astype(float)
         data_formXX["all_Other_Deduction_sum"]= data_formXX.loc[:,other_deductions_columns_name].sum(axis=1)
 
         formXX_data = data_formXX[formXX_columns]

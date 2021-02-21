@@ -25,7 +25,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
 
     #print(sorted(list(data.columns)))
     def Form_G():
-        formGfilepath = os.path.join(Delhifilespath, 'Form G.xlsx')
+        formGfilepath = os.path.join(Delhifilespath,'Form G.xlsx')
         formGfile = load_workbook(filename=formGfilepath)
         logging.info('Form G file has sheet: '+str(formGfile.sheetnames))
         logging.info('create columns which are now available')
@@ -50,17 +50,17 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         data_formG["sign"]=""
         for employee_name_leave_file in data_formG["Employee Name"]:
             #opening+monthly increment
-            emp_details = leave_file_data.loc[leave_file_data["Employee Name"] == employee_name_leave_file ,:]
-            opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].astype(float)
-            mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].astype(float)
+            emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==employee_name_leave_file,:]
+            opening_pl=emp_details["Opening"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
+            mon_inr_pl=emp_details["Monthly Increment"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
             leave_due=mon_inr_pl.add(opening_pl,fill_value=0).sum()
             data_formG.loc[data_formG["Employee Name"]==employee_name_leave_file,"leave_due"]=leave_due
             ##############################################################################################################################
             #used
-            used_pl=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"].astype(float)
+            used_pl=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
             data_formG.loc[data_formG["Employee Name"]==employee_name_leave_file,"leave_availed"]=used_pl
             #closing
-            balance_pl=emp_details["Closing"].loc[emp_details["Leave Type"]=="PL"].astype(float)
+            balance_pl=emp_details["Closing"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
             data_formG.loc[data_formG["Employee Name"]==employee_name_leave_file,"Balance"]=balance_pl
             ###############################################################################################################################
 
@@ -70,7 +70,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         #print(data_formG["Date"])
         
         data_formG['Total_hrs_worked']="8 Hours"
-        data_formG["CL_Sl"]=data_formG['Total\r\nCL'].astype(float)+data_formG['Total\r\nSL'].astype(float)
+        data_formG["CL_Sl"]=data_formG['Total\r\nCL'].replace("",0).astype(float)+data_formG['Total\r\nSL'].replace("",0).astype(float)
 
         data_formG["Fine_damage_loss"]=data_formG["Fine"].astype(str)+"\n"+data_formG["Damage or Loss"].astype(str)
         data_formG['interval_for_reset_to']=data_formG.rest_interval.str.split("-",expand=True)[1]
@@ -158,18 +158,18 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         if "Retention Pay" not in data_formG.columns:
             data_formG["Retention Pay"]=0
             
-        data_formG[all_deductions_columns_name]=data_formG[all_deductions_columns_name].astype(float)
+        data_formG[all_deductions_columns_name]=data_formG[all_deductions_columns_name].replace("",0).astype(float)
         data_formG['All_Allowance_sum']= data_formG.loc[:,all_deductions_columns_name].sum(axis=1)
 
-        data_formG["Fine_damage_loss"]=data_formG['Fine'].astype(float)+data_formG['Damage or Loss'].astype(float)
+        data_formG["Fine_damage_loss"]=data_formG['Fine'].replace("",0).astype(float)+data_formG['Damage or Loss'].replace("",0).astype(float)
 
         other_deductions_columns_name=['Other Deduction','OtherDeduction1', 'OtherDeduction2',
                                                         'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
 
-        data_formG[other_deductions_columns_name]=data_formG[other_deductions_columns_name].astype(float)
+        data_formG[other_deductions_columns_name]=data_formG[other_deductions_columns_name].replace("",0).astype(float)
         data_formG["all_Other_Deduction_sum"]= data_formG.loc[:,other_deductions_columns_name].sum(axis=1)
 
-        data_formG["Total_ded"]=data_formG["all_Other_Deduction_sum"]-data_formG['Salary Advance'].astype(float)
+        data_formG["Total_ded"]=data_formG["all_Other_Deduction_sum"]-data_formG['Salary Advance'].replace("",0).astype(float)
         
         data_formG["sign"]=""
 
@@ -334,13 +334,13 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
 
             all_other_allowance_columns=['Other Allowance','OtherAllowance1', 'OtherAllowance2', 'OtherAllowance3', 'OtherAllowance4', 'OtherAllowance5']
             
-            data_formH[all_other_allowance_columns]=data_formH[all_other_allowance_columns].astype(float)
+            data_formH[all_other_allowance_columns]=data_formH[all_other_allowance_columns].replace("",0).astype(float)
             data_formH['All_Other_Allowance']= data_formH.loc[:,all_other_allowance_columns].sum(axis=1)
-            data_formH["sal_fine_damage"]=data_formH["Fine"].apply(float)+data_formH["Damage or Loss"].apply(float)
+            data_formH["sal_fine_damage"]=data_formH["Fine"].replace("",0).apply(float)+data_formH["Damage or Loss"].replace("",0).apply(float)
 
 
             other_deductions_columns=['Insurance','CSR','PF','ESIC','P.Tax','LWF EE','Loan Deduction','Loan Interest','Other Deduction','TDS']
-            data_formH[other_deductions_columns]=data_formH[other_deductions_columns].astype(float)
+            data_formH[other_deductions_columns]=data_formH[other_deductions_columns].replace("",0).astype(float)
             data_formH['All_other_deductions']= data_formH.loc[:,other_deductions_columns].sum(axis=1)
             
             data_formH[["remarks",'Amount_Due','sign','Dearness_Allowance']]=""
@@ -414,7 +414,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         data_formI[["nature_of_offence","cause_against_fine",'Date_fine']]="-----"
         data_formI["remarks"]=""
         
-        data_formI['Fine']=data_formI['Fine'].astype(float)
+        data_formI['Fine']=data_formI['Fine'].replace("",0).astype(float)
         data_formI['Fine']=data_formI['Fine'].fillna(0)
         data_formI["Date of payment&Fine"]=data_formI['Date of payment']
         data_formI.loc[data_formI['Fine']==0,"Date of payment&Fine"]="---"
@@ -546,20 +546,20 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
                         emp_details=leave_file_data.loc[leave_file_data["Employee Name"]==name,:]
                         if absent_label=="PL":
                             total=emp_details["Used"].loc[emp_details["Leave Type"]=="PL"]
-                            Closing_pl=emp_details["Closing"].loc[emp_details["Leave Type"]=="PL"].astype(float)
-                            Closing_cl=emp_details["Closing"].loc[emp_details["Leave Type"]=="CL"].astype(float)
-                            Closing_sl=emp_details["Closing"].loc[emp_details["Leave Type"]=="SL"].astype(float)
+                            Closing_pl=emp_details["Closing"].loc[emp_details["Leave Type"]=="PL"].replace("",0).astype(float)
+                            Closing_cl=emp_details["Closing"].loc[emp_details["Leave Type"]=="CL"].replace("",0).astype(float)
+                            Closing_sl=emp_details["Closing"].loc[emp_details["Leave Type"]=="SL"].replace("",0).astype(float)
                             balance=Closing_cl.add(Closing_pl.add(Closing_sl,fill_value=0), fill_value=0).sum()
                             cell_write(target,row_index+row_offset[target.title],6,"----")
                             cell_write(target,row_index+row_offset[target.title],7,"----")
                             cell_write(target,row_index+row_offset[target.title],10,total.to_string(index=False))
                             cell_write(target,row_index+row_offset[target.title],11,balance)
                         else:
-                            temp=data_formI.loc[data_formI["Employee Name"]==name,'Total\r\nCL'].astype(float)
-                            amt_leave_requested=data_formI.loc[data_formI["Employee Name"]==name,'Total\r\nSL'].astype(float)+temp
+                            temp=data_formI.loc[data_formI["Employee Name"]==name,'Total\r\nCL'].replace("",0).astype(float)
+                            amt_leave_requested=data_formI.loc[data_formI["Employee Name"]==name,'Total\r\nSL'].replace("",0).astype(float)+temp
                             #print(amt_leave_requested)
-                            Used_cl=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"].astype(float)
-                            Used_sl=emp_details["Used"].loc[emp_details["Leave Type"]=="SL"].astype(float)
+                            Used_cl=emp_details["Used"].loc[emp_details["Leave Type"]=="CL"].replace("",0).astype(float)
+                            Used_sl=emp_details["Used"].loc[emp_details["Leave Type"]=="SL"].replace("",0).astype(float)
                             availed=Used_cl.add(Used_sl,fill_value=0).sum()
                             cell_write(target,row_index+row_offset[target.title],1,amt_leave_requested.to_string(index=False))
                             cell_write(target,row_index+row_offset[target.title],2,"----")
@@ -621,7 +621,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
                                         "Damage_loss_with_date","whether_work_showed_cause",
                                         "Date of payment & amount of deduction","num_instalments",'Date on which total amount realised',"remarks"]
         
-        data_formII["Damage or Loss"]=data_formII["Damage or Loss"].astype(float)
+        data_formII["Damage or Loss"]=data_formII["Damage or Loss"].replace("",0).astype(float)
         data_formII["Damage or Loss"]=data_formII["Damage or Loss"].fillna(0)
         
         data_formII['S.no'] = list(range(1,len(data_formII)+1))
@@ -694,7 +694,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
                                         "FIXED MONTHLY GROSS","overtime rate",
                                         "normal_earning","Overtime",'Total Earning',"date_overtime_paid"]
                                         
-        data_formIV['Total\r\nOT Hrs']=data_formIV[['Total\r\nOT Hrs',"Overtime",'Total Earning']].astype(float)
+        data_formIV[['Total\r\nOT Hrs',"Overtime",'Total Earning']]=data_formIV[['Total\r\nOT Hrs',"Overtime",'Total Earning']].replace("",0).astype(float)
         data_formIV["Total over-time"]=data_formIV['Total\r\nOT Hrs']
         data_formIV["normal_earning"]=data_formIV['Total Earning']-data_formIV["Overtime"]
         data_formIV.loc[data_formIV['Total\r\nOT Hrs']==0,["Total over-time","Normal hrs ",
@@ -758,6 +758,7 @@ def Delhi(data,contractor_name,contractor_address,filelocation,month,year,report
         Form_I_reg()
         master.update()
         Form_I()
+        master.update()
         master.update()
         Form_II()
         master.update()

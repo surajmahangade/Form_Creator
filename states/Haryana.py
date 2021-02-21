@@ -191,7 +191,7 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
                         target["A6"] =target["A6"].value+"  "+value
                         target["A5"] =target["A5"].value+" "+month
                 elif c_idx==2:
-                    target["A5"]="Name of employee  "+str(employee_name)+"  father’s name or husband’s name :-"+str(value)
+                    target["A5"]="Name of employee  "+employee_name+"  father’s name or husband’s name :-"+value
                 elif c_idx==3:
                     target["A6"]="Year     "+str(year)+" month    "+month+"   Wages Fixed :- "+str(value)
                 elif c_idx==4:
@@ -222,11 +222,12 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
 
         data_formE = data.copy()
         columns=['S.no',"Employee Name","Parentage","month","FIXED MONTHLY GROSS","Total Deductions","fault_deductions","Date of payment",
-                                                            "cause_against deduction","amt_of_deduction","date_utilization","balance_employer"]
+                                                            "cause_against deduction","amt_of_deduction","date_utilization","balance_employer","sign","sign","remarks"]
                 
         
         data_formE['S.no'] = list(range(1,len(data_formE)+1))
         data_formE[["cause_against deduction","amt_of_deduction","date_utilization","balance_employer","fault_deductions","Parentage"]]="-----"
+        data_formE[["sign","remarks"]]=""
         data_formE["month"]=month
         formE_data=data_formE[columns]
         formEsheet = formEfile['Sheet1']
@@ -253,7 +254,7 @@ def Haryana(data,contractor_name,contractor_address,filelocation,month,year,repo
 
     try:
         Form_C()
-        master.update()    
+        master.update()
         Form_D()
         master.update()
         Form_E()

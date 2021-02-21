@@ -80,9 +80,8 @@ def create_pdf(folderlocation, file_name, excel):
 State_Process = {'haryana': Haryana,
                  'hyderabad': Hyderabad, 'karnataka': Karnataka, 'maharashtra': Maharashtra, 'delhi': Delhi, 'goa': Goa,
                  'gujarat': Gujarat, 'kerala': Kerala}
-# 'madhya pradesh':Madhya_Pradesh,'uttarakhand':Uttarakhand
 
-# State_Process={'tamilnadu':Tamilnadu}
+# State_Process={}
 companylist = ['SVR LTD', 'PRY Wine Ltd', 'CDE Technology Ltd']
 
 
@@ -133,7 +132,7 @@ def Type1(inputfolder, month, year):
                       'Permanent Pin Code', 'Permanent State', 'Spouse Name',
                       'PF Joining Date', 'PRAN Number', 'Group Joining Date', 'Aadhar Number',
                       'Child in Hostel (For CED)', 'Total Exp in Years', 'P', 'L',
-                      'Identification mark', 'Nationality',	'Education Level',	'Category Address',
+                      'Identification mark', 'Nationality',	'Education Level',	'Category Address',
                       'Type of Employment',	'Service Book No',	'Nature of work']
 
     salary_df_columns = ['Sr', 'DivisionName', 'Sal Status', 'Emp Code_salary', 'Emp Name_salary', 'Designation_salary',
@@ -149,7 +148,7 @@ def Type1(inputfolder, month, year):
                          'Loan Interest', 'Fine',	'Damage or Loss', 'Other Deduction', 'TDS', 'OtherDeduction1', 'OtherDeduction2', 'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5'
                          'Total Deductions', 'Net Paid', 'BankName', 'Bank A/c Number_salary', 'Account Code_salary', 'Remarks_salary',
                          'PF Number (Old)', 'UAN Number_salary', 'ESIC Number_salary', 'Personal A/c Number',
-                         'E-Mail_salary', 'Mobile No.', 'FIXED MONTHLY GROSS', 'CHECK CTC Gross', 'Date of payment',	'Arrears salary', 'Cheque No - NEFT date']
+                         'E-Mail_salary', 'Mobile No.', 'FIXED MONTHLY GROSS', 'CHECK CTC Gross', 'Date of payment', 'Arrears salary', 'Cheque No - NEFT date']
 
     atten_df_columns = ['Emp Code', 'Employee Name', 'Branch', 'Designation', 'Sat\r\n01/02',
                         'Sun\r\n02/02', 'Mon\r\n03/02', 'Tue\r\n04/02', 'Wed\r\n05/02',
@@ -180,25 +179,25 @@ def Type1(inputfolder, month, year):
 
     file_list = os.listdir(inputfolder)
     logging.info('input folder is '+str(inputfolder))
-    for f in file_list:
-        if f[0:6].upper() == 'MASTER':
-            masterfilename = f
-            logging.info('masterfilename is :'+f)
-        if f[0:6].upper() == 'SALARY':
-            salaryfilename = f
-            logging.info('salaryfilename is :'+f)
-        if f[0:10].upper() == 'ATTENDANCE':
-            attendancefilename = f
-            logging.info('attendancefilename is :'+f)
-        if f[0:5].upper() == 'LEAVE':
-            leavefilename = f
-            logging.info('leavefilename is :'+f)
-        if f[0:14].upper() == 'LEFT EMPLOYEES':
-            leftempfilename = f
-            logging.info('leftempfilename is :'+f)
-        if f[0:5].upper() == 'UNITS':
-            unitfilename = f
-            logging.info('unitfilename is :'+f)
+    for file_name in file_list:
+        if 'MASTER' in file_name.upper():
+            masterfilename = file_name
+            logging.info('masterfilename is :'+file_name)
+        if 'SALARY' in file_name.upper():
+            salaryfilename = file_name
+            logging.info('salaryfilename is :'+file_name)
+        if 'ATTENDANCE' in file_name.upper():
+            attendancefilename = file_name
+            logging.info('attendancefilename is :'+file_name)
+        if 'LEAVE' in file_name.upper():
+            leavefilename = file_name
+            logging.info('leavefilename is :'+file_name)
+        if 'LEFT' in file_name.upper() and 'EMPLOYEES' in file_name.upper():
+            leftempfilename = file_name
+            logging.info('leftempfilename is :'+file_name)
+        if 'UNIT' in file_name.upper():
+            unitfilename = file_name
+            logging.info('unitfilename is :'+file_name)
 
     logging.info('file names set')
     try:
@@ -209,7 +208,8 @@ def Type1(inputfolder, month, year):
                 subset=['Employee Code', 'Location Code'], inplace=True)
             employee_data.dropna(how='all', inplace=True)
             employee_data.reset_index(drop=True, inplace=True)
-            employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master", "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
+            employee_data.rename(columns={"Employee Code": "Employee Code_master", "Employee Name": "Employee Name_master",
+                                          "Designation": "Designation_master", "Branch": "Branch_master", "Date Joined": "Date Joined_master", "UAN Number": "UAN Number_master",
                                           "ESIC Number": "ESIC Number_master", "Bank A/c Number": "Bank A/c Number_master", "Account Code": "Account Code_master",
                                           "E-Mail": "E-Mail_master", "Remarks": "Remarks_master"}, inplace=True)
             logging.info('employee data loaded')
@@ -222,7 +222,8 @@ def Type1(inputfolder, month, year):
             salary_data.dropna(subset=['Emp Code'], inplace=True)
             salary_data.dropna(how='all', inplace=True)
             salary_data.reset_index(drop=True, inplace=True)
-            salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary", "DesigName": "Designation_salary", "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
+            salary_data.rename(columns={"Emp Code": "Emp Code_salary", "Emp Name": "Emp Name_salary", "DesigName": "Designation_salary",
+                                        "Branch": "Branch_salary", "Date Joined": "Date Joined_salary", "UAN Number": "UAN Number_salary",
                                         "ESIC Number": "ESIC Number_salary", "Bank A/c Number": "Bank A/c Number_salary", "Account Code": "Account Code_salary",
                                         "E-Mail": "E-Mail_salary", "Remarks": "Remarks_salary"}, inplace=True)
             logging.info('salary data loaded')
@@ -371,6 +372,7 @@ def Type1(inputfolder, month, year):
         logging.info('columns renamed correctly')
 
         CDE_Data.drop(columns=drop_list, inplace=True)
+        CDE_Data.dropna(subset=['Location', 'Unit'], inplace=True)
 
         logging.info('dropped duplicate columns')
 
@@ -389,7 +391,7 @@ def Type1(inputfolder, month, year):
     monthyear = month+' '+str(year)
     print(monthyear)
     print(masterfilename.upper())
-    if monthyear.upper() in masterfilename.upper():
+    if month.upper() in masterfilename.upper() and str(year).upper() in masterfilename.upper():
         progress['maximum'] = calculate_num_loop(CDE_Data)
         logging.info('month year matches with data')
         # for all state employees(PE+contractor)
@@ -398,7 +400,7 @@ def Type1(inputfolder, month, year):
 
         statedata.State = statedata.State.str.lower()
         CDE_States = list(statedata['State'].unique())
-        implemented_state_list = [x.lower() for x in State_Process.keys()]
+        implemented_state_list = list(State_Process.keys())
         if Testing == True:
             print("In testing Mode")
             CDE_States = implemented_state_list
@@ -461,10 +463,14 @@ def Type1(inputfolder, month, year):
                 progress.update()
                 master.update()
         # for contractors form
+        if Testing:
+            CDE_Data['State_or_Central'] = 'State'
         contractdata = CDE_Data.loc[(CDE_Data['State_or_Central'] == 'State') & (
             CDE_Data['PE_or_contract'] == 'Contract')].copy(deep=True)
         contractor_units = list(
             (contractdata['Unit']+';'+contractdata['Location']).unique())
+        print(contractdata['Unit'],contractdata['Location'])
+        
         report.configure(text="Creating contractor Forms")
         master.update()
 
@@ -474,7 +480,6 @@ def Type1(inputfolder, month, year):
             contractor_name = inputdata['Contractor_name'].unique()[0]
             contractor_address = inputdata['Contractor_Address'].unique()[0]
             inputdata.fillna(value=0, inplace=True)
-
             if UL.strip()[-1] == '.':
                 ULis = UL.strip()[0:-1]
             else:
@@ -498,10 +503,15 @@ def Type1(inputfolder, month, year):
             master.update()
 
         # for central form
+        if Testing:
+            CDE_Data['State_or_Central'] = 'Central'
+        
         centraldata = CDE_Data.loc[CDE_Data['State_or_Central'] == 'Central'].copy(
             deep=True)
         central_units = list(
             (centraldata['Unit']+','+centraldata['Location']).unique())
+        print(central_units)
+        print(centraldata['Unit'],centraldata['Location'])
         report.configure(text="Creating central Forms")
         master.update()
 
@@ -510,9 +520,9 @@ def Type1(inputfolder, month, year):
                 centraldata['Location'] == UL.split(',')[1])].copy(deep=True)
             contractor_name = inputdata['Contractor_name'].unique()[0]
             contractor_address = inputdata['Contractor_Address'].unique()[0]
-            inputdata.fillna(value=0, inplace=True)
-
+            
             inpath = os.path.join(inputfolder, Register_folder, 'Central', UL)
+            inputdata.fillna(value=0, inplace=True)
             if os.path.exists(inpath):
                 logging.info('running contractor process')
             else:
@@ -679,33 +689,10 @@ def generateforms(comptype, mn, yr):
             logging.info('done')
 
 
-def get_count():
-    getfolder = foldernamelabel.cget("text")
-    count = 0
-    if getfolder == "":
-        report.configure(text="Please select company folder")
-    else:
-        registerfolder = os.path.join(Path(getfolder), Register_folder)
-        if os.path.exists(registerfolder):
-            for root, dirs, files in os.walk(registerfolder):
-                for fileis in files:
-                    if fileis.endswith(".xlsx"):
-                        count += 1
-    return count
-
-
 def convert_forms_to_pdf():
-    progress["maximum"] = get_count()
 
     getfolder = foldernamelabel.cget("text")
 
-    import win32com.client
-    excel = win32com.client.Dispatch("Excel.Application")
-    excel.Visible = False
-    # excel.Interactive = False
-    # excel.ScreenUpdating = False
-    # excel.DisplayAlerts = False
-    # excel.EnableEvents = False
     if getfolder == "":
         report.configure(text="Please select company folder")
     else:
@@ -713,31 +700,19 @@ def convert_forms_to_pdf():
         if os.path.exists(registerfolder):
             for root, dirs, files in os.walk(registerfolder):
                 for fileis in files:
-                    fileis = fileis.strip("~$")
                     if fileis.endswith(".xlsx"):
-                        # try:
-                        create_pdf(root, fileis, excel)
-                        progress["value"] += 1
-                        percent.configure(
-                            text=str(progress["value"]*100//progress["maximum"])+"%")
-                        master.update()
-                        # print("update")
-                        # except Exception as e:
-                        #     logging.info('Failed pdf Conversion')
-                        #     report.configure(text="Failed")
-                        #     print("------------")
-                        #     print(e)
-
-                        # else:
-                        #     logging.info('Completed pdf Conversion')
-                        #     # report.configure(text="Completed")
-                        # finally:
-                        #     logging.info('done')
-
+                        try:
+                            create_pdf(root, fileis)
+                        except Exception as e:
+                            logging.info('Failed pdf Conversion')
+                            report.configure(text="Failed")
+                        else:
+                            logging.info('Completed pdf Conversion')
+                            report.configure(text="Completed")
+                        finally:
+                            logging.info('done')
         else:
             report.configure(text="Registers not available")
-    excel.Quit()
-    excel.Application.Quit()
 
 
 generateforms = partial(generateforms, Typeis, month, year)
@@ -751,6 +726,10 @@ Detailbox.grid(column=0, row=2, padx=20, pady=20)
 report = Label(
     Detailbox, text="                                                            ")
 report.grid(column=0, row=0, padx=20, pady=20)
+
+warning = Label(
+    master, text="                                                          ")
+warning.grid(column=1, row=2, padx=20, pady=20)
 
 if Testing == True:
     report.configure(

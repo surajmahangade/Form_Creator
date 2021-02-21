@@ -103,7 +103,7 @@ class Helper_functions():
         columns_data.fillna(value=0, inplace=True)
         columns_data["sum"] = 0
         for column in columns:
-            columns_data[column] = columns_data[column].astype(float)
+            columns_data[column] = columns_data[column].replace("",0).astype(float)
             columns_data["sum"] += columns_data[column]
         return columns_data["sum"]
 

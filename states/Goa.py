@@ -26,6 +26,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
     #wages reg
     input_filelocation=filelocation.split("Registers")[0]
     min_wages_goa=read_min_wages_file("GOA","SEMI-SKILLED",input_filelocation)
+    
     def Form_I():
 
         formIfilepath = os.path.join(Goafilespath,'Form I register of Fine.xlsx')
@@ -41,7 +42,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         data_formI['S.no'] = list(range(1,len(data_formI)+1))
         data_formI[["name&date_of_offence","cause_against_fine","remarks"]]="---"
         
-        data_formI['Fine']=data_formI['Fine'].astype(float)
+        data_formI['Fine']=data_formI['Fine'].replace("",0).astype(float)
         data_formI["Date of payment_fine_released"]=data_formI['Date of payment']
         data_formI["Date of payment_fine_imposed"]=data_formI['Date of payment']
         data_formI.loc[data_formI['Fine']==0,["FIXED MONTHLY GROSS","Date of payment_fine_released","Date of payment_fine_imposed","remarks"]]="---"
@@ -104,8 +105,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
             data_formII['Date of payment']=data_formII['Date of payment'].apply(lambda x: x.strftime('%d-%m-%Y'))
         else:
             data_formII['Date of payment']=data_formII['Date of payment'].astype(str)
-
-        data_formII['Damage or Loss']=data_formII['Damage or Loss'].astype(float)
+        data_formII['Damage or Loss']=data_formII['Damage or Loss'].replace("",0).astype(float)
         data_formII['Damage or Loss']=data_formII['Damage or Loss'].fillna(0)
         data_formII["Damage_loss_with_date"]=data_formII['Date of payment']+" & "+data_formII['Damage or Loss'].astype(str)
         data_formII.loc[data_formII["Damage or Loss"]==0,"Damage_loss_with_date"]="---"
@@ -171,7 +171,7 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         data_formVIII[["attendancefile","overtime_rate","ot"]]="---"
         data_formVIII[["extent_of_overtime"]]="---"
         ###
-        data_formVIII[['Total\r\nOT Hrs',"Overtime"]]=data_formVIII[['Total\r\nOT Hrs',"Overtime"]].astype(float)
+        data_formVIII[['Total\r\nOT Hrs',"Overtime"]]=data_formVIII[['Total\r\nOT Hrs',"Overtime"]].replace("",0).astype(float)
         data_formVIII[['Total\r\nOT Hrs',"Overtime"]]=data_formVIII[['Total\r\nOT Hrs',"Overtime"]].fillna(0)
         
         data_formVIII["total_overtime"]=data_formVIII['Total\r\nOT Hrs']
@@ -662,13 +662,13 @@ def Goa(data,contractor_name,contractor_address,filelocation,month,year,report,m
         data_formXXIII["Basic"]=min_wages_goa
         all_other_allowance_columns=['Other Allowance','OtherAllowance1','OtherAllowance2', 'OtherAllowance3', 'OtherAllowance4', 'OtherAllowance5']
         
-        data_formXXIII[all_other_allowance_columns]=data_formXXIII[all_other_allowance_columns].astype(float)
+        data_formXXIII[all_other_allowance_columns]=data_formXXIII[all_other_allowance_columns].replace("",0).astype(float)
         data_formXXIII['all_Other_Allowance']= data_formXXIII.loc[:,all_other_allowance_columns].sum(axis=1)
 
         Other_auth_Deduction_columns=['Insurance','CSR','ESIC','P.Tax','LWF EE','Loan Deduction','Loan Interest','Other Deduction','TDS',
                                             'OtherDeduction1', 'OtherDeduction2',
                                                     'OtherDeduction3', 'OtherDeduction4', 'OtherDeduction5']
-        data_formXXIII[Other_auth_Deduction_columns]=data_formXXIII[Other_auth_Deduction_columns].astype(float)
+        data_formXXIII[Other_auth_Deduction_columns]=data_formXXIII[Other_auth_Deduction_columns].replace("",0).astype(float)
         data_formXXIII['Other_auth_Deduction']= data_formXXIII.loc[:,Other_auth_Deduction_columns].sum(axis=1)
 
 

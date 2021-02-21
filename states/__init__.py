@@ -8,7 +8,7 @@ from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
 from pathlib import Path
 import sys
-Testing=True
+Testing=False
 path = Path(sys.executable)
 systemdrive = path.drive + path.root
 if systemdrive=="/":
@@ -60,15 +60,11 @@ border_sides_thick = Side(style='thick')
 border_sides_thin = Side(style='thin')
 
 def create_border(sheet,last_row,last_column,start_row):
-    
     for c_idx in range(1,last_column):
         sheet.cell(row=last_row, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-    
     for r_idx in range(start_row,last_row):
         sheet.cell(row=r_idx, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin)
-    
     sheet.cell(row=last_row, column=last_column).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-    
     return sheet
 
 def cell_write(sheet,value,r_idx,c_idx):

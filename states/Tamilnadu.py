@@ -147,13 +147,13 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,re
         # data_formR["Basic"]=min_wages_goa
         all_other_allowance_columns=['Other Allowance','OtherAllowance1','OtherAllowance2', 'OtherAllowance3', 'OtherAllowance4', 'OtherAllowance5']
         
-        data_formR[all_other_allowance_columns]=data_formR[all_other_allowance_columns].astype(float)
+        data_formR[all_other_allowance_columns]=data_formR[all_other_allowance_columns].replace("",0).astype(float)
         data_formR['all_Other_Allowance']= data_formR.loc[:,all_other_allowance_columns].sum(axis=1)
 
         all_Other_deductions_columns=['Other Deduction','OtherDeduction1', 'OtherDeduction2','OtherDeduction3', 
                                         'OtherDeduction4', 'OtherDeduction5']
         
-        data_formR[all_Other_deductions_columns]=data_formR[all_Other_deductions_columns].astype(float)
+        data_formR[all_Other_deductions_columns]=data_formR[all_Other_deductions_columns].replace("",0).astype(float)
         data_formR[all_Other_deductions_columns]=data_formR[all_Other_deductions_columns].fillna(0)
 
         data_formR["all_Other_deductions"]=data_formR.loc[:,all_Other_deductions_columns].sum(axis=1)
@@ -246,8 +246,11 @@ def Tamilnadu(data,contractor_name,contractor_address,filelocation,month,year,re
     ## --------FUNCTION CALL-------------------------
     try:
         Form_P()  ## Call this function in the main def
+        master.update()
         Form_R()
+        master.update()
         Form_T()
+        master.update()
         # Form_Q()
     except KeyError as e:
         logging.info("Key error : Check if {} column exsists".format(e))
