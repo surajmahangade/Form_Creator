@@ -8,13 +8,14 @@ class Excel2PdfConversion:
         self.Workbook = jpype.JClass("com.aspose.cells.Workbook")
         self.SaveFormat = jpype.JClass("com.aspose.cells.SaveFormat")
     
-    def main(self):               
-        saveFormat = self.SaveFormat
+    def main(self):
+                
+saveFormat = self.SaveFormat
 
-        workbook = self.Workbook(self.dataDir + "Book1.xls")
+workbook = self.Workbook(self.dataDir + "Book1.xls")
 
-        #Save the document in PDF format
-        workbook.save(self.dataDir + "OutBook1.pdf", saveFormat.PDF)
+#Save the document in PDF format
+workbook.save(self.dataDir + "OutBook1.pdf", saveFormat.PDF)
 
-        # Print message
-        print "\n Excel to PDF conversion performed successfully."
+# Print message
+print "\n Excel to PDF conversion performed successfully."
