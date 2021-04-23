@@ -37,13 +37,13 @@ def Contractor_Process(data,contractor_name,contractor_address,filelocation,mont
         
         data_formA.fillna(value=0, inplace=True)
 
-        data_formA['S.no'] = list(range(1,len(data_formA)+1))
+        data_formA['S.no'] = list(range(1, len(data_formA)+1))
 
         formA_columns = ["S.no",'Employee Code','Employee Name',"Gender","Father's Name",'Date of Birth',"Nationality","Education Level",'Date Joined',
                         'Designation','Category Address',"Type of Employment",'Mobile Tel No.','UAN Number',"PAN Number","ESIC Number","LWF EE","Aadhar Number",
                         "Bank A/c Number","Bank Name",'Branch',"Present_Address","Permanent_Address",'Service Book No',"Date Left","Reason for Leaving",'Identification mark',
                         "photo","sign","remarks"]
-        
+                        
         data_formA[["photo","sign","remarks"]]=""
         remove_point=lambda input_str: input_str.split(".")[0]
         data_formA["Bank A/c Number"]=data_formA["Bank A/c Number"].apply(str).apply(remove_point)

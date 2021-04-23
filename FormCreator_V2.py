@@ -12,7 +12,8 @@ import pandas as pd
 import numpy as np
 import datetime
 import logging
-
+from pywintypes import com_error
+    
 master = Tk()
 master.title("Form Creator")
 master.minsize(640, 400)
@@ -37,12 +38,9 @@ logging.basicConfig(filename=log_filename, level=logging.INFO)
 
 
 def create_pdf(folderlocation, file_name, excel):
-
-    from pywintypes import com_error
     excel_filename = file_name
     pdf_filename = file_name.split('.')[0]+'.pdf'
     # Path to original excel file
-    print(excel_filename)
     WB_PATH = os.path.join(folderlocation, excel_filename)
     # PDF path when saving
     folderlocation_pdf = folderlocation.replace("Registers", "Registers_pdf")
@@ -53,28 +51,28 @@ def create_pdf(folderlocation, file_name, excel):
 
     logging.info(WB_PATH)
     logging.info(PATH_TO_PDF)
-    # try:
     logging.info('Start conversion to PDF')
     # Open
     print(WB_PATH)
-    wb = excel.Workbooks.Open(WB_PATH)
-    sheetnumbers = len(pd.ExcelFile(WB_PATH).sheet_names)
-
-    # # Specify the sheet you want to save by index. 1 is the first (leftmost) sheet.
-    ws_index_list = list(range(1, sheetnumbers+1))
-    wb.WorkSheets(ws_index_list).Select()
-    # # Save
-    # wb.ActiveSheet.ExportAsFixedFormat(0, PATH_TO_PDF)
-    wb.SaveAs(PATH_TO_PDF, FileFormat=57)
-
-    # except com_error as e:
-    # logging.info('failed.')
-    # else:
-    # logging.info('Succeeded.')
-    # finally:
-    wb.Close()
-    import time
-    # time.sleep(0.5)
+    master.update()
+    try:
+        wb = excel.Workbooks.Open(WB_PATH)
+        sheetnumbers = len(pd.ExcelFile(WB_PATH).sheet_names)
+        master.update()
+        ws_index_list = list(range(1, sheetnumbers+1))
+        master.update()
+        wb.WorkSheets(ws_index_list).Select()
+        master.update()
+        wb.ActiveSheet.ExportAsFixedFormat(0, PATH_TO_PDF)
+        master.update()
+    except com_error as e:
+        logging.info('failed. {}'.format(e))
+    except Exception as e:
+        logging.info('failed. {}'.format(e))
+    finally:
+        wb.Close(False)
+        del wb
+        master.update()
 
 
 State_Process = {'haryana': Haryana,
@@ -397,10 +395,11 @@ def Type1(inputfolder, month, year):
         # for all state employees(PE+contractor)
         statedata = CDE_Data.loc[CDE_Data['State_or_Central'] == 'State'].copy(
             deep=True)
-
+        print(statedata)
         statedata.State = statedata.State.str.lower()
         CDE_States = list(statedata['State'].unique())
         implemented_state_list = list(State_Process.keys())
+
         if Testing == True:
             print("In testing Mode")
             CDE_States = implemented_state_list
@@ -431,7 +430,7 @@ def Type1(inputfolder, month, year):
                     value='')
                 inputdata['Contractor_Address'] = inputdata['Contractor_Address'].fillna(
                     value='')
-                inputdata.fillna(value=0, inplace=True)
+                inputdata.fillna(value="", inplace=True)
                 if UL.strip()[-1] == '.':
                     ULis = UL.strip()[0:-1]
                 else:
@@ -463,14 +462,14 @@ def Type1(inputfolder, month, year):
                 progress.update()
                 master.update()
         # for contractors form
-        if Testing:
+        if Testing ==True:
             CDE_Data['State_or_Central'] = 'State'
         contractdata = CDE_Data.loc[(CDE_Data['State_or_Central'] == 'State') & (
             CDE_Data['PE_or_contract'] == 'Contract')].copy(deep=True)
         contractor_units = list(
             (contractdata['Unit']+';'+contractdata['Location']).unique())
-        print(contractdata['Unit'],contractdata['Location'])
-        
+        print(contractdata['Unit'], contractdata['Location'])
+
         report.configure(text="Creating contractor Forms")
         master.update()
 
@@ -479,7 +478,7 @@ def Type1(inputfolder, month, year):
                 contractdata['Location'] == UL.split(';')[1])].copy(deep=True)
             contractor_name = inputdata['Contractor_name'].unique()[0]
             contractor_address = inputdata['Contractor_Address'].unique()[0]
-            inputdata.fillna(value=0, inplace=True)
+            inputdata.fillna(value="", inplace=True)
             if UL.strip()[-1] == '.':
                 ULis = UL.strip()[0:-1]
             else:
@@ -505,13 +504,13 @@ def Type1(inputfolder, month, year):
         # for central form
         if Testing:
             CDE_Data['State_or_Central'] = 'Central'
-        
+
         centraldata = CDE_Data.loc[CDE_Data['State_or_Central'] == 'Central'].copy(
             deep=True)
         central_units = list(
             (centraldata['Unit']+','+centraldata['Location']).unique())
         print(central_units)
-        print(centraldata['Unit'],centraldata['Location'])
+        print(centraldata['Unit'], centraldata['Location'])
         report.configure(text="Creating central Forms")
         master.update()
 
@@ -520,9 +519,9 @@ def Type1(inputfolder, month, year):
                 centraldata['Location'] == UL.split(',')[1])].copy(deep=True)
             contractor_name = inputdata['Contractor_name'].unique()[0]
             contractor_address = inputdata['Contractor_Address'].unique()[0]
-            
+
             inpath = os.path.join(inputfolder, Register_folder, 'Central', UL)
-            inputdata.fillna(value=0, inplace=True)
+            inputdata.fillna(value="", inplace=True)
             if os.path.exists(inpath):
                 logging.info('running contractor process')
             else:
@@ -550,14 +549,27 @@ def calculate_num_loop(CDE_Data):
     implemented_state_list = [x.lower() for x in State_Process.keys()]
     if Testing == True:
         CDE_States = implemented_state_list
+    statedata = CDE_Data.loc[CDE_Data['State_or_Central'] == 'State'].copy(
+        deep=True)
+
+    statedata.State = statedata.State.str.lower()
+    CDE_States = list(statedata['State'].unique())
+    implemented_state_list = list(State_Process.keys())
+
+    if Testing == True:
+        CDE_States = implemented_state_list
+
     for state in CDE_States:
         state = state.lower()
         if Testing == True:
             statedata.State = state
         if state not in implemented_state_list:
             continue
-        count += len(list((statedata[statedata.State == state]['Unit'] +
-                           ';'+statedata[statedata.State == state]['Location']).unique()))
+
+        unit_with_location = list(
+            (statedata[statedata.State == state]['Unit']+';'+statedata[statedata.State == state]['Location']).unique())
+
+        count+=len(unit_with_location)
         report.configure(
             text="Calculating...Wait to start(This may time is files are too big) Num loops found {}".format(count))
         master.update()
@@ -689,10 +701,9 @@ def generateforms(comptype, mn, yr):
             logging.info('done')
 
 
-def convert_forms_to_pdf():
-
+def get_count():
     getfolder = foldernamelabel.cget("text")
-
+    count = 0
     if getfolder == "":
         report.configure(text="Please select company folder")
     else:
@@ -701,18 +712,54 @@ def convert_forms_to_pdf():
             for root, dirs, files in os.walk(registerfolder):
                 for fileis in files:
                     if fileis.endswith(".xlsx"):
-                        try:
-                            create_pdf(root, fileis)
-                        except Exception as e:
-                            logging.info('Failed pdf Conversion')
-                            report.configure(text="Failed")
-                        else:
-                            logging.info('Completed pdf Conversion')
-                            report.configure(text="Completed")
-                        finally:
-                            logging.info('done')
+                        count += 1
+    return count
+
+
+def convert_forms_to_pdf():
+    progress["maximum"] = get_count()
+    progress["value"] = 0
+    getfolder = foldernamelabel.cget("text")
+    import win32com.client
+    excel = win32com.client.Dispatch("Excel.Application")
+    excel.Visible = False
+    report.configure(text="creating pdfs")
+    master.update()
+    try:
+        if getfolder == "":
+            report.configure(text="Please select company folder")
         else:
-            report.configure(text="Registers not available")
+            registerfolder = os.path.join(Path(getfolder), Register_folder)
+            if os.path.exists(registerfolder):
+                for root, dirs, files in os.walk(registerfolder):
+                    for fileis in files:
+                        fileis = fileis.strip("~$")
+                        if fileis.endswith(".xlsx"):
+                            try:
+                                create_pdf(root, fileis, excel)
+                                progress["value"] += 1
+                                percent.configure(
+                                    text=str(progress["value"]*100//progress["maximum"])+"%")
+                                master.update()
+                            except Exception as e:
+                                logging.info('Failed pdf Conversion')
+                                report.configure(text="Failed")
+                            else:
+                                logging.info('Completed pdf Conversion')
+                            finally:
+                                logging.info('done')
+                report.configure(text="Completed")
+            else:
+                report.configure(text="Registers not available")
+    except:
+        logging.info('Failed pdf Conversion')
+        report.configure(text="Failed")
+    finally:
+        excel.quit()
+        excel.Application.Quit()
+        del excel
+
+    master.update()
 
 
 generateforms = partial(generateforms, Typeis, month, year)

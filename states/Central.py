@@ -35,7 +35,8 @@ def Central_Process(data, contractor_name, contractor_address, filelocation, mon
     # Comment this line if in future leave file data is needed in any of functions below
     data = data.drop_duplicates(subset='Employee Code', keep="last")
     templates = forms_template.Templates(
-        to_read=Centralfilespath, to_write=filelocation, month=month, year=year, report=report, master=master)
+            to_read=Centralfilespath, to_write=filelocation, month=month,
+            year=year, report=report, master=master)
 
     def Form_C():
 
@@ -81,7 +82,7 @@ def Central_Process(data, contractor_name, contractor_address, filelocation, mon
                     "Date of payment_fine_imposed"]] = "---"
 
         data_formI["remarks"] = ""
-        formI_data = templates.get_data(data_formI,columns)
+        formI_data = templates.get_data(data_formI, columns)
         data_once_per_sheet = {'A4': str(data_formI['UnitName'].unique()[0])}
 
         templates.create_basic_form(filename='Form I register of Fine.xlsx',
@@ -239,3 +240,5 @@ def Central_Process(data, contractor_name, contractor_address, filelocation, mon
         report.configure(text="Failed: File {} not found".format(e))
         master.update()
         raise FileNotFoundError
+    finally:
+        del templates

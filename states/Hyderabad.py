@@ -16,6 +16,11 @@ import logging
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
 
+from states.utils import forms_template
+
+create_border = forms_template.Helper_functions.create_border
+
+
 def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     
     logging.info("Hyderabad form creation")
@@ -58,28 +63,16 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
 
         logging.info('rows taken out from data')
         row_num=0
+        r_idx=0
+        c_idx=0
         for r_idx, row in enumerate(rows, 8):
             row_num+=1
             for c_idx, value in enumerate(row, 1):
                 formXsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
                 formXsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                border_sides = Side(style='thin')
-                formXsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')       
-                border_sides_thin = Side(style='thin')
-                if len(row)==c_idx and row_num==len(data_formX):
-                    formXsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                    formXsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formXsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formXsheet.row_dimensions[r_idx].height = 20
-                elif row_num==len(data_formX):
-                    formXsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formXsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formXsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formXsheet.row_dimensions[r_idx].height = 20
+        
+        create_border(formXsheet, last_row=r_idx, last_column=c_idx, start_row=8, start_column=1)
 
         formXsheet['A5']=formXsheet['A5'].value+" : "+str(data_formX['UnitName'].unique()[0])
         formXfinalfile = os.path.join(filelocation,'Form X Register of fine.xlsx')
@@ -125,28 +118,17 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
 
         logging.info('rows taken out from data')
         row_num=0
+        r_idx=0
+        c_idx=0
+
         for r_idx, row in enumerate(rows, 9):
             row_num+=1
             for c_idx, value in enumerate(row, 1):
                 formXIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
                 formXIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                border_sides = Side(style='thin')
-                formXIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')       
-                border_sides_thin = Side(style='thin')
-                if len(row)==c_idx and row_num==len(data_formXI):
-                    formXIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                    formXIsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formXIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formXIsheet.row_dimensions[r_idx].height = 20
-                elif row_num==len(data_formXI):
-                    formXIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formXIsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formXIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formXIsheet.row_dimensions[r_idx].height = 20
+        
+        create_border(formXIsheet, last_row=r_idx, last_column=c_idx, start_row=9, start_column=1)
 
         formXIsheet['A5']=formXIsheet['A5'].value+"  :  "+str(data_formXI['UnitName'].unique()[0])
         formXIfinalfile = os.path.join(filelocation,'Form XI register of damage or loss.xlsx')
@@ -185,26 +167,15 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('rows taken out from data')
         border_sides_thick = Side(style='thick')       
         border_sides_thin = Side(style='thin')
+        r_idx=0
+        c_idx=0
         for r_idx, row in enumerate(rows, 7):
             for c_idx, value in enumerate(row, 1):
                 formXIIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Bell MT', size =10)
                 formXIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                if len(row)==c_idx and int(row[0])==len(data_formXII):
-                       formXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                       formXIIsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formXIIsheet.row_dimensions[r_idx].height = 20
-                elif int(row[0])==len(data_formXII):
-                    formXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formXIIsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formXIIsheet.row_dimensions[r_idx].height = 20
-                #border_sides = Side(style='thin')
-                #formIVsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-
+                
+        create_border(formXIIsheet, last_row=r_idx, last_column=c_idx, start_row=7, start_column=1)
         #formIVsheet['A4']=formIVsheet['A4'].value+" : "+data_formIV['Unit'].unique()[0]
         formXIIsheet['A4']=formXIIsheet['A4'].value+str(data_formXII['UnitName'].unique()[0])
         # formXIIsheet['A7']="PERIOD "+str(month)+" "+str(year)
@@ -269,30 +240,17 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
 
         logging.info('rows taken out from data')
         row_num=0
+        r_idx=0
+        c_idx=0
+
         for r_idx, row in enumerate(rows, 11):
             row_num+=1
             for c_idx, value in enumerate(row, 1):
                 formXXIIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXXIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
                 formXXIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                border_sides = Side(style='thin')
-                formXXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')       
-                border_sides_thin = Side(style='thin')
-                if len(row)==c_idx and row_num==len(data_formXXII):
-                    formXXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                    formXXIIsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formXXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formXXIIsheet.row_dimensions[r_idx].height = 20
-                elif row_num==len(data_formXXII):
-                    formXXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formXXIIsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formXXIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formXXIIsheet.row_dimensions[r_idx].height = 20
-
         
+        create_border(formXXIIsheet, last_row=r_idx, last_column=c_idx, start_row=11, start_column=1)        
         #formXXIIsheet['AE4']=formXXIIsheet['AE4'].value+"   "+str(data_formP['Registration_no'].unique()[0])
         
         formXXIIsheet['A4']=formXXIIsheet['A4'].value+str(data_formXXII['UnitName'].unique()[0])
@@ -347,6 +305,9 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
         logging.info('rows taken out from data')
         
         row_num=0
+        r_idx=0
+        c_idx=0
+
         for r_idx, row in enumerate(rows, 10):
             row_num+=1
             for c_idx, value in enumerate(row, 1):
@@ -354,25 +315,9 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
                 formXXIIIsheet.cell(row=r_idx, column=c_idx, value=value)
                 formXXIIIsheet.cell(row=r_idx, column=c_idx).font =Font(name ='Verdana', size =8)
                 formXXIIIsheet.cell(row=r_idx, column=c_idx).alignment = Alignment(horizontal='center', vertical='center', wrap_text = True)
-                border_sides = Side(style='thin')
-                formXXIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides, bottom=border_sides)
-                border_sides_thick = Side(style='thick')       
-                border_sides_thin = Side(style='thin')
-                if len(row)==c_idx and row_num==len(data_formXXIII):
-                    formXXIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thick)
-                    formXXIIIsheet.row_dimensions[r_idx].height = 20
-                elif len(row)==c_idx:
-                    formXXIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thick, bottom=border_sides_thin) 
-                    formXXIIIsheet.row_dimensions[r_idx].height = 20
-                elif row_num==len(data_formXXIII):
-                    formXXIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thick)
-                    formXXIIIsheet.row_dimensions[r_idx].height = 20
-                else:
-                    formXXIIIsheet.cell(row=r_idx, column=c_idx).border = Border(outline= True, right=border_sides_thin, bottom=border_sides_thin)
-                    formXXIIIsheet.row_dimensions[r_idx].height = 20
         
+        create_border(formXXIIIsheet, last_row=r_idx, last_column=c_idx, start_row=10, start_column=1)
 
-        
         # if data["PE_or_contract"].unique()[0].upper()=="PE":
         formXXIIIsheet['A5']=formXXIIIsheet['A5'].value+" "+str(data_formXXIII['UnitName'].unique()[0])
         formXXIIIsheet['A6']=formXXIIIsheet['A6'].value+" "+str(data_formXXIII['Address'].unique()[0])
@@ -484,11 +429,6 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
                             row_offset[code]=initial_offset
                             added[target.title]=0
                         target['A4']="Name and address of the Establishment:- "+" "+str(data_formXXV['UnitName'].unique()[0])+", "+str(data_formXXV['Address'].unique()[0])
-                        
-                        # if data_formXII['PE_or_contract'].unique()[0]=="Contractor":
-                        #     target["A5"]="Name of Employer and address:-  "+str(data_formXII['UnitName'].unique()[0])
-                        # else:
-                        #     target["A5"]="Name of Employer and address:- ---"
                         target['A6']="Name of Employee : "+str(name)
                         added[target.title]=0
                     elif c_idx==2:
@@ -506,8 +446,6 @@ def Hyderabad(data,contractor_name,contractor_address,filelocation,month,year,re
                         is_abs_num+=1
                         end=columns[c_idx-1]
                     elif is_abs_num:
-                        #target.cell(row=row_index+13, column=1+column_offset, value=is_abs_num)
-                     #   print("write",row_index,row_offset,row_index+row_offset[target.title])
                         start_date=start.split("\n")[1].replace("/","-")+"-"+str(year)
                         end_date=end.split("\n")[1].replace("/","-")+"-"+str(year)
                         form_write[absent_label](row_index+row_offset[target.title],target,start_date,end_date,is_abs_num,name)

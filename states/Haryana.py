@@ -16,6 +16,9 @@ import logging
 from collections import Counter
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font, Border, Alignment, Side, PatternFill, numbers
+from states.utils import forms_template
+
+create_border = forms_template.Helper_functions.create_border
 
 def Haryana(data,contractor_name,contractor_address,filelocation,month,year,report,master):
     Haryanafilespath = os.path.join(Statefolder,'Haryana')

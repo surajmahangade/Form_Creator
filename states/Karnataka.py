@@ -228,3 +228,5 @@ def Karnataka(data, contractor_name, contractor_address, filelocation, month, ye
         report.configure(text="Failed: File {} not found".format(e))
         master.update()
         raise FileNotFoundError
+    finally:
+        del templates

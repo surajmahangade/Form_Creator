@@ -13,12 +13,13 @@ import numpy as np
 import pandas as pd
 from dateutil import parser
 from openpyxl import load_workbook
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side, numbers
+from openpyxl.styles import Alignment, Border, Font, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 
 from states import (Register_folder, Statefolder, logging, monthdict,
                     read_min_wages_file)
 from states.utils import forms_template
+
 
 employee_name_column = "Employee Name"
 fathers_name_column = "Father's Name"
@@ -755,3 +756,5 @@ def Maharashtra(data, contractor_name, contractor_address, filelocation, month, 
         report.configure(text="Failed: File {} not found".format(e))
         master.update()
         raise FileNotFoundError
+    finally:
+        del templates
